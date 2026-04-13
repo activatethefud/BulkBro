@@ -1,0 +1,13 @@
+*.txt
+*.pickle
+__pycache__/
+lib*
+share/
+bin/
+*.prof
+*.cfg
+plans/*
+fig.png
+*~
+*#*#*
+\.*#*

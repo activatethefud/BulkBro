@@ -1,0 +1,319 @@
+from ingredient import *
+from meal import Meal
+
+meals = [
+
+        # Meal("3 jaja", [
+        #         ingredients["jaja 10kom"]*3
+        # ], ["breakfast","dinner"]),
+
+        # Meal("zuzu", [
+        #         ingredients["zuzu 1kg svetofor"]*100
+        # ], ["breakfast"]),
+
+        # Meal("palenta", [
+        #         ingredients["palenta svetofor"]*100
+        # ], ["breakfast","dinner"]),
+
+        # Meal("pasulj", [
+        #         ingredients["pasulj beli svetofor 1kg"]*240,
+        #         ingredients["crni luk svetofor"]*30,
+        # ], ['lunch']),
+
+        # Meal("boranija", [
+        #         ingredients["boranija svetofor 1kg"]*240,
+        #         ingredients["crni luk svetofor"]*30,
+        #         ingredients["carska mesavina"]*120,
+        #         ingredients["pasirani paradajz svetofor"]*80
+        # ], ["lunch"]),
+
+        # Meal("grasak", [
+        #         ingredients["zamrznuti grasak svetofor 1kg"]*240,
+        #         ingredients["crni luk svetofor"]*30,
+        #         ingredients["carska mesavina"]*120,
+        #         ingredients["pasirani paradajz svetofor"]*80
+        # ], ["lunch"]),
+
+        # Meal("tofu,pecurke,kinezi",[
+        #         ingredients["tofu 250g pak"]**0.5,
+        #         ingredients['pecurke']*100,
+        #         ingredients["maslinovo ulje"]*13,
+        #         ingredients["kinezi miks"]*200,
+        # ],['lunch','dinner']),
+        
+        # Meal("tofu,kinezi",[
+        #         ingredients["tofu 250g pak"],
+        #         ingredients["maslinovo ulje"]*13,
+        #         ingredients["kinezi miks"]*200,
+        # ],['lunch','dinner']),
+
+
+        Meal("kikiriki i banana",[
+                ingredients['kikiriki']*100,
+                ingredients['banana']*1
+        ], ['breakfast','dinner','snack']),
+        
+        # Meal("kikiriki svetofor",[
+        #         ingredients['kikiriki svetofor']*100
+        # ], ['snack','dinner']),
+
+        Meal("kikiriki", [
+                ingredients["kikiriki"]*100
+        ], ["breakfast","snack"]),
+
+        # Meal("ovsene (urme) svetofor",[
+        #         ingredients['ovsene svetofor 500g']*90,
+        #         ingredients['urme svetofor']*44
+        # ], ['breakfast','dinner']),
+        
+        # Meal("ovsene (urme)",[
+        #         ingredients['ovsene pahuljice']*90,
+        #         ingredients['sojino mleko']*330,
+        #         ingredients['urme']*4
+        # ], ['breakfast','dinner']),
+        
+        
+        Meal('ovsene (banana)',[
+                ingredients['ovsene pahuljice']*90,
+                ingredients['sojino mleko']*330,
+                ingredients['banana']*1,
+        ], ['breakfast','dinner','snack']),
+        
+        # Meal('ovsene (banana & orah)',[
+        #         ingredients['ovsene pahuljice']*90,
+        #         ingredients['sojino mleko']*330,
+        #         ingredients['banana']*1,
+        #         ingredients['orah']*33,
+        # ], ['breakfast','dinner','snack']),
+
+        #Meal("ovsene i urme",[
+        #        ingredients['ovsene pahuljice']*90,
+        #        ingredients['jogurt']*330,
+        #        ingredients['urme']*4
+        #], ['breakfast','dinner']),
+
+        #Meal("ovsene i jogurt",[
+        #        ingredients['ovsene pahuljice']*90,
+        #        ingredients['jogurt']*330
+        #], ['breakfast','snack','dinner']),
+
+        #Meal("ovsene i banana",[
+        #        ingredients['ovsene pahuljice']*90,
+        #        ingredients['jogurt']*330,
+        #        ingredients['banana']
+        #], ['breakfast','dinner','banana']),
+
+        Meal("jabuka",[
+                ingredients['jabuka']
+        ], ['snack','dinner']),
+
+        #Meal("kikiriki i jogurt",[
+        #        ingredients['kikiriki']*100,
+        #        ingredients['jogurt']*330
+        #], ['breakfast','dinner','snack']),
+
+        Meal("banana",[
+               ingredients['banana']
+        ], ['snack','dinner','eye']),
+
+        # Meal("tofu pirinac", [
+        #         ingredients['tofu 250g pak']**0.5,
+        #         ingredients['pirinac 1kg']*70,
+        #         ingredients["crni luk kom"]
+        # ], ['breakfast','lunch','dinner']),
+ 
+        #Meal("kuglice", [
+        #        ingredients['urme']*10,
+        #        ingredients['badem']*100
+        #], ['snack','dinner']),
+        
+        # Meal("badem svetofor",[
+        #         ingredients['badem svetofor']*50
+        # ], ['dinner','snack']),
+
+        Meal("badem",[
+                ingredients['badem']*50
+        ], ['dinner','snack']),
+
+
+        Meal("dvopek i humus", [
+            ingredients["humus"]**0.33333,
+            ingredients["dvopek"]**0.5,
+        ],['breakfast','dinner','snack']),
+
+        Meal("dvopek i avokado", [
+                ingredients["avokado"],
+                ingredients["dvopek"]**0.5,
+        ],['breakfast','dinner','snack']),
+
+        #Meal("kinoa kinezi", [
+        #    ingredients["kinoa"]*50,
+        #    ingredients["kinezi miks"]*150,
+        #    ingredients["kikiriki"]*20,
+        #    ingredients["maslinovo ulje"]*13
+        #], ['lunch','dinner']),
+        
+        # Meal("kinoa pecurke miks",[
+        #        ingredients['kinoa']*50,
+        #        ingredients['smrznuti miks']*100,
+        #        ingredients['pecurke']*50,
+        #        ingredients["maslinovo ulje"]*13
+        # ], ['lunch','dinner']),
+
+
+        Meal('heidi cokolada',[
+                ingredients['heidi']
+        ], ['snack','dinner']),
+
+        Meal('suncokret',[
+               ingredients['suncokret']*50
+        ], ['dinner','snack']),
+
+        # Meal("kinoa kinezi", [
+        #         ingredients["kinoa"]*50,
+        #         ingredients["kinezi miks"]*150,
+        #         ingredients["kikiriki"]*20,
+        #         ingredients["maslinovo ulje"]*13
+        # ], ['lunch','dinner']),
+
+        # Meal("kinoa pecurke miks",[
+        #         ingredients['kinoa']*50,
+        #         ingredients['smrznuti miks']*100,
+        #         ingredients['pecurke']*50,
+        #         ingredients["maslinovo ulje"]*13
+        # ], ['lunch','dinner']),
+
+        # Meal("krompir luk i maslinovo ulje",[
+        #         ingredients['krompir svetofor']*450,
+        #         ingredients['crni luk svetofor']*(128*2),
+        #         ingredients["maslinovo ulje"]*13
+        # ], ['dinner']),
+
+        Meal("krompir luk i maslinovo ulje",[
+                ingredients['krompir']*450,
+                ingredients['crni luk kom'],
+                ingredients["maslinovo ulje"]*13
+        ], ['dinner']),
+ 
+
+        # Meal("krompir i miks",[
+        #         ingredients['krompir svetofor']*450,
+        #         ingredients['carska mesavina']*300,
+        #         ingredients["maslinovo ulje"]*13
+        # ], ['lunch','dinner']),
+
+
+        # Meal('batat 2 kom i maslinovo ulje', [
+        #         ingredients['batat kom']*2,
+        #         ingredients["maslinovo ulje"]*13,
+        #         ingredients['crni luk kom']**0.5
+        # ], ['healthy']),
+        
+        # Meal('avokado i pecurke', [
+        #         ingredients['avokado'],
+        #         ingredients['pecurke']*200,
+        #         ingredients["crni luk kom"],
+        #         ingredients["maslinovo ulje"]*13
+        # ], ['healthy']),
+
+        #Meal("protein sladoled", [
+        #        ingredients['soypro']*28,
+        #        ingredients['sojino mleko']*200,
+        #        ingredients['banana']
+        #], ['breakfast','dinner','snack'])
+
+        #Meal("protein sejk", [
+        #        ingredients["soypro"]*28,
+        #        ingredients["sojino mleko"]*300
+        #], ["breakfast","snack","dinner"])
+
+        Meal("dvopek, humus i rukola", [
+                ingredients['dvopek']*55,
+                ingredients['humus']*50,
+                ingredients['rukola']*15
+        ], ["breakfast","dinner"]),
+
+
+        # Meal("sardina", [
+        #         ingredients["sardina"]
+        # ], ["breakfast","dinner"])
+        Meal("kokice", [
+                ingredients["kokice"]*60
+        ], ["snack"]),
+
+        # Meal("dvopek i sardina", [
+        #         ingredients["sardina"],
+        #         ingredients["crni luk kom"]**0.5,
+        #         ingredients["dvopek"]*(110/6*4)
+        # ], ["breakfast","dinner"]),
+        # Meal("pirinac i sardina", [
+        #         ingredients['pirinac 1kg']*70,
+        #         ingredients["sardina"]
+        # ], ["breakfast","dinner"]),
+        Meal("PB&J i fitnes",[
+                ingredients["kikiriki puter dm"]*50,
+                ingredients["dzem dm"]*50,
+                ingredients["fitnes hleb"]*79
+        ],["snack","breakfast"]),
+        Meal("PB banana i fitnes",[
+                ingredients["fitnes hleb"]*79,
+                ingredients["banana"]**0.5,
+                ingredients["kikiriki puter dm"]*50
+        ],["snack","dinner"]),
+        Meal("tofu pasta",[
+                ingredients["tofu 250g pak"]**0.5,
+                ingredients['integralna pasta']*100,
+                ingredients["crni luk kom"],
+                ingredients['pasirani paradajz']**0.5
+        ],['lunch','dinner','breakfast']),
+
+        # Meal("sardina pasta", [
+        #         ingredients["pasta 500g"]*90,
+        #         ingredients["sardina"],
+        #         ingredients["maslinovo ulje"]*13,
+        #         ingredients["crni luk kom"],
+        #         ingredients['pasirani paradajz']**0.5
+        # ], ["lunch","dinner"]),
+
+        Meal("tofu pasta soc.",[
+                ingredients["tofu 250g pak"]**0.5,
+                ingredients['socivo pasta']*100,
+                ingredients["crni luk kom"],
+                ingredients['pasirani paradajz']**0.5
+        ],['lunch','dinner','breakfast']),
+
+        # Meal("sardina pasta soc.", [
+        #         ingredients["socivo pasta"]*90,
+        #         ingredients["sardina"],
+        #         ingredients["maslinovo ulje"]*13,
+        #         ingredients["crni luk kom"],
+        #         ingredients['pasirani paradajz']**0.5
+        # ], ["lunch","dinner"]),
+
+Meal("rajs kejk", [
+        ingredients["rajs kejk"]**0.5
+], ["snack"])
+
+
+
+]
+
+meals_dict = { x.name : x for x in meals }
+
+#reduce_factor = 0.6
+#for idx, meal in enumerate(meals):
+#        meals[idx] = meal.portion(reduce_factor)
+
+# Assert unique meal names
+####################
+check = set()
+for meal in meals:
+        try:
+                assert meal.name not in check
+        except AssertionError as e:
+                print(meal.name)
+                raise e
+    
+        check.add(meal.name)
+
+####################
