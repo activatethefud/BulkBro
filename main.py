@@ -4,7 +4,55 @@ import argparse
 import pickle
 import os
 
+import numpy as np
 from simulation import simulate_plan, generate_shopping_list
+
+
+def print_plan_summary(solution, targets):
+    """Print a formatted summary of the optimized plan.
+    
+    Parameters
+    ----------
+    solution : list
+        List of Day objects
+    targets : dict
+        Dict with keys: days, meals, kcal, prot, ratio
+    """
+    sim = simulate_plan(solution)
+    nutri = sim['nutri']
+    
+    achieved_kcal = nutri.kcal / targets['kcal'] * 100 if targets['kcal'] > 0 else 0
+    achieved_prot = nutri.prot / targets['prot'] * 100 if targets['prot'] > 0 else 0
+    achieved_ratio = nutri.carb / nutri.fat if nutri.fat > 0 else 0
+    
+    day_kcals = [d.day_nutri().kcal for d in solution]
+    day_prots = [d.day_nutri().prot for d in solution]
+    var_kcal = np.std(day_kcals) / np.mean(day_kcals) * 100 if day_kcals else 0
+    var_prot = np.std(day_prots) / np.mean(day_prots) * 100 if day_prots else 0
+    
+    var_desc = "good" if var_kcal < 10 else "moderate" if var_kcal < 20 else "poor"
+    
+    print("=" * 80)
+    print("OPTIMIZATION COMPLETE".center(80))
+    print("=" * 80)
+    print(f"Targets:     {targets['days']} days, {targets['meals']} meals/day, "
+          f"{targets['kcal']}kcal, {targets['prot']}g prot, {targets['ratio']:.1f} c/f")
+    print("-" * 80)
+    print(f"Achieved:    {nutri.kcal:.0f}kcal ({achieved_kcal:.0f}%)   "
+          f"{nutri.prot:.0f}g prot ({achieved_prot:.0f}%)   "
+          f"{achieved_ratio:.1f} c/f ratio")
+    print(f"Total Price: {sim['price']:.0f} RSD")
+    print(f"Variance:    kcal ±{var_kcal:.0f}%, prot ±{var_prot:.0f}%  ({var_desc})")
+    print("=" * 80)
+    
+    for i, day in enumerate(solution[:3]):
+        dn = day.day_nutri()
+        print(f"DAY {i+1}  {day}")
+        print(f"      {dn.kcal:.0f}kcal | {dn.carb:.0f}c | {dn.prot:.0f}p | {dn.fat:.0f}f")
+    
+    if len(solution) > 3:
+        print(f"... ({len(solution) - 3} more days)")
+    print("=" * 80)
 
 
 def main():
@@ -85,6 +133,13 @@ def do_run(args):
     if solution:
         print(f"\nOptimization complete!")
         print(f"Best fitness: {optimizer.best_fitness:.4f}")
+        print_plan_summary(solution, {
+            'days': args.days,
+            'meals': args.meals,
+            'kcal': args.kcal,
+            'prot': args.protein,
+            'ratio': args.ratio
+        })
         filename = args.output
         optimizer.save_plan(filename, solution)
         print(f"\nSolution saved to plans/{filename}")
@@ -161,6 +216,13 @@ def do_run_interactive():
     if solution:
         print(f"\nOptimization complete!")
         print(f"Best fitness: {optimizer.best_fitness:.4f}")
+        print_plan_summary(solution, {
+            'days': plan_len,
+            'meals': goal_mealcount,
+            'kcal': goal_kcal,
+            'prot': goal_prot,
+            'ratio': goal_ratio
+        })
 
         save = input("Save plan? (y/n): ").strip().lower()
         if save == 'y':

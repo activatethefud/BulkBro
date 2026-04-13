@@ -71,6 +71,17 @@ Category string: 'low', 'moderate', or 'high'
 
 ## Module: main
 
+### Function: print_plan_summary()
+
+Print a formatted summary of the optimized plan.
+
+**Parameters**
+----------
+solution : list
+    List of Day objects List of Day objects targets : dict
+targets : dict
+    Dict with keys: days, meals, kcal, prot, ratio
+
 ### Function: main()
 
 ### Function: do_run()
