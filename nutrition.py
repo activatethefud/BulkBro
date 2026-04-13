@@ -5,6 +5,7 @@ with arithmetic operations and comparison methods.
 """
 
 import math
+import config
 
 
 class Nutrition:
@@ -221,7 +222,7 @@ class Nutrition:
         first = self
         second = other
         kcal_diff = abs(first.kcal - second.kcal)
-        kcal_diff_signal = kcal_diff > 65
+        kcal_diff_signal = kcal_diff > config.DIST_KCAL_THRESHOLD
         return math.sqrt(
             (not kcal_diff_signal) * kcal_diff +
             kcal_diff_signal * kcal_diff**2 +

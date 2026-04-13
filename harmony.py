@@ -12,6 +12,7 @@ import threading
 import os
 
 import simulation
+import config
 from day import Day
 from meals import meals, ingredients_in_meals, ingredients_in_meals_list, meals_complement
 
@@ -19,18 +20,26 @@ from meals import meals, ingredients_in_meals, ingredients_in_meals_list, meals_
 class HarmonyOptimizer:
     """Harmony search optimizer for meal planning with improved mathematics."""
     
-    def __init__(self, plan_len=3, goal_mealcount=3, goal_kcal=2000, goal_prot=100, goal_ratio=2.0, goal_price=-1, goal_waste=-1, goal_diversity=-1, pop_size=200):
+    def __init__(self, plan_len=config.DEFAULT_DAYS, goal_mealcount=config.DEFAULT_MEALS_PER_DAY, goal_kcal=config.DEFAULT_KCAL, goal_prot=config.DEFAULT_PROTEIN, goal_ratio=config.DEFAULT_RATIO, goal_price=-1, goal_waste=-1, goal_diversity=-1, pop_size=config.DEFAULT_POP_SIZE):
         """Initialize optimizer.
         
-        Args:
-            plan_len: Number of days to plan
-            goal_mealcount: Target meals per day (-1 to ignore)
-            goal_kcal: Target daily calories (-1 to ignore)
-            goal_prot: Target daily protein (g) (-1 to ignore)
-            goal_ratio: Target carb/fat ratio (-1 to ignore)
-            pop_size: Population size for harmony memory
+        Parameters
+        ----------
+        plan_len : int
+            Number of days to plan
+        goal_mealcount : int
+            Target meals per day (-1 to ignore)
+        goal_kcal : int
+            Target daily calories (-1 to ignore)
+        goal_prot : int
+            Target daily protein (g) (-1 to ignore)
+        goal_ratio : float
+            Target carb/fat ratio (-1 to ignore)
+        pop_size : int
+            Population size for harmony memory
         
-        Note: Use -1 for any target to skip scoring for that criterion.
+        Note:
+            Use -1 for any target to skip scoring for that criterion.
         """
         self.plan_len = plan_len
         self.goal_mealcount = goal_mealcount
@@ -79,13 +88,13 @@ class HarmonyOptimizer:
             carbfat_kcals / (target_ratio + 2) / 4
         ]
         
-        # Algorithm parameters (improved)
-        self.HMCR = 0.90  # Lower = more exploration initially
-        self.HMCR_min = 0.70
-        self.HMCR_max = 0.95
-        self.base_mutation_rate = 0.15  # Higher base for more exploration
+        # Algorithm parameters (from config)
+        self.HMCR = config.HMCR
+        self.HMCR_min = config.HMCR_MIN
+        self.HMCR_max = config.HMCR_MAX
+        self.base_mutation_rate = config.MUTATION_RATE
         self.mutation_rate = self.base_mutation_rate
-        self.elite_ratio = 0.10  # Keep top 10%
+        self.elite_ratio = config.ELITE_RATIO
         
         # Caches and state
         self.fitness_cache = {}
@@ -101,7 +110,7 @@ class HarmonyOptimizer:
         self.iteration = 0
         
         # Constraints (soft)
-        self.tolerance = 0.15  # 15% tolerance = no penalty if within 85%-115%
+        self.tolerance = config.TOLERANCE
     
     def _soft_constraint_penalty(self, actual, target, penalty_multiplier=5.0):
         """Apply soft constraint penalty if beyond tolerance.
@@ -500,7 +509,7 @@ class HarmonyOptimizer:
                         
                         # Increase mutation on plateau
                         if self.plateau_counter > 3:
-                            self.mutation_rate = min(0.3, self.mutation_rate * 1.2)
+                            self.mutation_rate = min(config.MUTATION_MAX, self.mutation_rate * 1.2)
                     else:
                         self.plateau_counter = 0
                         no_improvement_count = 0

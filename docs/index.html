@@ -63,7 +63,7 @@
             
             <div class="stats">
                 <div class="stat">
-                    <div class="stat-value">13</div>
+                    <div class="stat-value">14</div>
                     <div class="stat-label">Python Files</div>
                 </div>
                 <div class="stat">
@@ -79,6 +79,9 @@
         
         <section id="api" class="section">
             <h2>API Reference</h2>
+<div class="module" id="config">
+<h3>Module: config</h3>
+</div>
 <div class="module" id="day">
 <h3>Module: day</h3>
 <div class="class">
@@ -128,7 +131,7 @@
 <h4>HarmonyOptimizer</h4>
 <p class="docstring">Harmony search optimizer for meal planning with improved mathematics.</p>
 <div class="function"><h5>__init__()</h5>
-<p class="docstring">Initialize optimizer. Args: plan_len: Number of days to plan goal_mealcount: Target meals per day (-1 to ignore) goal_kcal: Target daily calories (-1 to ignore) goal_prot: Target daily protein (g) (-1 to ignore) goal_ratio: Target carb/fat ratio (-1 to ignore) pop_size: Population size for harmony memory Note: Use -1 for any target to skip scoring for that criterion.</p>
+<p class="docstring">Initialize optimizer.</p>
 </div>
 <div class="function"><h5>_soft_constraint_penalty()</h5>
 <p class="docstring">Apply soft constraint penalty if beyond tolerance.</p>
@@ -389,8 +392,12 @@
 </div>
 <div class="function">
 <h4>generate_day()</h4>
-<p class="docstring">Generate a random day meeting nutrition targets. Args: target_nutri: [kcal, carb, prot, fat] target values target_mealcount: desired meals per day (-1 to ignore, uses random 1-5) meals: meal database to choose from</p>
-<div class="returns"><strong>Returns</strong><br><strong>-------</strong><br>Day with reasonable meal count (1-7)</div>
+<p class="docstring">Generate a random day meeting nutrition targets.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>target_nutri</code> : list — [kcal, carb, prot, fat] target values [kcal, carb, prot, fat] target values target_mealcount : int</li>
+<li><code>target_mealcount</code> : int — Desired meals per day (-1 to ignore, uses random 1-5) Desired meals per day (-1 to ignore, uses random 1-5) meals : list</li>
+<li><code>meals</code> : list — Meal database to choose from Meal database to choose from Day Day Day with reasonable meal count (1-7) Day with reasonable meal count (1-7)</li>
+</ul></div>
 </div>
 <div class="function">
 <h4>shopping_list()</h4>
@@ -489,6 +496,8 @@
 <span class="graph-arrow">→</span>
 <span class="graph-node local">simulation</span>
 <span class="graph-arrow">→</span>
+<span class="graph-node local">config</span>
+<span class="graph-arrow">→</span>
 <span class="graph-node local">day</span>
 <span class="graph-arrow">→</span>
 <span class="graph-node local">meals</span>
@@ -502,6 +511,8 @@
 <span class="graph-node">main</span>
 <span class="graph-arrow">→</span>
 <span class="graph-node local">simulation</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">config</span>
 <span class="graph-arrow">→</span>
 <span class="graph-node local">harmony</span>
 <span class="graph-arrow">→</span>
@@ -535,6 +546,11 @@
 <span class="graph-node local">meal</span>
 </div>
 <div class="graph">
+<span class="graph-node">nutrition</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">config</span>
+</div>
+<div class="graph">
 <span class="graph-node">simulation</span>
 <span class="graph-arrow">→</span>
 <span class="graph-node local">nutrition</span>
@@ -544,6 +560,8 @@
 <span class="graph-node local">ingredient</span>
 <span class="graph-arrow">→</span>
 <span class="graph-node local">meals</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">config</span>
 </div>
 <div class="graph">
 <span class="graph-node">vegan_meals</span>
@@ -557,7 +575,7 @@
     </div>
     
     <footer>
-        <p>Generated: 2026-04-13 10:44</p>
+        <p>Generated: 2026-04-13 11:04</p>
     </footer>
 </body>
 </html>

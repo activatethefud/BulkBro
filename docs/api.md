@@ -1,6 +1,9 @@
 # BulkBro API Reference
 
 
+## Module: config
+
+
 ## Module: day
 
 ### Class: Day
@@ -169,11 +172,16 @@ Dict with 'plan', 'price', 'nutri', 'waste', 'delivery_fees'
 
 ### Function: generate_day()
 
-Generate a random day meeting nutrition targets. Args: target_nutri: [kcal, carb, prot, fat] target values target_mealcount: desired meals per day (-1 to ignore, uses random 1-5) meals: meal database to choose from
+Generate a random day meeting nutrition targets.
 
-**Returns**
--------
-Day with reasonable meal count (1-7)
+**Parameters**
+----------
+target_nutri : list
+    [kcal, carb, prot, fat] target values [kcal, carb, prot, fat] target values target_mealcount : int
+target_mealcount : int
+    Desired meals per day (-1 to ignore, uses random 1-5) Desired meals per day (-1 to ignore, uses random 1-5) meals : list
+meals : list
+    Meal database to choose from Meal database to choose from Day Day Day with reasonable meal count (1-7) Day with reasonable meal count (1-7)
 
 ### Function: shopping_list()
 

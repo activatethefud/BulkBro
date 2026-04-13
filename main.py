@@ -6,6 +6,7 @@ import os
 
 import numpy as np
 from simulation import simulate_plan, generate_shopping_list
+import config
 
 
 def print_plan_summary(solution, targets):
@@ -30,29 +31,31 @@ def print_plan_summary(solution, targets):
     var_kcal = np.std(day_kcals) / np.mean(day_kcals) * 100 if day_kcals else 0
     var_prot = np.std(day_prots) / np.mean(day_prots) * 100 if day_prots else 0
     
-    var_desc = "good" if var_kcal < 10 else "moderate" if var_kcal < 20 else "poor"
+    var_desc = ("good" if var_kcal < config.VARIANCE_GOOD 
+                else "moderate" if var_kcal < config.VARIANCE_MODERATE 
+                else "poor")
     
-    print("=" * 80)
-    print("OPTIMIZATION COMPLETE".center(80))
-    print("=" * 80)
+    print("=" * config.PRINT_WIDTH)
+    print("OPTIMIZATION COMPLETE".center(config.PRINT_WIDTH))
+    print("=" * config.PRINT_WIDTH)
     print(f"Targets:     {targets['days']} days, {targets['meals']} meals/day, "
           f"{targets['kcal']}kcal, {targets['prot']}g prot, {targets['ratio']:.1f} c/f")
-    print("-" * 80)
+    print("-" * config.PRINT_WIDTH)
     print(f"Achieved:    {nutri.kcal:.0f}kcal ({achieved_kcal:.0f}%)   "
           f"{nutri.prot:.0f}g prot ({achieved_prot:.0f}%)   "
           f"{achieved_ratio:.1f} c/f ratio")
     print(f"Total Price: {sim['price']:.0f} RSD")
     print(f"Variance:    kcal ±{var_kcal:.0f}%, prot ±{var_prot:.0f}%  ({var_desc})")
-    print("=" * 80)
+    print("=" * config.PRINT_WIDTH)
     
-    for i, day in enumerate(solution[:3]):
+    for i, day in enumerate(solution[:config.DAYS_PREVIEW]):
         dn = day.day_nutri()
         print(f"DAY {i+1}  {day}")
         print(f"      {dn.kcal:.0f}kcal | {dn.carb:.0f}c | {dn.prot:.0f}p | {dn.fat:.0f}f")
     
-    if len(solution) > 3:
-        print(f"... ({len(solution) - 3} more days)")
-    print("=" * 80)
+    if len(solution) > config.DAYS_PREVIEW:
+        print(f"... ({len(solution) - config.DAYS_PREVIEW} more days)")
+    print("=" * config.PRINT_WIDTH)
 
 
 def main():
@@ -65,22 +68,22 @@ def main():
 
     # run subcommand
     run_parser = subparsers.add_parser('run', help='Run optimization')
-    run_parser.add_argument('-d', '--days', type=int, default=3,
-                           help='Number of days to plan (default: 3)')
-    run_parser.add_argument('-m', '--meals', type=int, default=3,
-                          help='Meals per day (-1 to ignore, default: 3)')
-    run_parser.add_argument('-k', '--kcal', type=int, default=2000,
-                          help='Target daily calories (-1 to ignore, default: 2000)')
-    run_parser.add_argument('-p', '--protein', type=int, default=100,
-                          help='Target daily protein in grams (-1 to ignore, default: 100)')
-    run_parser.add_argument('-r', '--ratio', type=float, default=2.0,
-                           help='Target carb/fat ratio (-1 to ignore, default: 2.0)')
-    run_parser.add_argument('-t', '--time-limit', type=int, default=60,
-                          help='Optimization time limit in seconds (default: 60)')
+    run_parser.add_argument('-d', '--days', type=int, default=config.DEFAULT_DAYS,
+                           help=f'Number of days to plan (default: {config.DEFAULT_DAYS})')
+    run_parser.add_argument('-m', '--meals', type=int, default=config.DEFAULT_MEALS_PER_DAY,
+                          help=f'Meals per day (-1 to ignore, default: {config.DEFAULT_MEALS_PER_DAY})')
+    run_parser.add_argument('-k', '--kcal', type=int, default=config.DEFAULT_KCAL,
+                          help=f'Target daily calories (-1 to ignore, default: {config.DEFAULT_KCAL})')
+    run_parser.add_argument('-p', '--protein', type=int, default=config.DEFAULT_PROTEIN,
+                          help=f'Target daily protein in grams (-1 to ignore, default: {config.DEFAULT_PROTEIN})')
+    run_parser.add_argument('-r', '--ratio', type=float, default=config.DEFAULT_RATIO,
+                          help=f'Target carb/fat ratio (-1 to ignore, default: {config.DEFAULT_RATIO})')
+    run_parser.add_argument('-t', '--time-limit', type=int, default=config.DEFAULT_TIME_LIMIT,
+                          help=f'Optimization time limit in seconds (default: {config.DEFAULT_TIME_LIMIT})')
     run_parser.add_argument('-o', '--output', type=str, default='meal_plan',
                           help='Output filename (default: meal_plan)')
-    run_parser.add_argument('--pop-size', type=int, default=150,
-                         help='Population size (default: 150)')
+    run_parser.add_argument('--pop-size', type=int, default=config.DEFAULT_POP_SIZE,
+                          help=f'Population size (default: {config.DEFAULT_POP_SIZE})')
 
     # shop subcommand
     shop_parser = subparsers.add_parser('shop', help='Generate shopping list')

@@ -9,6 +9,7 @@ from nutrition import Nutrition
 from day import Day
 from ingredient import ingredients
 from meals import meals
+import config
 
 
 # ============================================================================
@@ -22,8 +23,6 @@ _ingr_rots_in = {name: i.rots_in for name, i in ingredients.items()}
 _sim_cache = {}
 _day_rots_cache = {}
 _day_nutri_cache = {}
-
-MAX_MEALS_PER_DAY = 7
 
 
 # ============================================================================
@@ -92,7 +91,7 @@ def simulate_plan(plan):
     ingredients_info = {}
     rot_info = {}
 
-    delivery_fee = 1500
+    delivery_fee = config.DELIVERY_FEE
     delivery_fees = 0
 
     fastest_rot_arr = [_get_day_rots(day) for day in plan]
@@ -108,8 +107,8 @@ def simulate_plan(plan):
             for ingr in meal.ingredients:
                 name = ingr.name
                 price_val = _ingr_price.get(name, 0)
-                min_qty = _ingr_min_qty.get(name, 1)
-                rots_in = _ingr_rots_in.get(name, 999)
+                min_qty = _ingr_min_qty.get(name, config.DEFAULT_MIN_QTY)
+                rots_in = _ingr_rots_in.get(name, config.DEFAULT_ROTS_IN)
 
                 if name not in ingredients_info:
                     qty = ingr.qty
@@ -162,7 +161,7 @@ def simulate_plan(plan):
         'delivery_fees': 0
     }
 
-    if len(_sim_cache) < 500:
+    if len(_sim_cache) < config.PRICE_CACHE_SIZE:
         cache_entry = result.copy()
         del cache_entry['plan']
         _sim_cache[plan_hash] = cache_entry
@@ -172,13 +171,19 @@ def simulate_plan(plan):
 
 def generate_day(target_nutri, target_mealcount, meals=meals):
     """Generate a random day meeting nutrition targets.
-    
-    Args:
-        target_nutri: [kcal, carb, prot, fat] target values
-        target_mealcount: desired meals per day (-1 to ignore, uses random 1-5)
-        meals: meal database to choose from
-    
-    Returns:
+     
+    Parameters
+    ----------
+    target_nutri : list
+        [kcal, carb, prot, fat] target values
+    target_mealcount : int
+        Desired meals per day (-1 to ignore, uses random 1-5)
+    meals : list
+        Meal database to choose from
+        
+    Returns
+    -------
+    Day
         Day with reasonable meal count (1-7)
     """
     day = []
@@ -193,7 +198,7 @@ def generate_day(target_nutri, target_mealcount, meals=meals):
         target_meals = rd.randint(1, 3)
     
     meal_count = 0
-    while meal_count < target_meals and meal_count < MAX_MEALS_PER_DAY:
+    while meal_count < target_meals and meal_count < config.MAX_MEALS_PER_DAY:
         chosen_meal = rd.choice(meals)
         day.append(chosen_meal)
         meal_count += 1

@@ -12,6 +12,7 @@ from nutrition import Nutrition
 from ingredient import Ingredient
 import meals as meals_module
 import harmony
+import config
 
 MEALS = meals_module.meals
 
@@ -465,9 +466,9 @@ def test_optimizer_init():
     opt = harmony.HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100)
     assert opt.plan_len == 3
     assert opt.goal_kcal == 2000
-    assert opt.pop_size == 200  # default unchanged
-    assert opt.HMCR == 0.90  # new default
-    assert opt.tolerance == 0.15
+    assert opt.pop_size == config.DEFAULT_POP_SIZE  # from config
+    assert opt.HMCR == config.HMCR  # from config
+    assert opt.tolerance == config.TOLERANCE  # from config
 
 
 def test_target_score():
