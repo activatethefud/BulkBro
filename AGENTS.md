@@ -69,8 +69,10 @@ Generate shopping list:
 - `meals.py`, `nikola_meals.py`, `vegan_meals.py`, `djina_meals.py` - Meal sources
 - `ingredient.py` - Ingredient catalog (~1000 ingredients)
 - `insulin_index.py` - Insulin Index predictor
-- `util.py` - Utilities (statlist, load_sol)
+- `simulation.py` - Core simulation functions
+- `util.py` - Utilities (load_sol)
 - `test_runner.py` - Test suite (48 tests)
+- `docs.py` - Documentation generator
 
 ## Meal Source Selection
 
@@ -88,6 +90,19 @@ python3 test_runner.py
 ```
 
 Run 48 tests covering core functionality.
+
+## Documentation
+
+Generate documentation:
+```bash
+python3 docs.py           # Generate HTML + Markdown
+python3 docs.py --api   # Generate API Markdown only
+python3 docs.py --html  # Generate HTML only
+```
+
+Output:
+- `docs/index.html` - Main HTML documentation
+- `docs/api.md` - API reference in Markdown
 
 ## Dependencies
 

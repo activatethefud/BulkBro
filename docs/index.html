@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BulkBro Documentation</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { background: #2c3e50; color: white; padding: 30px 0; margin-bottom: 30px; }
+        header h1 { font-size: 2.5em; }
+        header p { opacity: 0.8; margin-top: 10px; }
+        .nav { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav a { margin-right: 20px; color: #3498db; text-decoration: none; }
+        .nav a:hover { text-decoration: underline; }
+        .section { background: white; padding: 25px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .section h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px; }
+        .section h3 { color: #34495e; margin: 20px 0 10px; }
+        .module { margin-bottom: 30px; }
+        .class, .function { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid #3498db; }
+        .class h4, .function h4 { color: #2c3e50; margin-bottom: 10px; }
+        .class h4 { color: #e74c3c; }
+        .docstring { color: #555; margin: 10px 0; }
+        .args, .returns, .raises { margin: 10px 0; padding-left: 20px; }
+        .args li, .raises li { margin: 5px 0; }
+        .returns { font-style: italic; }
+        .code { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .code pre { margin: 0; }
+        .test-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+        .test-item { background: #e8f5e9; padding: 8px 12px; border-radius: 4px; }
+        .graph { display: flex; flex-wrap: wrap; gap: 10px; }
+        .graph-node { background: #3498db; color: white; padding: 8px 15px; border-radius: 20px; }
+        .graph-node.local { background: #e74c3c; }
+        .graph-arrow { color: #999; }
+        footer { text-align: center; padding: 20px; color: #777; }
+        .stats { display: flex; gap: 30px; margin: 20px 0; }
+        .stat { background: #f8f9fa; padding: 15px 25px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 2em; font-weight: bold; color: #3498db; }
+        .stat-label { color: #777; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>BulkBro Documentation</h1>
+            <p>Meal Planning and Nutrition Optimization System</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <nav class="nav">
+            <a href="#overview">Overview</a>
+            <a href="#api">API</a>
+            <a href="#tests">Tests</a>
+            <a href="#architecture">Architecture</a>
+        </nav>
+        
+        <section id="overview" class="section">
+            <h2>Overview</h2>
+            <p>BulkBro is a meal planning and nutrition optimization system using Harmony Search algorithm. 
+            It optimizes meal plans to meet nutritional targets while minimizing cost and waste.</p>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">13</div>
+                    <div class="stat-label">Python Files</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">48</div>
+                    <div class="stat-label">Tests</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Classes</div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="api" class="section">
+            <h2>API Reference</h2>
+<div class="module" id="day">
+<h3>Module: day</h3>
+<div class="class">
+<h4>Day</h4>
+<div class="function"><h5>__init__()</h5>
+</div>
+<div class="function"><h5>__iter__()</h5>
+</div>
+<div class="function"><h5>__len__()</h5>
+</div>
+<div class="function"><h5>__lt__()</h5>
+</div>
+<div class="function"><h5>__str__()</h5>
+</div>
+<div class="function"><h5>__repr__()</h5>
+</div>
+<div class="function"><h5>__getitem__()</h5>
+</div>
+<div class="function"><h5>set_meal()</h5>
+</div>
+<div class="function"><h5>day_nutri()</h5>
+</div>
+<div class="function"><h5>meal_nutri()</h5>
+</div>
+</div>
+</div>
+<div class="module" id="djina_meals">
+<h3>Module: djina_meals</h3>
+</div>
+<div class="module" id="harmony">
+<h3>Module: harmony</h3>
+<div class="class">
+<h4>HarmonyOptimizer</h4>
+<p class="docstring">Harmony search optimizer for meal planning with improved mathematics.</p>
+<div class="function"><h5>__init__()</h5>
+<p class="docstring">Initialize optimizer.</p>
+</div>
+<div class="function"><h5>_soft_constraint_penalty()</h5>
+<p class="docstring">Apply soft constraint penalty if beyond tolerance. Returns 0 if within tolerance, else negative penalty.</p>
+</div>
+<div class="function"><h5>_target_normalized_score()</h5>
+<p class="docstring">Normalize to target: 0 = perfect, higher = worse.</p>
+</div>
+<div class="function"><h5>_normalize_price()</h5>
+<p class="docstring">Normalize price score to typical budget.</p>
+</div>
+<div class="function"><h5>generate_chromosome()</h5>
+<p class="docstring">Generate a chromosome (day plan).</p>
+</div>
+<div class="function"><h5>_mask_ingredients()</h5>
+<p class="docstring">Create masked ingredient set for diversity.</p>
+</div>
+<div class="function"><h5>init_pop()</h5>
+<p class="docstring">Initialize population using stratified initialization.</p>
+</div>
+<div class="function"><h5>_compute_objectives()</h5>
+<p class="docstring">Compute objective values for a solution.</p>
+</div>
+<div class="function"><h5>_compute_crowding()</h5>
+<p class="docstring">Compute crowding distance for diversity preservation. Higher crowding = more isolated = better for exploration.</p>
+</div>
+<div class="function"><h5>fitness()</h5>
+<p class="docstring">Compute fitness with target-based scoring and consistency penalty. Each criterion: |actual - target| / target (distance as fraction) Also penalizes variance between days for consistency.</p>
+</div>
+<div class="function"><h5>_adaptive_hmcr()</h5>
+<p class="docstring">Adapt HMCR based on plateau detection.</p>
+</div>
+<div class="function"><h5>_elitism_selection()</h5>
+<p class="docstring">Select elite solutions to preserve.</p>
+</div>
+<div class="function"><h5>optimize()</h5>
+<p class="docstring">Run optimization with mathematical improvements.</p>
+</div>
+<div class="function"><h5>generate_plan()</h5>
+<p class="docstring">Generate dated plan from solution.</p>
+</div>
+<div class="function"><h5>save_plan()</h5>
+<p class="docstring">Save solution to file.</p>
+</div>
+</div>
+<div class="function">
+<h4>optimize()</h4>
+<p class="docstring">Convenience function to run optimization.</p>
+</div>
+</div>
+<div class="module" id="ingredient">
+<h3>Module: ingredient</h3>
+<div class="class">
+<h4>Ingredient</h4>
+<div class="function"><h5>__init__()</h5>
+</div>
+<div class="function"><h5>__repr__()</h5>
+</div>
+<div class="function"><h5>__eq__()</h5>
+</div>
+<div class="function"><h5>__pow__()</h5>
+</div>
+<div class="function"><h5>portion()</h5>
+</div>
+<div class="function"><h5>__mul__()</h5>
+</div>
+<div class="function"><h5>__hash__()</h5>
+</div>
+<div class="function"><h5>to_buy()</h5>
+</div>
+<div class="function"><h5>is_rotten()</h5>
+</div>
+<div class="function"><h5>copy()</h5>
+</div>
+<div class="function"><h5>__add__()</h5>
+</div>
+<div class="function"><h5>__sub__()</h5>
+</div>
+<div class="function"><h5>__radd__()</h5>
+</div>
+<div class="function"><h5>__gt__()</h5>
+</div>
+<div class="function"><h5>set_rots_in()</h5>
+</div>
+<div class="function"><h5>csv()</h5>
+</div>
+</div>
+<div class="function">
+<h4>export_to_csv()</h4>
+</div>
+</div>
+<div class="module" id="insulin_index">
+<h3>Module: insulin_index</h3>
+<div class="function">
+<h4>predict_insulin_index()</h4>
+<p class="docstring">Predict Food Insulin Index from macronutrients. Based on simplified formula from data analysis: FII ≈ 0.9*Carbs + 0.3*Protein + 0.2*Fat</p>
+<div class="args"><strong>Args:</strong><ul>
+<li><code>carb</code>: Available carbohydrates in grams</li>
+<li><code>protein</code>: Protein in grams</li>
+<li><code>fat</code>: Fat in grams  Predicted Insulin Index (higher = more insulin demand)</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>meal_insulin_index()</h4>
+<p class="docstring">Calculate weighted average Insulin Index for a meal.</p>
+<div class="args"><strong>Args:</strong><ul>
+<li><code>meals</code>: List of Meal objects  Weighted average Insulin Index</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>day_insulin_index()</h4>
+<p class="docstring">Calculate average Insulin Index across a day or plan.</p>
+<div class="args"><strong>Args:</strong><ul>
+<li><code>days</code>: List of Day objects  Average Insulin Index</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>ii_category()</h4>
+<p class="docstring">Get category name for Insulin Index value.</p>
+<div class="args"><strong>Args:</strong><ul>
+<li><code>ii</code>: Insulin Index value  Category string: 'low', 'moderate', or 'high'</li>
+</ul></div>
+</div>
+</div>
+<div class="module" id="main">
+<h3>Module: main</h3>
+<div class="function">
+<h4>main()</h4>
+</div>
+<div class="function">
+<h4>do_run()</h4>
+</div>
+<div class="function">
+<h4>do_shop()</h4>
+</div>
+<div class="function">
+<h4>do_load()</h4>
+</div>
+<div class="function">
+<h4>do_run_interactive()</h4>
+</div>
+</div>
+<div class="module" id="meal">
+<h3>Module: meal</h3>
+<div class="class">
+<h4>Meal</h4>
+<div class="function"><h5>__init__()</h5>
+</div>
+<div class="function"><h5>__repr__()</h5>
+</div>
+<div class="function"><h5>__hash__()</h5>
+</div>
+<div class="function"><h5>__eq__()</h5>
+</div>
+<div class="function"><h5>nutri()</h5>
+</div>
+<div class="function"><h5>default()</h5>
+</div>
+<div class="function"><h5>__lt__()</h5>
+</div>
+<div class="function"><h5>portion()</h5>
+</div>
+</div>
+</div>
+<div class="module" id="meals">
+<h3>Module: meals</h3>
+<div class="function">
+<h4>_init_meal_data()</h4>
+<p class="docstring">Initialize derived meal data (runs at module load and after source change).</p>
+</div>
+<div class="function">
+<h4>set_meal_source()</h4>
+<p class="docstring">Switch meal source.</p>
+<div class="args"><strong>Args:</strong><ul>
+<li><code>source</code>: One of 'nikola', 'vegan', 'djina'</li>
+</ul></div>
+</div>
+</div>
+<div class="module" id="nikola_meals">
+<h3>Module: nikola_meals</h3>
+</div>
+<div class="module" id="nutrition">
+<h3>Module: nutrition</h3>
+<div class="class">
+<h4>Nutrition</h4>
+<p class="docstring">Represents nutritional values for a meal or day.</p>
+<div class="function"><h5>__init__()</h5>
+</div>
+<div class="function"><h5>to_list()</h5>
+</div>
+<div class="function"><h5>__eq__()</h5>
+</div>
+<div class="function"><h5>__hash__()</h5>
+</div>
+<div class="function"><h5>__repr__()</h5>
+</div>
+<div class="function"><h5>__mul__()</h5>
+</div>
+<div class="function"><h5>__add__()</h5>
+</div>
+<div class="function"><h5>__radd__()</h5>
+</div>
+<div class="function"><h5>__lt__()</h5>
+</div>
+<div class="function"><h5>dist_kcal()</h5>
+</div>
+<div class="function"><h5>dist_prot()</h5>
+</div>
+<div class="function"><h5>dist()</h5>
+</div>
+</div>
+</div>
+<div class="module" id="simulation">
+<h3>Module: simulation</h3>
+<div class="function">
+<h4>sublists()</h4>
+<p class="docstring">Group elements by identity.</p>
+</div>
+<div class="function">
+<h4>_get_day_rots()</h4>
+</div>
+<div class="function">
+<h4>_get_day_nutrition_cached()</h4>
+</div>
+<div class="function">
+<h4>simulate_plan()</h4>
+<p class="docstring">Simulate a meal plan and return costs, nutrition, waste.</p>
+</div>
+<div class="function">
+<h4>generate_day()</h4>
+<p class="docstring">Generate a random day meeting nutrition targets.</p>
+<div class="args"><strong>Args:</strong><ul>
+<li><code>target_nutri</code>: [kcal, carb, prot, fat] target values</li>
+<li><code>target_mealcount</code>: desired meals per day (-1 to ignore, uses random 1-5)</li>
+<li><code>meals</code>: meal database to choose from  Day with reasonable meal count (1-7)</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>shopping_list()</h4>
+<p class="docstring">Generate shopping list for a plan.</p>
+</div>
+<div class="function">
+<h4>generate_shopping_list()</h4>
+<p class="docstring">Generate and save shopping list to file.</p>
+</div>
+</div>
+<div class="module" id="util">
+<h3>Module: util</h3>
+<div class="function">
+<h4>load_sol()</h4>
+<p class="docstring">Load a solution from pickle file.</p>
+</div>
+</div>
+<div class="module" id="vegan_meals">
+<h3>Module: vegan_meals</h3>
+</div>
+
+        </section>
+        
+        <section id="tests" class="section">
+            <h2>Test Coverage</h2>
+            <p>Total Tests: 48</p>
+            <div class="test-list">
+<div class="test-item">test_sublists</div>
+<div class="test-item">test_generate_day</div>
+<div class="test-item">test_generate_day_max_meals</div>
+<div class="test-item">test_generate_day_min_meal</div>
+<div class="test-item">test_simulate_plan_price_bounded</div>
+<div class="test-item">test_generate_day_with_small_meal_list</div>
+<div class="test-item">test_simulate_empty</div>
+<div class="test-item">test_simulate_single</div>
+<div class="test-item">test_simulate_multiple</div>
+<div class="test-item">test_simulate_price_positive</div>
+<div class="test-item">test_simulate_nutri_is_nutrition</div>
+<div class="test-item">test_simulate_waste</div>
+<div class="test-item">test_nutrition_add</div>
+<div class="test-item">test_nutrition_mul</div>
+<div class="test-item">test_nutrition_dist</div>
+<div class="test-item">test_ingredient_to_buy</div>
+<div class="test-item">test_ingredient_copy</div>
+<div class="test-item">test_ingredient_rotten</div>
+<div class="test-item">test_day_length</div>
+<div class="test-item">test_day_nutri</div>
+<div class="test-item">test_simulate_plan_nutrition_accuracy</div>
+<div class="test-item">test_generate_day_meal_count</div>
+<div class="test-item">test_generate_day_exact_meals</div>
+<div class="test-item">test_plan_average_multiday</div>
+<div class="test-item">test_plan_average_varying_meals</div>
+<div class="test-item">test_plan_price_calculation</div>
+<div class="test-item">test_plan_waste_calculation</div>
+<div class="test-item">test_pickle_roundtrip_preserves_nutrition</div>
+<div class="test-item">test_simulate_plan_equals_generate_plan</div>
+<div class="test-item">test_day_consistency_calculation</div>
+<div class="test-item">test_insulin_index_basic</div>
+<div class="test-item">test_insulin_index_carbs_vs_protein</div>
+<div class="test-item">test_insulin_index_category</div>
+<div class="test-item">test_insulin_index_meal</div>
+<div class="test-item">test_simulate_plan_price_accuracy</div>
+<div class="test-item">test_fitness_normalization_range</div>
+<div class="test-item">test_fitness_zero_range_handling</div>
+<div class="test-item">test_meal_nutri</div>
+<div class="test-item">test_shopping_list</div>
+<div class="test-item">test_caching</div>
+<div class="test-item">test_performance</div>
+<div class="test-item">test_optimizer_init</div>
+<div class="test-item">test_target_score</div>
+<div class="test-item">test_skip_flags</div>
+<div class="test-item">test_skip_target_values</div>
+<div class="test-item">test_crowding_empty</div>
+<div class="test-item">test_constraint_penalty</div>
+<div class="test-item">test_optimizer_first_pass</div>
+
+            </div>
+        </section>
+        
+        <section id="architecture" class="section">
+            <h2>Architecture</h2>
+            <h3>Module Dependencies</h3>
+<div class="graph">
+<span class="graph-node">djina_meals</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">ingredient</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">meal</span>
+</div>
+<div class="graph">
+<span class="graph-node">harmony</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">time</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">nutrition</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">simulation</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">day</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">meals</span>
+</div>
+<div class="graph">
+<span class="graph-node">ingredient</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">nutrition</span>
+</div>
+<div class="graph">
+<span class="graph-node">main</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">simulation</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">harmony</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">harmony</span>
+</div>
+<div class="graph">
+<span class="graph-node">meals</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">ingredient</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">meal</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">vegan_meals</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">djina_meals</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">nikola_meals</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">insulin_index</span>
+</div>
+<div class="graph">
+<span class="graph-node">nikola_meals</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">ingredient</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">meal</span>
+</div>
+<div class="graph">
+<span class="graph-node">simulation</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">nutrition</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">day</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">ingredient</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">meals</span>
+</div>
+<div class="graph">
+<span class="graph-node">vegan_meals</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">ingredient</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">meal</span>
+</div>
+
+        </section>
+    </div>
+    
+    <footer>
+        <p>Generated: 2026-04-13 03:03</p>
+    </footer>
+</body>
+</html>
