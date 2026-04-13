@@ -401,7 +401,7 @@ def test_fitness_normalization_range():
     pop = opt.init_pop(100, 9)
     
     for sol in pop[:50]:
-        opt.fitness(sol, True)
+        opt.fitness(sol)
     
     scores = []
     for sol in pop[50:60]:
@@ -420,7 +420,7 @@ def test_fitness_zero_range_handling():
     pop = opt.init_pop(50, 9)
     
     for sol in pop:
-        opt.fitness(sol, True)
+        opt.fitness(sol)
     
     for sol in pop[:5]:
         score = opt.fitness(sol)

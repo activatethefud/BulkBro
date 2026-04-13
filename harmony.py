@@ -12,7 +12,6 @@ import threading
 import os
 
 import main
-import util
 from day import Day
 from meals import meals, ingredients_in_meals, ingredients_in_meals_list, meals_complement
 
@@ -91,20 +90,7 @@ class HarmonyOptimizer:
         # Caches and state
         self.fitness_cache = {}
         self.generate_day_cache = {}
-        self.solutions_with_fitness = []  # Store (score, solution, objectives) for crowding
-        
-        # Statlists for equal-weight normalization - each criterion normalized to its own range
-        self.statlists = {
-            'kcal': util.statlist(),
-            'prot': util.statlist(),
-            'ratio': util.statlist(),
-            'price': util.statlist(),
-            'waste': util.statlist(),
-            'diversity': util.statlist(),
-            'crowding': util.statlist(),
-            'mealcount': util.statlist(),
-        }
-        self.statlists_initialized = False
+        self.solutions_with_fitness = []
         
         self.solution = None
         
@@ -267,7 +253,7 @@ class HarmonyOptimizer:
         
         return np.mean(distances)
     
-    def fitness(self, sol, populate_statlist=False):
+    def fitness(self, sol):
         """Compute fitness with target-based scoring and consistency penalty.
         
         Each criterion: |actual - target| / target (distance as fraction)
@@ -275,12 +261,10 @@ class HarmonyOptimizer:
         
         Args:
             sol: Solution to evaluate
-            populate_statlist: If True, populate statlists instead of computing score
         """
         sol_hash = hash(''.join([meal.name for day in sol for meal in day]))
         
-        # Don't cache when populating statlists
-        if sol_hash in self.fitness_cache and not populate_statlist:
+        if sol_hash in self.fitness_cache:
             return self.fitness_cache[sol_hash]
         
         # Simulate plan
@@ -388,10 +372,6 @@ class HarmonyOptimizer:
         # Store in cache
         self.fitness_cache[sol_hash] = score
         
-        # Store for crowding (only after score is computed)
-        if populate_statlist:
-            self.solutions_with_fitness.append((score, sol, objectives))
-        
         return score
     
     def _adaptive_hmcr(self):
@@ -423,7 +403,7 @@ class HarmonyOptimizer:
         
         # Initialize population with fitness tracking
         for i, elem in enumerate(pop):
-            self.fitness(elem, True)
+            self.fitness(elem)
             if i % 50 == 0:
                 print(f"  {i}/{self.pop_size}")
         
@@ -479,7 +459,7 @@ class HarmonyOptimizer:
                 
                 # Add to statlists periodically for current normals
                 if counter % 10 == 0:
-                    self.fitness(picked, True)
+                    self.fitness(picked)
                 
                 picked_fitness = self.fitness(picked)
                 
