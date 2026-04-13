@@ -5,8 +5,8 @@ import sys
 import time
 from copy import copy
 
-import main as main_module
-from main import sublists, simulate_plan, generate_day, shopping_list
+import simulation as main_module
+from simulation import sublists, simulate_plan, generate_day, shopping_list
 from day import Day
 from nutrition import Nutrition
 from ingredient import Ingredient

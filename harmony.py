@@ -11,7 +11,7 @@ import datetime as dt
 import threading
 import os
 
-import main
+import simulation
 from day import Day
 from meals import meals, ingredients_in_meals, ingredients_in_meals_list, meals_complement
 
@@ -134,7 +134,7 @@ class HarmonyOptimizer:
             return [rd.choice(self.generate_day_cache[key]) for _ in range(gene_size)]
         
         result = [
-            main.generate_day(self.target_nutri, target_meals, meals=meals_used)
+            simulation.generate_day(self.target_nutri, target_meals, meals=meals_used)
             for _ in range(gene_size)
         ]
         if len(self.generate_day_cache) < 1000:
@@ -268,15 +268,15 @@ class HarmonyOptimizer:
             return self.fitness_cache[sol_hash]
         
         # Simulate plan
-        simulation = main.simulate_plan(sol)
+        result = simulation.simulate_plan(sol)
         
         # Compute objectives
         objectives = self._compute_objectives(sol)
         
         # Get raw values from simulation
-        price = simulation['price']
-        nutri = simulation['nutri']
-        waste = simulation.get('waste', 0) / max(price, 1)
+        price = result['price']
+        nutri = result['nutri']
+        waste = result.get('waste', 0) / max(price, 1)
         
         # Get raw values for scoring
         kcal_raw = nutri.kcal
@@ -455,7 +455,7 @@ class HarmonyOptimizer:
                         ).tolist()
                         # Use random meal count when skipped
                         mutate_meals = rd.randint(1, 5) if self._skip_mealcount else self.goal_mealcount
-                        picked[idx] = main.generate_day(target, mutate_meals)
+                        picked[idx] = simulation.generate_day(target, mutate_meals)
                 
                 # Add to statlists periodically for current normals
                 if counter % 10 == 0:
@@ -536,9 +536,9 @@ class HarmonyOptimizer:
             plan.append((date_from, day))
             date_from += dt.timedelta(days=1)
         
-        simulation = main.simulate_plan(sol)
-        plan.append(simulation['price'])
-        plan.append(simulation['nutri'])
+        sim_result = simulation.simulate_plan(sol)
+        plan.append(sim_result['price'])
+        plan.append(sim_result['nutri'])
         return plan
     
     def save_plan(self, filename, sol):
