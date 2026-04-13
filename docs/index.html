@@ -83,12 +83,15 @@
 <h3>Module: day</h3>
 <div class="class">
 <h4>Day</h4>
-<p class="docstring">Represents a day containing multiple meals. Attributes: meals: List of Meal objects</p>
+<p class="docstring">Represents a day containing multiple meals.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>meals</code> : list — List of Meal objects</li>
+</ul></div>
 <div class="function"><h5>__init__()</h5>
 <p class="docstring">Initialize Day.</p>
 </div>
 <div class="function"><h5>__iter__()</h5>
-<p class="docstring">Iterate over meals.</p>
+<p class="docstring">Iterate over meals. Yields Meal Each meal in the day</p>
 </div>
 <div class="function"><h5>__len__()</h5>
 <p class="docstring">Return number of meals.</p>
@@ -125,10 +128,10 @@
 <h4>HarmonyOptimizer</h4>
 <p class="docstring">Harmony search optimizer for meal planning with improved mathematics.</p>
 <div class="function"><h5>__init__()</h5>
-<p class="docstring">Initialize optimizer.</p>
+<p class="docstring">Initialize optimizer. Args: plan_len: Number of days to plan goal_mealcount: Target meals per day (-1 to ignore) goal_kcal: Target daily calories (-1 to ignore) goal_prot: Target daily protein (g) (-1 to ignore) goal_ratio: Target carb/fat ratio (-1 to ignore) pop_size: Population size for harmony memory Note: Use -1 for any target to skip scoring for that criterion.</p>
 </div>
 <div class="function"><h5>_soft_constraint_penalty()</h5>
-<p class="docstring">Apply soft constraint penalty if beyond tolerance. Returns 0 if within tolerance, else negative penalty.</p>
+<p class="docstring">Apply soft constraint penalty if beyond tolerance.</p>
 </div>
 <div class="function"><h5>_target_normalized_score()</h5>
 <p class="docstring">Normalize to target: 0 = perfect, higher = worse.</p>
@@ -152,7 +155,7 @@
 <p class="docstring">Compute crowding distance for diversity preservation. Higher crowding = more isolated = better for exploration.</p>
 </div>
 <div class="function"><h5>fitness()</h5>
-<p class="docstring">Compute fitness with target-based scoring and consistency penalty. Each criterion: |actual - target| / target (distance as fraction) Also penalizes variance between days for consistency.</p>
+<p class="docstring">Compute fitness with target-based scoring and consistency penalty. Each criterion: |actual - target| / target (distance as fraction) Also penalizes variance between days for consistency. Args: sol: Solution to evaluate</p>
 </div>
 <div class="function"><h5>_adaptive_hmcr()</h5>
 <p class="docstring">Adapt HMCR based on plateau detection.</p>
@@ -161,7 +164,7 @@
 <p class="docstring">Select elite solutions to preserve.</p>
 </div>
 <div class="function"><h5>optimize()</h5>
-<p class="docstring">Run optimization with mathematical improvements.</p>
+<p class="docstring">Run optimization with mathematical improvements. Args: time_limit: Time limit in seconds</p>
 </div>
 <div class="function"><h5>generate_plan()</h5>
 <p class="docstring">Generate dated plan from solution.</p>
@@ -220,33 +223,23 @@
 <h3>Module: insulin_index</h3>
 <div class="function">
 <h4>predict_insulin_index()</h4>
-<p class="docstring">Predict Food Insulin Index from macronutrients. Based on simplified formula from data analysis: FII ≈ 0.9*Carbs + 0.3*Protein + 0.2*Fat</p>
-<div class="args"><strong>Args:</strong><ul>
-<li><code>carb</code>: Available carbohydrates in grams</li>
-<li><code>protein</code>: Protein in grams</li>
-<li><code>fat</code>: Fat in grams  Predicted Insulin Index (higher = more insulin demand)</li>
-</ul></div>
+<p class="docstring">Predict Food Insulin Index from macronutrients. Based on simplified formula from data analysis: FII ≈ 0.9*Carbs + 0.3*Protein + 0.2*Fat Args: carb: Available carbohydrates in grams protein: Protein in grams fat: Fat in grams</p>
+<div class="returns"><strong>Returns</strong><br><strong>-------</strong><br>Predicted Insulin Index (higher = more insulin demand)</div>
 </div>
 <div class="function">
 <h4>meal_insulin_index()</h4>
-<p class="docstring">Calculate weighted average Insulin Index for a meal.</p>
-<div class="args"><strong>Args:</strong><ul>
-<li><code>meals</code>: List of Meal objects  Weighted average Insulin Index</li>
-</ul></div>
+<p class="docstring">Calculate weighted average Insulin Index for a meal. Args: meals: List of Meal objects</p>
+<div class="returns"><strong>Returns</strong><br><strong>-------</strong><br>Weighted average Insulin Index</div>
 </div>
 <div class="function">
 <h4>day_insulin_index()</h4>
-<p class="docstring">Calculate average Insulin Index across a day or plan.</p>
-<div class="args"><strong>Args:</strong><ul>
-<li><code>days</code>: List of Day objects  Average Insulin Index</li>
-</ul></div>
+<p class="docstring">Calculate average Insulin Index across a day or plan. Args: days: List of Day objects</p>
+<div class="returns"><strong>Returns</strong><br><strong>-------</strong><br>Average Insulin Index</div>
 </div>
 <div class="function">
 <h4>ii_category()</h4>
-<p class="docstring">Get category name for Insulin Index value.</p>
-<div class="args"><strong>Args:</strong><ul>
-<li><code>ii</code>: Insulin Index value  Category string: 'low', 'moderate', or 'high'</li>
-</ul></div>
+<p class="docstring">Get category name for Insulin Index value. Args: ii: Insulin Index value</p>
+<div class="returns"><strong>Returns</strong><br><strong>-------</strong><br>Category string: 'low', 'moderate', or 'high'</div>
 </div>
 </div>
 <div class="module" id="main">
@@ -271,7 +264,12 @@
 <h3>Module: meal</h3>
 <div class="class">
 <h4>Meal</h4>
-<p class="docstring">Represents a meal with ingredients and nutritional information. Attributes: name: Meal name ingredients: List of Ingredient objects categories: List of category strings</p>
+<p class="docstring">Represents a meal with ingredients and nutritional information.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>name</code> : str — Meal name Meal name</li>
+<li><code>ingredients</code> : list — List of Ingredient objects List of Ingredient objects</li>
+<li><code>categories</code> : list — List of category strings</li>
+</ul></div>
 <div class="function"><h5>__init__()</h5>
 <p class="docstring">Initialize Meal.</p>
 </div>
@@ -294,7 +292,7 @@
 <p class="docstring">Compare meals by name.</p>
 </div>
 <div class="function"><h5>portion()</h5>
-<p class="docstring">Scale portion by multiplier.</p>
+<p class="docstring">Scale portion by multiplier. Multiplies each ingredient quantity by the given factor.</p>
 </div>
 </div>
 </div>
@@ -306,10 +304,7 @@
 </div>
 <div class="function">
 <h4>set_meal_source()</h4>
-<p class="docstring">Switch meal source.</p>
-<div class="args"><strong>Args:</strong><ul>
-<li><code>source</code>: One of 'nikola', 'vegan', 'djina'</li>
-</ul></div>
+<p class="docstring">Switch meal source. Args: source: One of 'nikola', 'vegan', 'djina'</p>
 </div>
 </div>
 <div class="module" id="nikola_meals">
@@ -319,7 +314,13 @@
 <h3>Module: nutrition</h3>
 <div class="class">
 <h4>Nutrition</h4>
-<p class="docstring">Represents nutritional values for a meal or day. Attributes: kcal: Kilocalories carb: Carbohydrates in grams prot: Protein in grams fat: Fat in grams</p>
+<p class="docstring">Represents nutritional values for a meal or day.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>kcal</code> : float — Kilocalories Kilocalories</li>
+<li><code>carb</code> : float — Carbohydrates in grams Carbohydrates in grams</li>
+<li><code>prot</code> : float — Protein in grams Protein in grams</li>
+<li><code>fat</code> : float — Fat in grams</li>
+</ul></div>
 <div class="function"><h5>__init__()</h5>
 <p class="docstring">Initialize Nutrition with macronutrient values.</p>
 </div>
@@ -354,7 +355,7 @@
 <p class="docstring">Calculate absolute difference in protein.</p>
 </div>
 <div class="function"><h5>dist()</h5>
-<p class="docstring">Calculate weighted distance to another Nutrition.</p>
+<p class="docstring">Calculate weighted distance to another Nutrition. Uses squared distance for large calorie differences to penalize more.</p>
 </div>
 </div>
 </div>
@@ -362,10 +363,8 @@
 <h3>Module: simulation</h3>
 <div class="function">
 <h4>sublists()</h4>
-<p class="docstring">Group elements by identity.</p>
-<div class="args"><strong>Args:</strong><ul>
-<li><code>arr</code>: List of elements  List of lists, each containing elements with same identity</li>
-</ul></div>
+<p class="docstring">Group elements by identity. Args: arr: List of elements</p>
+<div class="returns"><strong>Returns</strong><br><strong>-------</strong><br>List of lists, each containing elements with same identity</div>
 </div>
 <div class="function">
 <h4>_get_day_rots()</h4>
@@ -377,19 +376,13 @@
 </div>
 <div class="function">
 <h4>simulate_plan()</h4>
-<p class="docstring">Simulate a meal plan and return costs, nutrition, waste.</p>
-<div class="args"><strong>Args:</strong><ul>
-<li><code>plan</code>: List of Day objects  Dict with 'plan', 'price', 'nutri', 'waste', 'delivery_fees'</li>
-</ul></div>
+<p class="docstring">Simulate a meal plan and return costs, nutrition, waste. Args: plan: List of Day objects</p>
+<div class="returns"><strong>Returns</strong><br><strong>-------</strong><br>Dict with 'plan', 'price', 'nutri', 'waste', 'delivery_fees'</div>
 </div>
 <div class="function">
 <h4>generate_day()</h4>
-<p class="docstring">Generate a random day meeting nutrition targets.</p>
-<div class="args"><strong>Args:</strong><ul>
-<li><code>target_nutri</code>: [kcal, carb, prot, fat] target values</li>
-<li><code>target_mealcount</code>: desired meals per day (-1 to ignore, uses random 1-5)</li>
-<li><code>meals</code>: meal database to choose from  Day with reasonable meal count (1-7)</li>
-</ul></div>
+<p class="docstring">Generate a random day meeting nutrition targets. Args: target_nutri: [kcal, carb, prot, fat] target values target_mealcount: desired meals per day (-1 to ignore, uses random 1-5) meals: meal database to choose from</p>
+<div class="returns"><strong>Returns</strong><br><strong>-------</strong><br>Day with reasonable meal count (1-7)</div>
 </div>
 <div class="function">
 <h4>shopping_list()</h4>
@@ -507,6 +500,11 @@
 <span class="graph-node local">harmony</span>
 </div>
 <div class="graph">
+<span class="graph-node">meal</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">nutrition</span>
+</div>
+<div class="graph">
 <span class="graph-node">meals</span>
 <span class="graph-arrow">→</span>
 <span class="graph-node local">ingredient</span>
@@ -551,7 +549,7 @@
     </div>
     
     <footer>
-        <p>Generated: 2026-04-13 03:14</p>
+        <p>Generated: 2026-04-13 03:19</p>
     </footer>
 </body>
 </html>

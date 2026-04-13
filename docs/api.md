@@ -5,7 +5,12 @@
 
 ### Class: Day
 
-Represents a day containing multiple meals. Attributes: meals: List of Meal objects
+Represents a day containing multiple meals.
+
+**Parameters**
+----------
+meals : list
+    List of Meal objects
 
 
 ## Module: djina_meals
@@ -33,33 +38,35 @@ Convenience function to run optimization.
 
 ### Function: predict_insulin_index()
 
-Predict Food Insulin Index from macronutrients. Based on simplified formula from data analysis: FII ≈ 0.9*Carbs + 0.3*Protein + 0.2*Fat
+Predict Food Insulin Index from macronutrients. Based on simplified formula from data analysis: FII ≈ 0.9*Carbs + 0.3*Protein + 0.2*Fat Args: carb: Available carbohydrates in grams protein: Protein in grams fat: Fat in grams
 
-**Args:**
-- `carb`: Available carbohydrates in grams
-- `protein`: Protein in grams
-- `fat`: Fat in grams  Predicted Insulin Index (higher = more insulin demand)
+**Returns**
+-------
+Predicted Insulin Index (higher = more insulin demand)
 
 ### Function: meal_insulin_index()
 
-Calculate weighted average Insulin Index for a meal.
+Calculate weighted average Insulin Index for a meal. Args: meals: List of Meal objects
 
-**Args:**
-- `meals`: List of Meal objects  Weighted average Insulin Index
+**Returns**
+-------
+Weighted average Insulin Index
 
 ### Function: day_insulin_index()
 
-Calculate average Insulin Index across a day or plan.
+Calculate average Insulin Index across a day or plan. Args: days: List of Day objects
 
-**Args:**
-- `days`: List of Day objects  Average Insulin Index
+**Returns**
+-------
+Average Insulin Index
 
 ### Function: ii_category()
 
-Get category name for Insulin Index value.
+Get category name for Insulin Index value. Args: ii: Insulin Index value
 
-**Args:**
-- `ii`: Insulin Index value  Category string: 'low', 'moderate', or 'high'
+**Returns**
+-------
+Category string: 'low', 'moderate', or 'high'
 
 
 ## Module: main
@@ -79,7 +86,16 @@ Get category name for Insulin Index value.
 
 ### Class: Meal
 
-Represents a meal with ingredients and nutritional information. Attributes: name: Meal name ingredients: List of Ingredient objects categories: List of category strings
+Represents a meal with ingredients and nutritional information.
+
+**Parameters**
+----------
+name : str
+    Meal name Meal name
+ingredients : list
+    List of Ingredient objects List of Ingredient objects
+categories : list
+    List of category strings
 
 
 ## Module: meals
@@ -90,10 +106,7 @@ Initialize derived meal data (runs at module load and after source change).
 
 ### Function: set_meal_source()
 
-Switch meal source.
-
-**Args:**
-- `source`: One of 'nikola', 'vegan', 'djina'
+Switch meal source. Args: source: One of 'nikola', 'vegan', 'djina'
 
 
 ## Module: nikola_meals
@@ -103,17 +116,29 @@ Switch meal source.
 
 ### Class: Nutrition
 
-Represents nutritional values for a meal or day. Attributes: kcal: Kilocalories carb: Carbohydrates in grams prot: Protein in grams fat: Fat in grams
+Represents nutritional values for a meal or day.
+
+**Parameters**
+----------
+kcal : float
+    Kilocalories Kilocalories
+carb : float
+    Carbohydrates in grams Carbohydrates in grams
+prot : float
+    Protein in grams Protein in grams
+fat : float
+    Fat in grams
 
 
 ## Module: simulation
 
 ### Function: sublists()
 
-Group elements by identity.
+Group elements by identity. Args: arr: List of elements
 
-**Args:**
-- `arr`: List of elements  List of lists, each containing elements with same identity
+**Returns**
+-------
+List of lists, each containing elements with same identity
 
 ### Function: _get_day_rots()
 
@@ -125,19 +150,19 @@ Get cached daily nutrition.
 
 ### Function: simulate_plan()
 
-Simulate a meal plan and return costs, nutrition, waste.
+Simulate a meal plan and return costs, nutrition, waste. Args: plan: List of Day objects
 
-**Args:**
-- `plan`: List of Day objects  Dict with 'plan', 'price', 'nutri', 'waste', 'delivery_fees'
+**Returns**
+-------
+Dict with 'plan', 'price', 'nutri', 'waste', 'delivery_fees'
 
 ### Function: generate_day()
 
-Generate a random day meeting nutrition targets.
+Generate a random day meeting nutrition targets. Args: target_nutri: [kcal, carb, prot, fat] target values target_mealcount: desired meals per day (-1 to ignore, uses random 1-5) meals: meal database to choose from
 
-**Args:**
-- `target_nutri`: [kcal, carb, prot, fat] target values
-- `target_mealcount`: desired meals per day (-1 to ignore, uses random 1-5)
-- `meals`: meal database to choose from  Day with reasonable meal count (1-7)
+**Returns**
+-------
+Day with reasonable meal count (1-7)
 
 ### Function: shopping_list()
 

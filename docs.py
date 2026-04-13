@@ -38,7 +38,20 @@ def get_python_files():
 
 
 def parse_docstring(docstring):
-    """Parse Google-style docstring into components.
+    """Parse NumPy-style docstring into components.
+    
+    NumPy style format:
+        Parameters
+        ----------
+        arg1 : type
+            description
+        arg2 : type
+            description
+        
+        Returns
+        -------
+        type
+            description
     
     Args:
         docstring: Raw docstring string
@@ -60,40 +73,122 @@ def parse_docstring(docstring):
     lines = docstring.strip().split("\n")
     current_section = "description"
     current_arg = None
+    current_arg_type = None
     current_arg_desc = []
     
     for line in lines:
         stripped = line.strip()
         
-        # Section headers
-        if stripped.startswith("Args:"):
+        # NumPy section headers
+        if stripped.lower().startswith("parameters"):
             current_section = "args"
             continue
-        elif stripped.startswith("Returns:"):
+        elif stripped.lower().startswith("attributes"):
+            current_section = "attributes"
+            continue
+        elif stripped.lower().startswith("returns"):
             current_section = "returns"
             continue
-        elif stripped.startswith("Raises:"):
+        elif stripped.lower().startswith("raises"):
             current_section = "raises"
             continue
-        elif stripped.startswith("Example:"):
+        elif stripped.lower().startswith("examples"):
             current_section = "examples"
             continue
         
-        # Arg entries (e.g., "arg_name: description")
-        if current_section == "args" and ":" in stripped:
+        # Section divider line (---- or ====)
+        if stripped.startswith("---") or stripped.startswith("==="):
+            continue
+        
+        # Attributes entries (same format as args)
+        if current_section == "attributes" and ":" in stripped:
+            if stripped.lower().startswith("attributes"):
+                continue
             if current_arg:
                 result["args"].append({
                     "name": current_arg,
+                    "type": current_arg_type,
                     "description": " ".join(current_arg_desc).strip()
                 })
             parts = stripped.split(":", 1)
-            current_arg = parts[0].strip()
-            current_arg_desc = [parts[1].strip()] if len(parts) > 1 else []
-        elif current_arg:
+            arg_name = parts[0].strip()
+            arg_type = parts[1].strip() if len(parts) > 1 else ""
+            current_arg = arg_name
+            current_arg_type = arg_type
+            current_arg_desc = []
+        elif current_arg and stripped:
             current_arg_desc.append(stripped)
+        
+        # Arg entries (e.g., "arg_name : type" or "name:type")
+        elif current_section == "args" and ":" in stripped:
+            # Save previous arg
+            if current_arg:
+                result["args"].append({
+                    "name": current_arg,
+                    "type": current_arg_type,
+                    "description": " ".join(current_arg_desc).strip()
+                })
             
+            # Parse new arg - format: "name : type" or "name:type"
+            parts = stripped.split(":", 1)
+            arg_name = parts[0].strip()
+            arg_type = parts[1].strip() if len(parts) > 1 else ""
+            
+            current_arg = arg_name
+            current_arg_type = arg_type
+            current_arg_desc = []
+        elif current_arg and stripped:
+            # Continue description (indented lines)
+            current_arg_desc.append(stripped)
+        
+        # Arg or attribute entries (e.g., "arg_name : type" or "name:type")
+        if current_section in ("args", "attributes") and ":" in stripped:
+            # Skip if this looks like a section header (empty description after type)
+            if stripped.startswith("----"):
+                continue
+            
+            # Save previous arg if it has content
+            if current_arg and current_arg_desc:
+                desc_text = " ".join(current_arg_desc).strip()
+                # Deduplicate if the description appears to be repeated
+                words = desc_text.split()
+                if len(words) >= 2:
+                    mid = len(words) // 2
+                    first_half = " ".join(words[:mid])
+                    second_half = " ".join(words[mid:])
+                    if first_half == second_half:
+                        desc_text = first_half
+                
+                result["args"].append({
+                    "name": current_arg,
+                    "type": current_arg_type,
+                    "description": desc_text
+                })
+                current_arg = None
+                current_arg_type = None
+                current_arg_desc = []
+            
+            # Parse new arg - format: "name : type" or "name:type"
+            parts = stripped.split(":", 1)
+            arg_name = parts[0].strip()
+            arg_type = parts[1].strip() if len(parts) > 1 else ""
+            
+            # Skip if this is just "arg_name :" with no meaningful type
+            if not arg_type:
+                current_arg = None
+                continue
+            
+            current_arg = arg_name
+            current_arg_type = arg_type
+            current_arg_desc = []
+        elif current_arg and stripped:
+            # Continue description (indented lines)
+            current_arg_desc.append(stripped)
+        
         # Returns entry
         elif current_section == "returns" and stripped:
+            if stripped.startswith("-----") or stripped.startswith("===="):
+                continue
             if not result["returns"]:
                 result["returns"] = stripped
             else:
@@ -110,11 +205,22 @@ def parse_docstring(docstring):
             elif current_section == "examples":
                 result["examples"].append(stripped)
     
-    # Add final arg
-    if current_arg:
+    # Add final arg (deduplicate description if needed)
+    if current_arg and current_arg_desc:
+        desc_text = " ".join(current_arg_desc).strip()
+        # Deduplicate if the description appears to be repeated
+        words = desc_text.split()
+        if len(words) >= 2:
+            mid = len(words) // 2
+            first_half = " ".join(words[:mid])
+            second_half = " ".join(words[mid:])
+            if first_half == second_half:
+                desc_text = first_half
+        
         result["args"].append({
             "name": current_arg,
-            "description": " ".join(current_arg_desc).strip()
+            "type": current_arg_type,
+            "description": desc_text
         })
     
     result["description"] = result["description"].strip()
@@ -363,16 +469,17 @@ def generate_html(parsed_files, test_coverage, import_graph):
                 html += '<p class="docstring">' + doc["description"] + '</p>\n'
             
             if doc.get("args"):
-                html += '<div class="args"><strong>Args:</strong><ul>\n'
+                html += '<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>\n'
                 for arg in doc["args"]:
-                    html += '<li><code>' + arg["name"] + '</code>: ' + arg["description"] + '</li>\n'
+                    type_str = f" : {arg['type']}" if arg.get("type") else ""
+                    html += '<li><code>' + arg["name"] + '</code>' + type_str + ' — ' + arg["description"] + '</li>\n'
                 html += '</ul></div>\n'
             
             if doc.get("returns"):
-                html += '<div class="returns"><strong>Returns:</strong> ' + doc["returns"] + '</div>\n'
+                html += '<div class="returns"><strong>Returns</strong><br><strong>-------</strong><br>' + doc["returns"] + '</div>\n'
             
             if doc.get("raises"):
-                html += '<div class="raises"><strong>Raises:</strong><ul>\n'
+                html += '<div class="raises"><strong>Raises</strong><br><strong>------</strong><ul>\n'
                 for r in doc["raises"]:
                     html += '<li>' + r + '</li>\n'
                 html += '</ul></div>\n'
@@ -397,13 +504,14 @@ def generate_html(parsed_files, test_coverage, import_graph):
                 html += '<p class="docstring">' + doc["description"] + '</p>\n'
             
             if doc.get("args"):
-                html += '<div class="args"><strong>Args:</strong><ul>\n'
+                html += '<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>\n'
                 for arg in doc["args"]:
-                    html += '<li><code>' + arg["name"] + '</code>: ' + arg["description"] + '</li>\n'
+                    type_str = f" : {arg['type']}" if arg.get("type") else ""
+                    html += '<li><code>' + arg["name"] + '</code>' + type_str + ' — ' + arg["description"] + '</li>\n'
                 html += '</ul></div>\n'
             
             if doc.get("returns"):
-                html += '<div class="returns"><strong>Returns:</strong> ' + doc["returns"] + '</div>\n'
+                html += '<div class="returns"><strong>Returns</strong><br><strong>-------</strong><br>' + doc["returns"] + '</div>\n'
             
             html += '</div>\n'
         
@@ -470,13 +578,17 @@ def generate_api_markdown(parsed_files):
                 md += f"{doc['description']}\n\n"
             
             if doc.get("args"):
-                md += "**Args:**\n"
+                md += "**Parameters**\n"
+                md += "----------\n"
                 for arg in doc["args"]:
-                    md += f"- `{arg['name']}`: {arg['description']}\n"
+                    type_str = f" : {arg['type']}" if arg.get("type") else ""
+                    md += f"{arg['name']}{type_str}\n    {arg['description']}\n"
                 md += "\n"
             
             if doc.get("returns"):
-                md += f"**Returns:** {doc['returns']}\n\n"
+                md += "**Returns**\n"
+                md += "-------\n"
+                md += f"{doc['returns']}\n\n"
         
         for func in pf.get("functions", []):
             md += f"### Function: {func['name']}()\n\n"
@@ -486,13 +598,17 @@ def generate_api_markdown(parsed_files):
                 md += f"{doc['description']}\n\n"
             
             if doc.get("args"):
-                md += "**Args:**\n"
+                md += "**Parameters**\n"
+                md += "----------\n"
                 for arg in doc["args"]:
-                    md += f"- `{arg['name']}`: {arg['description']}\n"
+                    type_str = f" : {arg['type']}" if arg.get("type") else ""
+                    md += f"{arg['name']}{type_str}\n    {arg['description']}\n"
                 md += "\n"
             
             if doc.get("returns"):
-                md += f"**Returns:** {doc['returns']}\n\n"
+                md += "**Returns**\n"
+                md += "-------\n"
+                md += f"{doc['returns']}\n\n"
     
     return md
 
