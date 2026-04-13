@@ -83,25 +83,36 @@
 <h3>Module: day</h3>
 <div class="class">
 <h4>Day</h4>
+<p class="docstring">Represents a day containing multiple meals. Attributes: meals: List of Meal objects</p>
 <div class="function"><h5>__init__()</h5>
+<p class="docstring">Initialize Day.</p>
 </div>
 <div class="function"><h5>__iter__()</h5>
+<p class="docstring">Iterate over meals.</p>
 </div>
 <div class="function"><h5>__len__()</h5>
+<p class="docstring">Return number of meals.</p>
 </div>
 <div class="function"><h5>__lt__()</h5>
+<p class="docstring">Always return True for sorting.</p>
 </div>
 <div class="function"><h5>__str__()</h5>
+<p class="docstring">Return shortened meal names.</p>
 </div>
 <div class="function"><h5>__repr__()</h5>
+<p class="docstring">Return string representation.</p>
 </div>
 <div class="function"><h5>__getitem__()</h5>
+<p class="docstring">Get meal by index.</p>
 </div>
 <div class="function"><h5>set_meal()</h5>
+<p class="docstring">Replace meal at index.</p>
 </div>
 <div class="function"><h5>day_nutri()</h5>
+<p class="docstring">Return total daily nutrition.</p>
 </div>
 <div class="function"><h5>meal_nutri()</h5>
+<p class="docstring">Return nutrition for specific meal.</p>
 </div>
 </div>
 </div>
@@ -260,21 +271,30 @@
 <h3>Module: meal</h3>
 <div class="class">
 <h4>Meal</h4>
+<p class="docstring">Represents a meal with ingredients and nutritional information. Attributes: name: Meal name ingredients: List of Ingredient objects categories: List of category strings</p>
 <div class="function"><h5>__init__()</h5>
+<p class="docstring">Initialize Meal.</p>
 </div>
 <div class="function"><h5>__repr__()</h5>
+<p class="docstring">Return meal name as string representation.</p>
 </div>
 <div class="function"><h5>__hash__()</h5>
+<p class="docstring">Return hash based on name and nutrition.</p>
 </div>
 <div class="function"><h5>__eq__()</h5>
+<p class="docstring">Check equality with another Meal.</p>
 </div>
 <div class="function"><h5>nutri()</h5>
+<p class="docstring">Return sum of ingredient nutrition.</p>
 </div>
 <div class="function"><h5>default()</h5>
+<p class="docstring">Return object dictionary.</p>
 </div>
 <div class="function"><h5>__lt__()</h5>
+<p class="docstring">Compare meals by name.</p>
 </div>
 <div class="function"><h5>portion()</h5>
+<p class="docstring">Scale portion by multiplier.</p>
 </div>
 </div>
 </div>
@@ -299,30 +319,42 @@
 <h3>Module: nutrition</h3>
 <div class="class">
 <h4>Nutrition</h4>
-<p class="docstring">Represents nutritional values for a meal or day.</p>
+<p class="docstring">Represents nutritional values for a meal or day. Attributes: kcal: Kilocalories carb: Carbohydrates in grams prot: Protein in grams fat: Fat in grams</p>
 <div class="function"><h5>__init__()</h5>
+<p class="docstring">Initialize Nutrition with macronutrient values.</p>
 </div>
 <div class="function"><h5>to_list()</h5>
+<p class="docstring">Return values as list [kcal, carb, prot, fat].</p>
 </div>
 <div class="function"><h5>__eq__()</h5>
+<p class="docstring">Check equality with another Nutrition object.</p>
 </div>
 <div class="function"><h5>__hash__()</h5>
+<p class="docstring">Return hash based on values.</p>
 </div>
 <div class="function"><h5>__repr__()</h5>
+<p class="docstring">Return string representation.</p>
 </div>
 <div class="function"><h5>__mul__()</h5>
+<p class="docstring">Multiply all values by scalar.</p>
 </div>
 <div class="function"><h5>__add__()</h5>
+<p class="docstring">Add Nutrition values together.</p>
 </div>
 <div class="function"><h5>__radd__()</h5>
+<p class="docstring">Reverse add support.</p>
 </div>
 <div class="function"><h5>__lt__()</h5>
+<p class="docstring">Less than comparison.</p>
 </div>
 <div class="function"><h5>dist_kcal()</h5>
+<p class="docstring">Calculate absolute difference in kilocalories.</p>
 </div>
 <div class="function"><h5>dist_prot()</h5>
+<p class="docstring">Calculate absolute difference in protein.</p>
 </div>
 <div class="function"><h5>dist()</h5>
+<p class="docstring">Calculate weighted distance to another Nutrition.</p>
 </div>
 </div>
 </div>
@@ -331,16 +363,24 @@
 <div class="function">
 <h4>sublists()</h4>
 <p class="docstring">Group elements by identity.</p>
+<div class="args"><strong>Args:</strong><ul>
+<li><code>arr</code>: List of elements  List of lists, each containing elements with same identity</li>
+</ul></div>
 </div>
 <div class="function">
 <h4>_get_day_rots()</h4>
+<p class="docstring">Get minimum shelf life (rots_in) for any ingredient in day.</p>
 </div>
 <div class="function">
 <h4>_get_day_nutrition_cached()</h4>
+<p class="docstring">Get cached daily nutrition.</p>
 </div>
 <div class="function">
 <h4>simulate_plan()</h4>
 <p class="docstring">Simulate a meal plan and return costs, nutrition, waste.</p>
+<div class="args"><strong>Args:</strong><ul>
+<li><code>plan</code>: List of Day objects  Dict with 'plan', 'price', 'nutri', 'waste', 'delivery_fees'</li>
+</ul></div>
 </div>
 <div class="function">
 <h4>generate_day()</h4>
@@ -511,7 +551,7 @@
     </div>
     
     <footer>
-        <p>Generated: 2026-04-13 03:03</p>
+        <p>Generated: 2026-04-13 03:14</p>
     </footer>
 </body>
 </html>

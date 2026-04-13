@@ -30,7 +30,14 @@ MAX_MEALS_PER_DAY = 7
 # Helper functions
 # ============================================================================
 def sublists(arr):
-    """Group elements by identity."""
+    """Group elements by identity.
+    
+    Args:
+        arr: List of elements
+        
+    Returns:
+        List of lists, each containing elements with same identity
+    """
     arr_set = set(arr)
     mapping = {key: val for val, key in enumerate(arr_set)}
     res = [[] for _ in range(len(arr_set))]
@@ -40,6 +47,7 @@ def sublists(arr):
 
 
 def _get_day_rots(day):
+    """Get minimum shelf life (rots_in) for any ingredient in day."""
     did = id(day)
     if did in _day_rots_cache:
         return _day_rots_cache[did]
@@ -52,6 +60,7 @@ def _get_day_rots(day):
 
 
 def _get_day_nutrition_cached(day):
+    """Get cached daily nutrition."""
     did = id(day)
     if did in _day_nutri_cache:
         return _day_nutri_cache[did]
@@ -64,7 +73,14 @@ def _get_day_nutrition_cached(day):
 # Core simulation functions
 # ============================================================================
 def simulate_plan(plan):
-    """Simulate a meal plan and return costs, nutrition, waste."""
+    """Simulate a meal plan and return costs, nutrition, waste.
+    
+    Args:
+        plan: List of Day objects
+        
+    Returns:
+        Dict with 'plan', 'price', 'nutri', 'waste', 'delivery_fees'
+    """
     plan_hash = hash(tuple(tuple(m.name for m in day) for day in plan))
     if plan_hash in _sim_cache:
         cached = _sim_cache[plan_hash].copy()

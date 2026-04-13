@@ -5,6 +5,8 @@
 
 ### Class: Day
 
+Represents a day containing multiple meals. Attributes: meals: List of Meal objects
+
 
 ## Module: djina_meals
 
@@ -77,6 +79,8 @@ Get category name for Insulin Index value.
 
 ### Class: Meal
 
+Represents a meal with ingredients and nutritional information. Attributes: name: Meal name ingredients: List of Ingredient objects categories: List of category strings
+
 
 ## Module: meals
 
@@ -99,7 +103,7 @@ Switch meal source.
 
 ### Class: Nutrition
 
-Represents nutritional values for a meal or day.
+Represents nutritional values for a meal or day. Attributes: kcal: Kilocalories carb: Carbohydrates in grams prot: Protein in grams fat: Fat in grams
 
 
 ## Module: simulation
@@ -108,13 +112,23 @@ Represents nutritional values for a meal or day.
 
 Group elements by identity.
 
+**Args:**
+- `arr`: List of elements  List of lists, each containing elements with same identity
+
 ### Function: _get_day_rots()
 
+Get minimum shelf life (rots_in) for any ingredient in day.
+
 ### Function: _get_day_nutrition_cached()
+
+Get cached daily nutrition.
 
 ### Function: simulate_plan()
 
 Simulate a meal plan and return costs, nutrition, waste.
+
+**Args:**
+- `plan`: List of Day objects  Dict with 'plan', 'price', 'nutri', 'waste', 'delivery_fees'
 
 ### Function: generate_day()
 
