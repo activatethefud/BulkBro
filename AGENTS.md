@@ -115,6 +115,7 @@ After making changes, create sensible commits for traceability and potential rol
 ### Before Committing
 1. Run tests to verify changes work: `python3 test_runner.py`
 2. Check what changed: `git status` and `git diff`
+3. Regenerate documentation: `python3 docs.py`
 
 ### Commit Guidelines
 - Make **one commit per logical change** (feature, fix, or cleanup)
