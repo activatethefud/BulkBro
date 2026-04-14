@@ -90,6 +90,8 @@ def main():
     shop_parser.add_argument('solution', type=str, help='Solution pickle file')
     shop_parser.add_argument('-r', '--reach', type=int, default=-1,
                            help='Days to generate shopping for')
+    shop_parser.add_argument('-s', '--start-date', type=str, default=None,
+                           help='Starting date (YYYY-MM-DD, default: today)')
 
     # load subcommand
     load_parser = subparsers.add_parser('load', help='Load and display solution')
@@ -151,6 +153,8 @@ def do_run(args):
 
 
 def do_shop(args):
+    import datetime as dt
+
     filename = args.solution
     if not filename.endswith('.pickle'):
         filename = f"plans/{filename}.pickle"
@@ -163,7 +167,19 @@ def do_shop(args):
 
     print(f"Loaded solution from {filename}")
     name = args.solution.replace('.pickle', '')
-    generate_shopping_list(sol, name, args.reach)
+
+    today = dt.date.today()
+    date_input = input(f"Starting date (YYYY-MM-DD) [{today.isoformat()}]: ").strip()
+    if date_input:
+        try:
+            start_date = dt.datetime.strptime(date_input, '%Y-%m-%d').date()
+        except ValueError:
+            print("Invalid date format. Using today.")
+            start_date = today
+    else:
+        start_date = today
+
+    generate_shopping_list(sol, name, args.reach, today=start_date)
     print("Shopping list saved")
 
 

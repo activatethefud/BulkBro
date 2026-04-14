@@ -6,7 +6,7 @@ import time
 from copy import copy
 
 import simulation as main_module
-from simulation import sublists, simulate_plan, generate_day, shopping_list
+from simulation import sublists, simulate_plan, generate_day, shopping_list, generate_shopping_list
 from day import Day
 from nutrition import Nutrition
 from ingredient import Ingredient
@@ -441,6 +441,70 @@ def test_shopping_list():
     assert 'cena' in result
 
 
+def test_generate_shopping_list_with_custom_date():
+    """Test generate_shopping_list with a specific start date."""
+    import datetime as dt
+    import os
+    
+    day = Day([MEALS[0]])
+    custom_date = dt.date(2024, 1, 15)
+    
+    generate_shopping_list([day], 'test_date_shopping', today=custom_date)
+    
+    filepath = 'plans/test_date_shopping_shopping.txt'
+    assert os.path.exists(filepath)
+    
+    with open(filepath, 'r') as f:
+        content = f.read()
+    
+    assert '2024-01-15' in content
+    
+    os.remove(filepath)
+
+
+def test_generate_shopping_list_default_date():
+    """Test generate_shopping_list uses today's date by default."""
+    import datetime as dt
+    import os
+    
+    day = Day([MEALS[0]])
+    today = dt.date.today()
+    
+    generate_shopping_list([day], 'test_default_date')
+    
+    filepath = 'plans/test_default_date_shopping.txt'
+    assert os.path.exists(filepath)
+    
+    with open(filepath, 'r') as f:
+        content = f.read()
+    
+    assert today.isoformat() in content
+    
+    os.remove(filepath)
+
+
+def test_date_parsing_valid():
+    """Test valid date parsing."""
+    import datetime as dt
+    
+    test_date = "2024-06-15"
+    result = dt.datetime.strptime(test_date, '%Y-%m-%d').date()
+    assert result == dt.date(2024, 6, 15)
+
+
+def test_date_parsing_invalid():
+    """Test invalid date format raises ValueError."""
+    import datetime as dt
+    
+    invalid_dates = ["2024/06/15", "15-06-2024", "invalid"]
+    for date_str in invalid_dates:
+        try:
+            dt.datetime.strptime(date_str, '%Y-%m-%d').date()
+            assert False, f"Should have raised for: {date_str}"
+        except ValueError:
+            pass
+
+
 def test_caching():
     before = len(main_module._sim_cache)
     day = Day([MEALS[0]])
@@ -592,6 +656,10 @@ def main():
         ("fitness_zero_range_handling", test_fitness_zero_range_handling),
         ("simulate_plan_price_accuracy", test_simulate_plan_price_accuracy),
         ("shopping_list", test_shopping_list),
+        ("generate_shopping_list_with_custom_date", test_generate_shopping_list_with_custom_date),
+        ("generate_shopping_list_default_date", test_generate_shopping_list_default_date),
+        ("date_parsing_valid", test_date_parsing_valid),
+        ("date_parsing_invalid", test_date_parsing_invalid),
         ("caching", test_caching),
         ("performance", test_performance),
         ("optimizer_init", test_optimizer_init),
