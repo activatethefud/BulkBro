@@ -3,6 +3,8 @@
 Provides Day class representing a day of meals.
 """
 
+from nutrition import Nutrition
+
 
 class Day:
     """Represents a day containing multiple meals.
@@ -23,7 +25,7 @@ class Day:
         """
         self.meals = meals
         self._meal_nutris = [meal.nutri() for meal in meals]
-        self._day_nutri = sum(self._meal_nutris)
+        self._day_nutri = sum(self._meal_nutris) if self._meal_nutris else Nutrition(0, 0, 0, 0)
 
     def __iter__(self):
         """Iterate over meals.

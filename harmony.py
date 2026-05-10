@@ -56,6 +56,7 @@ class HarmonyOptimizer:
         self._skip_prot = goal_prot < 0
         self._skip_ratio = goal_ratio < 0
         self._skip_mealcount = goal_mealcount < 0
+        self._skip_diversity = goal_diversity < 0
         
         # Actual target values (use absolute values for calculation)
         target_kcal = abs(goal_kcal) if goal_kcal > 0 else 2000

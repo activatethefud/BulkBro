@@ -77,7 +77,9 @@ def main():
     run_parser.add_argument('-p', '--protein', type=int, default=config.DEFAULT_PROTEIN,
                           help=f'Target daily protein in grams (-1 to ignore, default: {config.DEFAULT_PROTEIN})')
     run_parser.add_argument('-r', '--ratio', type=float, default=config.DEFAULT_RATIO,
-                          help=f'Target carb/fat ratio (-1 to ignore, default: {config.DEFAULT_RATIO})')
+                           help=f'Target carb/fat ratio (-1 to ignore, default: {config.DEFAULT_RATIO})')
+    run_parser.add_argument('-i', '--diversity', type=int, default=-1,
+                           help='Target number of unique ingredients (-1 to ignore, default: -1)')
     run_parser.add_argument('-t', '--time-limit', type=int, default=config.DEFAULT_TIME_LIMIT,
                           help=f'Optimization time limit in seconds (default: {config.DEFAULT_TIME_LIMIT})')
     run_parser.add_argument('-o', '--output', type=str, default='meal_plan',
@@ -121,6 +123,7 @@ def do_run(args):
     print(f"Target kcal: {args.kcal}")
     print(f"Target protein: {args.protein}g")
     print(f"Carb/fat ratio: {args.ratio}")
+    print(f"Target diversity: {args.diversity}" if args.diversity > 0 else "Target diversity: -1 (ignored)")
     print(f"Time limit: {args.time_limit}s")
     print("=" * 40)
 
@@ -130,6 +133,7 @@ def do_run(args):
         goal_kcal=args.kcal,
         goal_prot=args.protein,
         goal_ratio=args.ratio,
+        goal_diversity=args.diversity,
         pop_size=args.pop_size
     )
 

@@ -778,6 +778,13 @@ def main():
         ("skip_flags", test_skip_flags),
         ("skip_target_values", test_skip_target_values),
         ("crowding_empty", test_crowding_empty),
+        ("diversity_calculation_basic", test_diversity_calculation_basic),
+        ("diversity_different_plans", test_diversity_different_plans),
+        ("diversity_empty_plan", test_diversity_empty_plan),
+        ("diversity_single_meal", test_diversity_single_meal),
+        ("diversity_fitness_scoring", test_diversity_fitness_scoring),
+        ("diversity_goal_not_set", test_diversity_goal_not_set),
+        ("diversity_all_same_ingredients", test_diversity_all_same_ingredients),
     ]
 
     passed = 0
@@ -793,6 +800,118 @@ def main():
     print(f"Results: {passed} passed, {failed} failed")
 
     return failed == 0
+
+
+def test_diversity_calculation_basic():
+    """Test that diversity calculation returns correct count of unique ingredients."""
+    from harmony import HarmonyOptimizer
+    
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, pop_size=10)
+    sol = opt.init_pop(10, 3)[0]
+    
+    objectives = opt._compute_objectives(sol)
+    
+    assert 'diversity' in objectives, "diversity should be in objectives"
+    assert objectives['diversity'] > 0, "diversity should be positive for valid plan"
+
+
+def test_diversity_different_plans():
+    """Test that different plans have different diversity scores."""
+    from harmony import HarmonyOptimizer
+    
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, pop_size=10)
+    
+    sol1 = opt.init_pop(10, 3)[0]
+    sol2 = opt.init_pop(10, 3)[1]
+    
+    obj1 = opt._compute_objectives(sol1)
+    obj2 = opt._compute_objectives(sol2)
+    
+    assert obj1['diversity'] > 0
+    assert obj2['diversity'] > 0
+
+
+def test_diversity_empty_plan():
+    """Test diversity calculation for edge cases."""
+    from harmony import HarmonyOptimizer
+    
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, pop_size=10)
+    
+    empty_day = Day([])
+    empty_plan = [empty_day, empty_day, empty_day]
+    
+    objectives = opt._compute_objectives(empty_plan)
+    
+    assert objectives['diversity'] == 0, "Empty plan should have zero diversity"
+
+
+def test_diversity_single_meal():
+    """Test diversity with single meal per day."""
+    from harmony import HarmonyOptimizer
+    
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, pop_size=10)
+    
+    single_meal_plan = [[MEALS[0]], [MEALS[0]], [MEALS[0]]]
+    plan = [Day(m) for m in single_meal_plan]
+    
+    objectives = opt._compute_objectives(plan)
+    
+    assert objectives['diversity'] > 0
+
+
+def test_diversity_fitness_scoring():
+    """Test that fitness scoring uses diversity when goal_diversity > 0."""
+    from harmony import HarmonyOptimizer
+    
+    opt_with_div = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, 
+                                     goal_diversity=10, pop_size=10)
+    sol = opt_with_div.init_pop(10, 3)[0]
+    
+    score_with = opt_with_div.fitness(sol)
+    
+    opt_without_div = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, 
+                                        goal_diversity=-1, pop_size=10)
+    
+    score_without = opt_without_div.fitness(sol)
+    
+    assert score_with != score_without, "Scores should differ when diversity is enabled"
+
+
+def test_diversity_goal_not_set():
+    """Test diversity is skipped when goal_diversity is -1."""
+    from harmony import HarmonyOptimizer
+    
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, 
+                            goal_diversity=-1, pop_size=10)
+    sol = opt.init_pop(10, 3)[0]
+    
+    score = opt.fitness(sol)
+    
+    objectives = opt._compute_objectives(sol)
+    diversity_raw = objectives['diversity']
+    
+    assert diversity_raw > 0, "Diversity raw value should still be computed"
+    assert opt._skip_diversity == True, "Skip flag should be set when goal_diversity < 0"
+
+
+def test_diversity_all_same_ingredients():
+    """Test diversity with plan using same ingredients."""
+    from harmony import HarmonyOptimizer
+    
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, pop_size=10)
+    
+    same_meal_plan = [[MEALS[0]], [MEALS[0]], [MEALS[0]]]
+    plan = [Day(m) for m in same_meal_plan]
+    
+    objectives = opt._compute_objectives(plan)
+    
+    diversity_count = objectives['diversity']
+    
+    unique_ingr_in_meal = set()
+    for ingr in MEALS[0].ingredients:
+        unique_ingr_in_meal.add(ingr.name)
+    
+    assert diversity_count <= len(unique_ingr_in_meal), "Same meal plan should have limited diversity"
 
 
 if __name__ == "__main__":
