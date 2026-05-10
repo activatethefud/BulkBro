@@ -22,7 +22,6 @@ _ingr_rots_in = {name: i.rots_in for name, i in ingredients.items()}
 # Caches
 _sim_cache = {}
 _day_rots_cache = {}
-_day_nutri_cache = {}
 
 
 # ============================================================================
@@ -59,13 +58,8 @@ def _get_day_rots(day):
 
 
 def _get_day_nutrition_cached(day):
-    """Get cached daily nutrition."""
-    did = id(day)
-    if did in _day_nutri_cache:
-        return _day_nutri_cache[did]
-    nutr = day.day_nutri()
-    _day_nutri_cache[did] = nutr
-    return nutr
+    """Get daily nutrition from Day's internal cache."""
+    return day.day_nutri()
 
 
 # ============================================================================
@@ -84,6 +78,14 @@ def simulate_plan(plan):
     if plan_hash in _sim_cache:
         cached = _sim_cache[plan_hash].copy()
         cached['plan'] = plan
+        day_nutris = [_get_day_nutrition_cached(day) for day in plan]
+        n = len(plan) or 1
+        cached['nutri'] = Nutrition(
+            sum(dn.kcal for dn in day_nutris) / n,
+            sum(dn.carb for dn in day_nutris) / n,
+            sum(dn.prot for dn in day_nutris) / n,
+            sum(dn.fat for dn in day_nutris) / n
+        )
         return cached
 
     price = 0

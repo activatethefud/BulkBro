@@ -183,7 +183,7 @@ def test_day_nutri():
 
 def test_simulate_plan_nutrition_accuracy():
     main_module._sim_cache.clear()
-    main_module._day_nutri_cache.clear()
+    
     
     sol = [
         Day([MEALS[0], MEALS[0]]),
@@ -205,14 +205,14 @@ def test_simulate_plan_nutrition_accuracy():
 
 
 def test_generate_day_meal_count():
-    main_module._day_nutri_cache.clear()
+    
     
     day = generate_day([2000, 0, 0, 0], 3)
     assert len(day) == 3, f"Expected 3 meals, got {len(day)}"
 
 
 def test_generate_day_exact_meals():
-    main_module._day_nutri_cache.clear()
+    
     
     for target in [1, 2, 3, 5]:
         for _ in range(5):
@@ -222,7 +222,7 @@ def test_generate_day_exact_meals():
 
 def test_plan_average_multiday():
     main_module._sim_cache.clear()
-    main_module._day_nutri_cache.clear()
+    
     
     sol = [
         Day([MEALS[0], MEALS[0], MEALS[0]]),
@@ -245,7 +245,7 @@ def test_plan_average_multiday():
 
 def test_plan_average_varying_meals():
     main_module._sim_cache.clear()
-    main_module._day_nutri_cache.clear()
+    
     
     sol = [
         Day([MEALS[0]]),
@@ -287,7 +287,7 @@ def test_pickle_roundtrip_preserves_nutrition():
     import os
     
     main_module._sim_cache.clear()
-    main_module._day_nutri_cache.clear()
+    
     
     sol = [Day([MEALS[0], MEALS[0]]), Day([MEALS[0]])]
     
@@ -303,7 +303,7 @@ def test_pickle_roundtrip_preserves_nutrition():
     os.unlink(fname)
     
     main_module._sim_cache.clear()
-    main_module._day_nutri_cache.clear()
+    
     
     reloaded = simulate_plan(loaded)['nutri'].kcal
     
@@ -312,16 +312,16 @@ def test_pickle_roundtrip_preserves_nutrition():
 
 def test_simulate_plan_equals_generate_plan():
     main_module._sim_cache.clear()
-    main_module._day_nutri_cache.clear()
+    
     
     sol = [Day([MEALS[0], MEALS[0]]), Day([MEALS[0]])]
     
     main_module._sim_cache.clear()
-    main_module._day_nutri_cache.clear()
+    
     sim_result = simulate_plan(sol)['nutri'].kcal
     
     main_module._sim_cache.clear()
-    main_module._day_nutri_cache.clear()
+    
     from harmony import HarmonyOptimizer
     opt = HarmonyOptimizer(plan_len=2, goal_mealcount=3)
     plan = opt.generate_plan(sol)
@@ -333,7 +333,7 @@ def test_simulate_plan_equals_generate_plan():
 def test_day_consistency_calculation():
     import numpy as np
     main_module._sim_cache.clear()
-    main_module._day_nutri_cache.clear()
+    
     
     sol = [
         Day([MEALS[0], MEALS[0], MEALS[0]]),
@@ -514,6 +514,109 @@ def test_caching():
     assert after >= before
 
 
+def test_cache_nutrition_accuracy():
+    """Test that cached simulation returns correct nutrition values."""
+    main_module._sim_cache.clear()
+    
+    
+    day1 = Day([MEALS[0]])
+    day2 = Day([MEALS[1]])
+    plan = [day1, day2]
+    
+    manual_cal = sum(d.day_nutri().kcal for d in plan) / len(plan)
+    
+    result1 = simulate_plan(plan)
+    cached_cal = result1['nutri'].kcal
+    
+    assert abs(manual_cal - cached_cal) < 1, f"Cache returned {cached_cal}, expected {manual_cal}"
+
+
+def test_cache_different_plans_same_meals():
+    """Test that different plans with same meal names get correct各自的nutrition."""
+    main_module._sim_cache.clear()
+    
+    
+    m1, m2, m3 = MEALS[0], MEALS[1], MEALS[2]
+    
+    plan_a = [Day([m1, m2]), Day([m3])]
+    plan_b = [Day([m3]), Day([m1, m2])]
+    
+    result_a = simulate_plan(plan_a)
+    result_b = simulate_plan(plan_b)
+    
+    manual_a = sum(d.day_nutri().kcal for d in plan_a) / len(plan_a)
+    manual_b = sum(d.day_nutri().kcal for d in plan_b) / len(plan_b)
+    
+    assert abs(result_a['nutri'].kcal - manual_a) < 1, f"Plan A: cached {result_a['nutri'].kcal} vs manual {manual_a}"
+    assert abs(result_b['nutri'].kcal - manual_b) < 1, f"Plan B: cached {result_b['nutri'].kcal} vs manual {manual_b}"
+
+
+def test_cache_after_optimization():
+    """Test cache returns correct values after optimizer runs."""
+    main_module._sim_cache.clear()
+    
+    
+    from harmony import HarmonyOptimizer
+    
+    opt = HarmonyOptimizer(plan_len=3, goal_mealcount=3, goal_kcal=1500, goal_prot=80, pop_size=20)
+    sol = opt.optimize(2)
+    
+    manual = sum(d.day_nutri().kcal for d in sol) / len(sol)
+    result = simulate_plan(sol)
+    
+    assert abs(result['nutri'].kcal - manual) < 1, f"After optimization: cached {result['nutri'].kcal} vs manual {manual}"
+
+
+def test_extreme_low_kcal():
+    """Test optimization with very low kcal target (500)."""
+    main_module._sim_cache.clear()
+    
+    
+    from harmony import HarmonyOptimizer
+    
+    opt = HarmonyOptimizer(plan_len=3, goal_mealcount=3, goal_kcal=500, goal_prot=40, goal_ratio=2.0, pop_size=30)
+    sol = opt.optimize(3)
+    
+    manual = sum(d.day_nutri().kcal for d in sol) / len(sol)
+    result = simulate_plan(sol)
+    
+    assert abs(result['nutri'].kcal - manual) < 1, f"Low kcal: cached {result['nutri'].kcal} vs manual {manual}"
+    assert result['nutri'].kcal > 0, "Low kcal plan should have positive calories"
+
+
+def test_extreme_high_kcal():
+    """Test optimization with very high kcal target (3500)."""
+    main_module._sim_cache.clear()
+    
+    
+    from harmony import HarmonyOptimizer
+    
+    opt = HarmonyOptimizer(plan_len=3, goal_mealcount=3, goal_kcal=3500, goal_prot=180, goal_ratio=2.0, pop_size=30)
+    sol = opt.optimize(3)
+    
+    manual = sum(d.day_nutri().kcal for d in sol) / len(sol)
+    result = simulate_plan(sol)
+    
+    assert abs(result['nutri'].kcal - manual) < 1, f"High kcal: cached {result['nutri'].kcal} vs manual {manual}"
+
+
+def test_extreme_kcal_very_low():
+    """Test optimization with minimum viable kcal (300)."""
+    main_module._sim_cache.clear()
+    
+    
+    from harmony import HarmonyOptimizer
+    
+    opt = HarmonyOptimizer(plan_len=3, goal_mealcount=3, goal_kcal=300, goal_prot=30, goal_ratio=2.0, pop_size=30)
+    sol = opt.optimize(3)
+    
+    manual = sum(d.day_nutri().kcal for d in sol) / len(sol)
+    result = simulate_plan(sol)
+    
+    assert abs(result['nutri'].kcal - manual) < 1, f"Very low kcal: cached {result['nutri'].kcal} vs manual {manual}"
+    assert result['nutri'].kcal > 0, "Plan should have positive calories"
+
+
 def test_performance():
     days = [Day([MEALS[0]]) for _ in range(10)]
 
@@ -661,6 +764,12 @@ def main():
         ("date_parsing_valid", test_date_parsing_valid),
         ("date_parsing_invalid", test_date_parsing_invalid),
         ("caching", test_caching),
+        ("cache_nutrition_accuracy", test_cache_nutrition_accuracy),
+        ("cache_different_plans_same_meals", test_cache_different_plans_same_meals),
+        ("cache_after_optimization", test_cache_after_optimization),
+        ("extreme_low_kcal", test_extreme_low_kcal),
+        ("extreme_high_kcal", test_extreme_high_kcal),
+        ("extreme_kcal_very_low", test_extreme_kcal_very_low),
         ("performance", test_performance),
         ("optimizer_init", test_optimizer_init),
         ("target_score", test_target_score),
