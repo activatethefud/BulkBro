@@ -483,6 +483,33 @@ def test_generate_shopping_list_default_date():
     os.remove(filepath)
 
 
+def test_save_plan_auto_generates_shopping_list():
+    """Test that save_plan + generate_shopping_list workflow works."""
+    import os
+    from harmony import HarmonyOptimizer
+    
+    opt = HarmonyOptimizer(plan_len=2, goal_kcal=1500, goal_prot=80, pop_size=10)
+    sol = opt.init_pop(10, 2)[0]
+    
+    test_filename = 'test_auto_shopping'
+    pickle_path = f'plans/{test_filename}.pickle'
+    shopping_path = f'plans/{test_filename}_shopping.txt'
+    
+    if os.path.exists(shopping_path):
+        os.remove(shopping_path)
+    if os.path.exists(pickle_path):
+        os.remove(pickle_path)
+    
+    opt.save_plan(test_filename, sol)
+    generate_shopping_list(sol, test_filename)
+    
+    assert os.path.exists(pickle_path), "Pickle file should exist"
+    assert os.path.exists(shopping_path), "Shopping list should be generated"
+    
+    os.remove(pickle_path)
+    os.remove(shopping_path)
+
+
 def test_date_parsing_valid():
     """Test valid date parsing."""
     import datetime as dt
@@ -761,6 +788,7 @@ def main():
         ("shopping_list", test_shopping_list),
         ("generate_shopping_list_with_custom_date", test_generate_shopping_list_with_custom_date),
         ("generate_shopping_list_default_date", test_generate_shopping_list_default_date),
+        ("save_plan_auto_generates_shopping_list", test_save_plan_auto_generates_shopping_list),
         ("date_parsing_valid", test_date_parsing_valid),
         ("date_parsing_invalid", test_date_parsing_invalid),
         ("caching", test_caching),

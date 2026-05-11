@@ -87,14 +87,6 @@ def main():
     run_parser.add_argument('--pop-size', type=int, default=config.DEFAULT_POP_SIZE,
                           help=f'Population size (default: {config.DEFAULT_POP_SIZE})')
 
-    # shop subcommand
-    shop_parser = subparsers.add_parser('shop', help='Generate shopping list')
-    shop_parser.add_argument('solution', type=str, help='Solution pickle file')
-    shop_parser.add_argument('-r', '--reach', type=int, default=-1,
-                           help='Days to generate shopping for')
-    shop_parser.add_argument('-s', '--start-date', type=str, default=None,
-                           help='Starting date (YYYY-MM-DD, default: today)')
-
     # load subcommand
     load_parser = subparsers.add_parser('load', help='Load and display solution')
     load_parser.add_argument('solution', type=str, help='Solution pickle file')
@@ -107,8 +99,6 @@ def main():
 
     if args.command == 'run':
         do_run(args)
-    elif args.command == 'shop':
-        do_shop(args)
     elif args.command == 'load':
         do_load(args)
 
@@ -151,40 +141,10 @@ def do_run(args):
         })
         filename = args.output
         optimizer.save_plan(filename, solution)
-        print(f"\nSolution saved to plans/{filename}")
+        generate_shopping_list(solution, filename)
+        print(f"\nPlan saved to plans/{filename}_shopping.txt")
     else:
         print("No solution found")
-
-
-def do_shop(args):
-    import datetime as dt
-
-    filename = args.solution
-    if not filename.endswith('.pickle'):
-        filename = f"plans/{filename}.pickle"
-
-    try:
-        sol = pickle.load(open(filename, 'rb'))
-    except FileNotFoundError:
-        print(f"Error: Solution file not found: {filename}")
-        return
-
-    print(f"Loaded solution from {filename}")
-    name = args.solution.replace('.pickle', '')
-
-    today = dt.date.today()
-    date_input = input(f"Starting date (YYYY-MM-DD) [{today.isoformat()}]: ").strip()
-    if date_input:
-        try:
-            start_date = dt.datetime.strptime(date_input, '%Y-%m-%d').date()
-        except ValueError:
-            print("Invalid date format. Using today.")
-            start_date = today
-    else:
-        start_date = today
-
-    generate_shopping_list(sol, name, args.reach, today=start_date)
-    print("Shopping list saved")
 
 
 def do_load(args):
@@ -251,7 +211,8 @@ def do_run_interactive():
         if save == 'y':
             filename = input("Filename: ").strip()
             optimizer.save_plan(filename, solution)
-            print("Saved!")
+            generate_shopping_list(solution, filename)
+            print(f"Plan saved to plans/{filename}_shopping.txt")
 
 
 if __name__ == '__main__':

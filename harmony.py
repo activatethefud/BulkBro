@@ -552,22 +552,13 @@ class HarmonyOptimizer:
         return plan
     
     def save_plan(self, filename, sol):
-        """Save solution to file."""
-        import pprint as pp
+        """Save solution to pickle file."""
         import pickle
         
         plans_dir = "plans"
         os.makedirs(plans_dir, exist_ok=True)
         
         pickle.dump(sol, open(f"{plans_dir}/{filename}.pickle", "wb"))
-        
-        plan = self.generate_plan(sol)
-        s = pp.pformat(plan)
-        
-        with open(f"{plans_dir}/{filename}", 'w') as f:
-            f.write(s)
-        
-        print(f"Saved to {plans_dir}/{filename}")
 
 
 def optimize(**kwargs):
