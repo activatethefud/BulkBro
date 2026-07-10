@@ -745,6 +745,92 @@ def test_optimizer_first_pass():
     assert isinstance(score, (int, float))
 
 
+# ============================================================
+# Statlist normalization & meal spam regression tests
+# ============================================================
+
+def test_statlist_basic():
+    from util import statlist
+    sl = statlist()
+    for v in [10, 20, 30, 40, 50]:
+        sl.append(v)
+    assert sl.len == 5
+    assert sl.max == 50
+    assert sl.min == 10
+    assert sl.avg == 30
+    assert sl.max_abs == 50
+    assert abs(sl.normalize(25) - 25 / (50 + 0.01)) < 1e-6
+    sl.append(-60)
+    assert sl.max_abs == 60
+    assert abs(sl.normalize(-30) - (-30 / (60 + 0.01))) < 1e-6
+
+
+def test_statlist_normalize_empty():
+    from util import statlist
+    sl = statlist()
+    result = sl.normalize(100)
+    assert result == 100 / (0 + 0.01)
+
+
+def test_fitness_scores_normalized_range():
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, goal_ratio=2.0, goal_mealcount=3, pop_size=50)
+    pop = opt.init_pop(50, 9)
+    for sol in pop:
+        opt.fitness(sol)
+    for sol in pop[:10]:
+        score = opt.fitness(sol)
+        assert -2 < score < 2, f"Score {score} out of normalized range"
+
+
+def test_fitness_equal_weight_criteria():
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, goal_ratio=2.0, goal_mealcount=3, pop_size=30)
+    pop = opt.init_pop(30, 9)
+    for sol in pop:
+        opt.fitness(sol)
+    for key in ['kcal', 'prot', 'ratio', 'mealcount', 'consistency', 'meal_rep']:
+        assert key in opt.statlists, f"statlist '{key}' missing"
+        assert opt.statlists[key].len > 0, f"statlist '{key}' empty"
+
+
+def test_no_meal_spam_regression():
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=1050, goal_prot=-1, goal_ratio=0.1, goal_mealcount=3, pop_size=30)
+    pop = opt.init_pop(30, 9)
+    best_score = float('-inf')
+    best_sol = None
+    for sol in pop:
+        score = opt.fitness(sol)
+        if score > best_score:
+            best_score = score
+            best_sol = sol
+    meal_names = [meal.name for day in best_sol for meal in day]
+    counts = Counter(meal_names)
+    max_pct = max(counts.values()) / len(meal_names)
+    assert max_pct <= 0.5, f"Meal spam: {max(counts.values())}/{len(meal_names)} = {max_pct:.2f}"
+
+
+def test_normalize_score_empty_fallback():
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, pop_size=10)
+    result = opt._normalize_score('kcal', 5.0)
+    assert result == 5.0
+    assert opt.statlists['kcal'].max_abs < 0.01
+
+
+def test_meal_rep_equal_weight():
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, goal_ratio=2.0, goal_mealcount=3, pop_size=20)
+    pop = opt.init_pop(20, 9)
+    for sol in pop:
+        opt.fitness(sol)
+    assert 'meal_rep' in opt.statlists
+    assert opt.statlists['meal_rep'].len > 0
+    result = opt._normalize_score('meal_rep', 0.5)
+    assert 0 <= result <= 1.0, f"meal_rep normalized score {result} out of [0,1]"
+
+
 def main():
     tests = [
         ("sublists", test_sublists),
@@ -813,6 +899,85 @@ def main():
         ("diversity_fitness_scoring", test_diversity_fitness_scoring),
         ("diversity_goal_not_set", test_diversity_goal_not_set),
         ("diversity_all_same_ingredients", test_diversity_all_same_ingredients),
+        ("no_fridge_get_day_rots", test_no_fridge_get_day_rots),
+        ("no_fridge_simulate_plan", test_no_fridge_simulate_plan),
+        ("no_fridge_shopping_list", test_no_fridge_shopping_list),
+        ("no_fridge_optimizer_runs", test_no_fridge_optimizer_runs),
+        ("extreme_ratio_keto", test_extreme_ratio_keto),
+        ("extreme_ratio_high_protein", test_extreme_ratio_high_protein),
+        ("extreme_ratio_low_carb_variety", test_extreme_ratio_low_carb_variety),
+        ("meal_diversity_metric", test_meal_diversity_metric),
+        ("generate_day_target_biased", test_generate_day_target_biased),
+        ("extreme_ratio_no_single_meal_obsession", test_extreme_ratio_no_single_meal_obsession),
+        # Nutrition edge cases
+        ("nutrition_add_identical", test_nutrition_add_identical),
+        ("nutrition_mul_zero", test_nutrition_mul_zero),
+        ("nutrition_mul_fraction", test_nutrition_mul_fraction),
+        ("nutrition_dist_identical", test_nutrition_dist_identical),
+        ("nutrition_dist_non_nutrition", test_nutrition_dist_non_nutrition),
+        ("nutrition_sum_multiple", test_nutrition_sum_multiple),
+        ("nutrition_eq_type_check", test_nutrition_eq_type_check),
+        # Meal edge cases
+        ("meal_empty_ingredients_nutri_zero", test_meal_empty_ingredients_nutri_zero),
+        ("meal_portion_zero_no_ingredients", test_meal_portion_zero_no_ingredients),
+        ("meal_equality_different_name", test_meal_equality_different_name),
+        ("meal_lt_by_name", test_meal_lt_by_name),
+        # Day edge cases
+        ("day_empty_nutrition_zero", test_day_empty_nutrition_zero),
+        ("day_len_zero", test_day_len_zero),
+        ("day_set_meal_updates_total", test_day_set_meal_updates_total),
+        ("day_lt_always_true", test_day_lt_always_true),
+        ("day_meal_nutri_index", test_day_meal_nutri_index),
+        # Ingredient edge cases
+        ("ingredient_not_equal", test_ingredient_not_equal),
+        ("ingredient_portion_small_qty_no_scale", test_ingredient_portion_small_qty_no_scale),
+        ("ingredient_mul_creates_copy", test_ingredient_mul_creates_copy),
+        ("ingredient_to_buy_rounds_up", test_ingredient_to_buy_rounds_up),
+        ("ingredient_is_rotten_check", test_ingredient_is_rotten_check),
+        ("ingredient_hash_is_name_based", test_ingredient_hash_is_name_based),
+        # Insulin Index edge cases
+        ("insulin_index_zero_macros", test_insulin_index_zero_macros),
+        ("insulin_index_negative_clamped", test_insulin_index_negative_clamped),
+        ("insulin_index_ii_category", test_insulin_index_ii_category),
+        ("insulin_index_boundaries", test_insulin_index_boundaries),
+        ("insulin_index_empty_meals_list", test_insulin_index_empty_meals_list),
+        ("insulin_index_day_empty", test_insulin_index_day_empty),
+        # Simulation edge cases
+        ("generate_day_empty_meals", test_generate_day_empty_meals),
+        ("clear_caches_no_error", test_clear_caches_no_error),
+        ("sublists_empty", test_sublists_empty),
+        ("sublists_single_element", test_sublists_single_element),
+        ("sublists_all_identical", test_sublists_all_identical),
+        # Harmony optimizer edge cases
+        ("optimizer_init_pop_non_empty", test_optimizer_init_pop_non_empty),
+        ("optimizer_chromosome_length", test_optimizer_chromosome_length),
+        ("optimizer_fitness_is_callable", test_optimizer_fitness_is_callable),
+        ("optimizer_objectives_has_required_keys", test_optimizer_objectives_has_required_keys),
+        ("optimizer_compute_objectives_all_keys", test_optimizer_compute_objectives_all_keys),
+        ("optimizer_target_nutri_calculation", test_optimizer_target_nutri_calculation),
+        # Diversity edge cases
+        ("diversity_no_penalty_when_meeting_target", test_diversity_no_penalty_when_meeting_target),
+        ("diversity_rep_penalty_all_same", test_diversity_rep_penalty_all_same),
+        ("diversity_rep_penalty_all_unique", test_diversity_rep_penalty_all_unique),
+        # Config
+        ("config_defaults_positive", test_config_defaults_positive),
+        # Meal source
+        ("meal_source_valid", test_meal_source_valid),
+        # Cache
+        ("cache_no_unbounded_growth", test_cache_does_not_grow_unbounded),
+        # Shopping list
+        ("shopping_list_empty_plan", test_shopping_list_empty_plan),
+        ("shopping_list_zero_reach", test_shopping_list_zero_reach),
+        # Default source
+        ("default_meal_source_valid", test_default_meal_source_is_djina),
+        # Statlist normalization & meal spam regression
+        ("statlist_basic", test_statlist_basic),
+        ("statlist_normalize_empty", test_statlist_normalize_empty),
+        ("fitness_scores_normalized_range", test_fitness_scores_normalized_range),
+        ("fitness_equal_weight_criteria", test_fitness_equal_weight_criteria),
+        ("no_meal_spam_regression", test_no_meal_spam_regression),
+        ("normalize_score_empty_fallback", test_normalize_score_empty_fallback),
+        ("meal_rep_equal_weight", test_meal_rep_equal_weight),
     ]
 
     passed = 0
