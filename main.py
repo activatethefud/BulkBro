@@ -78,8 +78,8 @@ def main():
                           help=f'Target daily protein in grams (-1 to ignore, default: {config.DEFAULT_PROTEIN})')
     run_parser.add_argument('-r', '--ratio', type=float, default=config.DEFAULT_RATIO,
                            help=f'Target carb/fat ratio (-1 to ignore, default: {config.DEFAULT_RATIO})')
-    run_parser.add_argument('-i', '--diversity', type=int, default=-1,
-                           help='Target number of unique ingredients (-1 to ignore, default: -1)')
+    run_parser.add_argument('-i', '--diversity', type=int, default=config.DEFAULT_DIVERSITY,
+                           help=f'Target number of unique ingredients (default: {config.DEFAULT_DIVERSITY})')
     run_parser.add_argument('-t', '--time-limit', type=int, default=config.DEFAULT_TIME_LIMIT,
                           help=f'Optimization time limit in seconds (default: {config.DEFAULT_TIME_LIMIT})')
     run_parser.add_argument('-o', '--output', type=str, default='meal_plan',

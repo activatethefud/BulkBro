@@ -15,12 +15,13 @@ import simulation
 import config
 from day import Day
 from meals import meals, ingredients_in_meals, ingredients_in_meals_list, meals_complement
+from util import statlist
 
 
 class HarmonyOptimizer:
     """Harmony search optimizer for meal planning with improved mathematics."""
     
-    def __init__(self, plan_len=config.DEFAULT_DAYS, goal_mealcount=config.DEFAULT_MEALS_PER_DAY, goal_kcal=config.DEFAULT_KCAL, goal_prot=config.DEFAULT_PROTEIN, goal_ratio=config.DEFAULT_RATIO, goal_price=-1, goal_waste=-1, goal_diversity=-1, pop_size=config.DEFAULT_POP_SIZE):
+    def __init__(self, plan_len=config.DEFAULT_DAYS, goal_mealcount=config.DEFAULT_MEALS_PER_DAY, goal_kcal=config.DEFAULT_KCAL, goal_prot=config.DEFAULT_PROTEIN, goal_ratio=config.DEFAULT_RATIO, goal_price=-1, goal_waste=-1, goal_diversity=config.DEFAULT_DIVERSITY, pop_size=config.DEFAULT_POP_SIZE):
         """Initialize optimizer.
         
         Parameters
@@ -102,6 +103,18 @@ class HarmonyOptimizer:
         self.generate_day_cache = {}
         self.solutions_with_fitness = []
         
+        self.statlists = {
+            'kcal': statlist(),
+            'prot': statlist(),
+            'ratio': statlist(),
+            'price': statlist(),
+            'waste': statlist(),
+            'diversity': statlist(),
+            'mealcount': statlist(),
+            'consistency': statlist(),
+            'meal_rep': statlist(),
+        }
+        
         self.solution = None
         
         # Optimization state
@@ -130,6 +143,12 @@ class HarmonyOptimizer:
     def _normalize_price(self, price):
         """Normalize price score to typical budget."""
         return min(1.0, price / self._typical_budget)
+
+    def _normalize_score(self, key, raw):
+        sl = self.statlists[key]
+        if sl.max_abs < 0.01:
+            return raw
+        return sl.normalize(raw)
     
     def generate_chromosome(self, gene_size, meals_used=meals):
         """Generate a chromosome (day plan)."""
@@ -199,11 +218,13 @@ class HarmonyOptimizer:
         # Nutrition objectives
         day_nutris = []
         ingredients_per_day = []
+        all_meals = []
         
         for day in sol:
             day_nutris.append(day.day_nutri())
             day_ingredients = set()
             for meal in day:
+                all_meals.append(meal.name)
                 for ingr in meal.ingredients:
                     day_ingredients.add(ingr.name)
             ingredients_per_day.append(day_ingredients)
@@ -214,10 +235,15 @@ class HarmonyOptimizer:
         avg_carb = np.mean([dn.carb for dn in day_nutris])
         avg_fat = np.mean([dn.fat for dn in day_nutris])
         
-        # Compute diversity
+        # Compute ingredient diversity
         all_ingredients = set()
         for day_ingrs in ingredients_per_day:
             all_ingredients.update(day_ingrs)
+        
+        # Compute meal-level diversity
+        unique_meals = len(set(all_meals))
+        total_meal_slots = len(all_meals)
+        meal_uniq_ratio = unique_meals / max(total_meal_slots, 1)
         
         # Count overlaps within days
         overlap_count = 0
@@ -231,7 +257,10 @@ class HarmonyOptimizer:
             'carb': avg_carb,
             'fat': avg_fat,
             'diversity': len(all_ingredients),
-            'overlap': overlap_ratio
+            'overlap': overlap_ratio,
+            'meal_uniq_ratio': meal_uniq_ratio,
+            'unique_meals': unique_meals,
+            'total_meal_slots': total_meal_slots
         }
     
     def _compute_crowding(self, idx):
@@ -318,9 +347,10 @@ class HarmonyOptimizer:
         
         # Diversity
         diversity_raw = objectives['diversity']
+        meal_uniq_ratio = objectives['meal_uniq_ratio']
         
         # =========================================================================
-        # COMPUTE TARGET-BASED SCORES
+        # COMPUTE TARGET-BASED SCORES (raw, pre-normalization)
         # =========================================================================
         
         def target_score(key, raw_value, target):
@@ -329,37 +359,93 @@ class HarmonyOptimizer:
                 return 0
             return abs(raw_value - target) / target
         
-        # Score each criterion
+        # Score each criterion (raw scores appended to statlists for normalization)
         if self._skip_kcal:
-            kcal_score = 0
+            kcal_score_raw = 0
         else:
-            kcal_score = target_score('kcal', kcal_raw, self.goal_kcal)
+            kcal_score_raw = target_score('kcal', kcal_raw, self.goal_kcal)
+            self.statlists['kcal'].append(kcal_score_raw)
         
         if self._skip_prot:
-            prot_score = 0
+            prot_score_raw = 0
         else:
-            prot_score = target_score('prot', prot_raw, self.goal_prot)
+            prot_score_raw = target_score('prot', prot_raw, self.goal_prot)
+            self.statlists['prot'].append(prot_score_raw)
         
         if self._skip_ratio:
-            ratio_score = 0
+            ratio_score_raw = 0
         else:
-            ratio_score = target_score('ratio', ratio_raw, self.goal_ratio)
+            ratio_score_raw = target_score('ratio', ratio_raw, self.goal_ratio)
+            self.statlists['ratio'].append(ratio_score_raw)
         
         if self._skip_mealcount:
-            mealcount_score = 0
+            mealcount_score_raw = 0
         else:
-            mealcount_score = target_score('mealcount', mealcount_raw, self.goal_mealcount)
+            mealcount_score_raw = target_score('mealcount', mealcount_raw, self.goal_mealcount)
+            self.statlists['mealcount'].append(mealcount_score_raw)
         
-        # Price and waste always tracked
-        price_score = target_score('price', price_raw, self.goal_price) if self.goal_price > 0 else 0
-        waste_score = target_score('waste', waste_raw, self.goal_waste) if self.goal_waste > 0 else 0
-        diversity_score = target_score('diversity', diversity_raw, self.goal_diversity) if self.goal_diversity > 0 else 0
+        # Price and waste
+        if self.goal_price > 0:
+            price_score_raw = target_score('price', price_raw, self.goal_price)
+            self.statlists['price'].append(price_score_raw)
+        else:
+            price_score_raw = 0
+        
+        if self.goal_waste > 0:
+            waste_score_raw = target_score('waste', waste_raw, self.goal_waste)
+            self.statlists['waste'].append(waste_score_raw)
+        else:
+            waste_score_raw = 0
+        
+        # Meal-level repetition penalty (always active)
+        meal_rep_score_raw = 1.0 - meal_uniq_ratio
+        self.statlists['meal_rep'].append(meal_rep_score_raw)
+        
+        # Day-to-day consistency (always active)
+        self.statlists['consistency'].append(consistency_score)
+        
+        # Diversity (only if goal set and below target)
+        if self.goal_diversity > 0 and diversity_raw < self.goal_diversity:
+            diversity_score_raw = target_score('diversity', diversity_raw, self.goal_diversity)
+            self.statlists['diversity'].append(diversity_score_raw)
+        else:
+            diversity_score_raw = 0
+        
+        # Normalize all scores via statlists
+        kcal_score = self._normalize_score('kcal', kcal_score_raw)
+        prot_score = self._normalize_score('prot', prot_score_raw)
+        ratio_score = self._normalize_score('ratio', ratio_score_raw)
+        mealcount_score = self._normalize_score('mealcount', mealcount_score_raw)
+        price_score = self._normalize_score('price', price_score_raw)
+        waste_score = self._normalize_score('waste', waste_score_raw)
+        meal_rep_score = self._normalize_score('meal_rep', meal_rep_score_raw)
+        consistency_score_norm = self._normalize_score('consistency', consistency_score)
+        diversity_score = self._normalize_score('diversity', diversity_score_raw)
         
         # =========================================================================
-        # COMBINE SCORES (equal weights - 1/8 each)
+        # COMBINE SCORES (equal weight per active criterion)
         # =========================================================================
         
-        weight = 1.0 / 9.0  # 9 criteria now (added consistency)
+        # Count active criteria
+        num_active = 0
+        if not self._skip_kcal:
+            num_active += 1
+        if not self._skip_prot:
+            num_active += 1
+        if not self._skip_ratio:
+            num_active += 1
+        if not self._skip_mealcount:
+            num_active += 1
+        if self.goal_price > 0:
+            num_active += 1
+        if self.goal_waste > 0:
+            num_active += 1
+        if self.goal_diversity > 0 and diversity_raw < self.goal_diversity:
+            num_active += 1
+        # consistency and meal_rep always active
+        num_active += 2
+        
+        weight = 1.0 / max(num_active, 1)
         
         score = 0
         if not self._skip_kcal:
@@ -374,10 +460,11 @@ class HarmonyOptimizer:
             score += -weight * price_score
         if self.goal_waste > 0:
             score += -weight * waste_score
-        if self.goal_diversity > 0:
-            score += weight * (1 - diversity_score)
+        if self.goal_diversity > 0 and diversity_raw < self.goal_diversity:
+            score += -weight * diversity_score
         
-        score += -weight * consistency_score
+        score += -weight * meal_rep_score
+        score += -weight * consistency_score_norm
         
         # Store in cache
         self.fitness_cache[sol_hash] = score
@@ -461,15 +548,11 @@ class HarmonyOptimizer:
                         target = elem.day_nutri()
                         target = (
                             np.array([target.kcal, target.carb, target.prot, target.fat])
-                            * (1 + np.random.normal(1, 0))
+                            * max(0.5, np.random.normal(1, 0.1))
                         ).tolist()
                         # Use random meal count when skipped
                         mutate_meals = rd.randint(1, 5) if self._skip_mealcount else self.goal_mealcount
                         picked[idx] = simulation.generate_day(target, mutate_meals)
-                
-                # Add to statlists periodically for current normals
-                if counter % 10 == 0:
-                    self.fitness(picked)
                 
                 picked_fitness = self.fitness(picked)
                 

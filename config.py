@@ -17,6 +17,7 @@ DEFAULT_KCAL = 2000
 DEFAULT_PROTEIN = 100
 DEFAULT_RATIO = 2.0
 DEFAULT_TIME_LIMIT = 60
+DEFAULT_DIVERSITY = 10
 DEFAULT_POP_SIZE = 150
 
 # =============================================================================
