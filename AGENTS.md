@@ -179,6 +179,7 @@ Generate shopping list:
 - `util.py` - Utilities (load_sol)
 - `test_runner.py` - Test suite (157 tests)
 - `docs.py` - Documentation generator
+- `SPEC.md` - Full project specification (architecture, models, algorithms, config)
 
 ## Delivery & Discount Model
 
@@ -244,6 +245,9 @@ Output:
 - `docs/index.html` - Main HTML documentation
 - `docs/api.md` - API reference in Markdown
 
+For the human-readable architecture/algorithm reference see **`SPEC.md`**
+(published at https://github.com/activatethefud/BulkBro).
+
 ## Dependencies
 
 numpy, scikit-learn
@@ -288,3 +292,47 @@ git checkout <commit-hash> -- <file>
 # Or reset to previous commit (discards changes)
 git reset --hard <commit-hash>
 ```
+
+### Publishing SPEC.md and tests to GitHub
+
+The canonical public mirror (including `SPEC.md` and the full test suite) is:
+
+- **Repo:** https://github.com/activatethefud/BulkBro (public, default branch `main`)
+- **Account:** `activatethefud` (`gh auth status` should show it active)
+
+`SPEC.md` and `test_runner.py` are ordinary tracked files, so publishing them is
+just a normal push. The current local branch (`maxi`) is published as `main`, and
+**only that branch is pushed** (experimental branches stay local):
+
+```bash
+# One-time: create the repo + wire the remote (if not already done)
+gh repo create BulkBro --public \
+  --description "BulkBro: multi-day meal-planning & nutrition optimizer with \
+    delivery-cost, discount and food-waste optimisation (Maxi sourcing). \
+    Includes SPEC.md and a 157-test suite."
+git remote add origin https://github.com/activatethefud/BulkBro.git
+
+# Push the current branch as the remote main
+git push -u origin maxi:main
+
+# Subsequent updates (after committing SPEC.md / tests / code)
+git push origin maxi:main
+```
+
+Verify what is live:
+
+```bash
+gh repo view activatethefud/BulkBro --json name,visibility,defaultBranchRef,url
+gh api repos/activatethefud/BulkBro/contents/ --jq '.[].name' | sort   # root files
+gh api repos/activatethefud/BulkBro/contents/SPEC.md --jq '.name,.size'
+```
+
+Publishing checklist / caveats:
+1. Run `python3 test_runner.py` first — a published mirror should be green (157 tests).
+2. The generated catalogs (`maxi_catalog.json`, `wolt_catalog.json`), `plans/*`,
+   `*.pickle` and `*.txt` are **git-ignored** and are therefore not published.
+3. Leave the uncommitted `meals.py` `DEFAULT_SOURCE` edit out of commits unless it
+   is intentional (it is a local/source preference).
+4. Do not push experimental branches (`wolt`, `finer-rotting`, `univerexport`)
+   unless explicitly asked; publish only the intended branch (`maxi` -> `main`).
+5. To make the mirror private/public later: `gh repo edit activatethefud/BulkBro --visibility private|public`.
