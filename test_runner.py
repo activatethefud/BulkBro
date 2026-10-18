@@ -1057,6 +1057,12 @@ def main():
         ("shopping_list_zero_reach", test_shopping_list_zero_reach),
         # Default source
         ("default_meal_source_valid", test_default_meal_source_is_djina),
+        # Wolt product correspondence
+        ("every_ingredient_has_wolt_product", test_every_ingredient_has_wolt_product),
+        ("wolt_product_has_id_name_pack", test_wolt_product_has_id_name_pack),
+        ("wolt_correlation_propagates_copies", test_wolt_correspondence_propagates_through_copies),
+        ("shopping_list_includes_wolt_product", test_shopping_list_includes_wolt_product),
+        ("shopping_list_has_wolt_order_block", test_generate_shopping_list_has_wolt_order_block),
         # Statlist normalization & meal spam regression
         ("statlist_basic", test_statlist_basic),
         ("statlist_normalize_empty", test_statlist_normalize_empty),
@@ -1864,6 +1870,61 @@ def test_default_meal_source_is_djina():
     """Test default meal source is 'nikola'."""
     import meals
     assert meals.current_source in ['nikola', 'vegan', 'djina']
+
+
+# ============================================================
+# Wolt product correspondence
+# ============================================================
+
+def test_every_ingredient_has_wolt_product():
+    """Every catalog ingredient should map to a Wolt product."""
+    from ingredient import ingredients
+    missing = [n for n, i in ingredients.items() if not i.wolt_name]
+    assert not missing, f"ingredients without Wolt product: {missing}"
+
+
+def test_wolt_product_has_id_name_pack():
+    """Each Wolt correspondence carries id, name and pack."""
+    from ingredient import ingredients
+    for name, ingr in ingredients.items():
+        assert ingr.wolt is not None, f"{name} missing wolt"
+        assert ingr.wolt.get('id'), f"{name} missing wolt id"
+        assert ingr.wolt.get('name'), f"{name} missing wolt name"
+        assert 'pack' in ingr.wolt, f"{name} missing wolt pack"
+
+
+def test_wolt_correspondence_propagates_through_copies():
+    """Scaling/copying an ingredient keeps its Wolt product name."""
+    from ingredient import ingredients
+    base = ingredients['kikiriki']
+    for variant in (base * 100, base ** 0.5, base.copy()):
+        assert variant.wolt_name == base.wolt_name
+
+
+def test_shopping_list_includes_wolt_product():
+    """shopping_list entries name the exact Wolt product to order."""
+    day = Day([MEALS[0]])
+    result = shopping_list([day])
+    assert result['spisak'], "expected non-empty shopping list"
+    assert all('wolt' in e for e in result['spisak'])
+    # At least one entry should resolve to a real Wolt product name.
+    assert any(e['wolt'] for e in result['spisak'])
+
+
+def test_generate_shopping_list_has_wolt_order_block():
+    """Generated shopping list file contains the WOLT MARKET ORDER block."""
+    import datetime as dt
+    import os
+    day = Day([MEALS[0]])
+    generate_shopping_list([day], 'test_wolt_order', today=dt.date(2026, 10, 18))
+    path = 'plans/test_wolt_order_shopping.txt'
+    try:
+        content = open(path).read()
+        assert 'WOLT MARKET ORDER' in content
+        assert 'Estimated groceries' in content
+    finally:
+        if os.path.exists(path):
+            os.remove(path)
 
 
 if __name__ == "__main__":

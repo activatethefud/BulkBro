@@ -133,6 +133,10 @@ targets : dict
 
 ### Function: do_load()
 
+### Function: do_wolt()
+
+Print the ingredient -> Wolt Market product correspondence table.
+
 ### Function: do_run_interactive()
 
 
@@ -233,7 +237,7 @@ Clear simulation caches (call when config flags change that affect simulation).
 
 ### Function: generate_shopping_list()
 
-Generate and save shopping list to file.
+Generate and save shopping list to file. Writes per-day shopping lists. Each day also gets a "WOLT MARKET ORDER" block that names the exact Wolt product to order for every ingredient, so the list can be used directly in the Wolt app.
 
 
 ## Module: util
@@ -246,6 +250,9 @@ Load a solution from pickle file.
 
 
 ## Module: vegan_meals
+
+
+## Module: wolt_products
 
 
 ## Module: wolt_refresh
@@ -322,6 +329,17 @@ Print notable Wolt products not yet in the BulkBro catalog. Lists available food
 ### Function: _replace_ingredient_price()
 
 Replace the numeric price for ``name`` in the ingredient.py source text. Matches the pattern:: "name": Ingredient( "name", <price>, ...
+
+### Function: export_products()
+
+Write the Wolt product correspondence module (``wolt_products.py``). Emits a human-readable ``WOLT_PRODUCTS`` dict mapping every BulkBro ingredient to the exact Wolt product (id, name, pack). ``ingredient.py`` imports this at load time to attach the correspondence to each ingredient.
+
+**Parameters**
+----------
+catalog : dict
+    Parsed ``wolt_catalog.json``. Parsed ``wolt_catalog.json``. path : str, optional
+path : str, optional
+    Output module path. Output module path. int int Number of mappings written. Number of mappings written.
 
 ### Function: main()
 

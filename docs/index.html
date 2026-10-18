@@ -63,11 +63,11 @@
             
             <div class="stats">
                 <div class="stat">
-                    <div class="stat-value">17</div>
+                    <div class="stat-value">18</div>
                     <div class="stat-label">Python Files</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-value">140</div>
+                    <div class="stat-value">145</div>
                     <div class="stat-label">Tests</div>
                 </div>
                 <div class="stat">
@@ -219,6 +219,12 @@
 <h4>Ingredient</h4>
 <div class="function"><h5>__init__()</h5>
 </div>
+<div class="function"><h5>wolt_name()</h5>
+<p class="docstring">Exact Wolt Market product name, or ``None``.</p>
+</div>
+<div class="function"><h5>wolt_id()</h5>
+<p class="docstring">Wolt product id, or ``None``.</p>
+</div>
 <div class="function"><h5>__repr__()</h5>
 </div>
 <div class="function"><h5>__eq__()</h5>
@@ -295,6 +301,10 @@
 </div>
 <div class="function">
 <h4>do_load()</h4>
+</div>
+<div class="function">
+<h4>do_wolt()</h4>
+<p class="docstring">Print the ingredient -> Wolt Market product correspondence table.</p>
 </div>
 <div class="function">
 <h4>do_run_interactive()</h4>
@@ -438,7 +448,7 @@
 </div>
 <div class="function">
 <h4>generate_shopping_list()</h4>
-<p class="docstring">Generate and save shopping list to file.</p>
+<p class="docstring">Generate and save shopping list to file. Writes per-day shopping lists. Each day also gets a "WOLT MARKET ORDER" block that names the exact Wolt product to order for every ingredient, so the list can be used directly in the Wolt app.</p>
 </div>
 </div>
 <div class="module" id="util">
@@ -461,6 +471,9 @@
 </div>
 <div class="module" id="vegan_meals">
 <h3>Module: vegan_meals</h3>
+</div>
+<div class="module" id="wolt_products">
+<h3>Module: wolt_products</h3>
 </div>
 <div class="module" id="wolt_refresh">
 <h3>Module: wolt_refresh</h3>
@@ -519,6 +532,14 @@
 <div class="function">
 <h4>_replace_ingredient_price()</h4>
 <p class="docstring">Replace the numeric price for ``name`` in the ingredient.py source text. Matches the pattern:: "name": Ingredient( "name", <price>, ...</p>
+</div>
+<div class="function">
+<h4>export_products()</h4>
+<p class="docstring">Write the Wolt product correspondence module (``wolt_products.py``). Emits a human-readable ``WOLT_PRODUCTS`` dict mapping every BulkBro ingredient to the exact Wolt product (id, name, pack). ``ingredient.py`` imports this at load time to attach the correspondence to each ingredient.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>catalog</code> : dict — Parsed ``wolt_catalog.json``. Parsed ``wolt_catalog.json``. path : str, optional</li>
+<li><code>path</code> : str, optional — Output module path. Output module path. int int Number of mappings written. Number of mappings written.</li>
+</ul></div>
 </div>
 <div class="function">
 <h4>main()</h4>
@@ -607,7 +628,7 @@
         
         <section id="tests" class="section">
             <h2>Test Coverage</h2>
-            <p>Total Tests: 140</p>
+            <p>Total Tests: 145</p>
             <div class="test-list">
 <div class="test-item">test_sublists</div>
 <div class="test-item">test_generate_day</div>
@@ -749,6 +770,11 @@
 <div class="test-item">test_shopping_list_empty_plan</div>
 <div class="test-item">test_shopping_list_zero_reach</div>
 <div class="test-item">test_default_meal_source_is_djina</div>
+<div class="test-item">test_every_ingredient_has_wolt_product</div>
+<div class="test-item">test_wolt_product_has_id_name_pack</div>
+<div class="test-item">test_wolt_correspondence_propagates_through_copies</div>
+<div class="test-item">test_shopping_list_includes_wolt_product</div>
+<div class="test-item">test_generate_shopping_list_has_wolt_order_block</div>
 
             </div>
         </section>
@@ -796,6 +822,8 @@
 <span class="graph-node">ingredient</span>
 <span class="graph-arrow">→</span>
 <span class="graph-node local">nutrition</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">wolt_products</span>
 </div>
 <div class="graph">
 <span class="graph-node">main</span>
@@ -805,6 +833,8 @@
 <span class="graph-node local">config</span>
 <span class="graph-arrow">→</span>
 <span class="graph-node local">harmony</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">ingredient</span>
 <span class="graph-arrow">→</span>
 <span class="graph-node local">harmony</span>
 </div>
@@ -889,7 +919,7 @@
     </div>
     
     <footer>
-        <p>Generated: 2026-10-18 14:05</p>
+        <p>Generated: 2026-10-18 14:40</p>
     </footer>
 </body>
 </html>
