@@ -107,6 +107,12 @@ def main():
     load_parser = subparsers.add_parser('load', help='Load and display solution')
     load_parser.add_argument('solution', type=str, help='Solution pickle file')
 
+    # wolt subcommand: show ingredient -> Wolt product correspondence
+    wolt_parser = subparsers.add_parser(
+        'wolt', help='Show ingredient -> Wolt Market product correspondence')
+    wolt_parser.add_argument('-f', '--filter', type=str, default=None,
+                            help='Only show ingredients whose name or Wolt product contains this text')
+
     args = parser.parse_args()
 
     if args.command is None:
@@ -117,6 +123,8 @@ def main():
         do_run(args)
     elif args.command == 'load':
         do_load(args)
+    elif args.command == 'wolt':
+        do_wolt(args)
 
 
 def do_run(args):
@@ -194,6 +202,32 @@ def do_load(args):
         print(f"\nDay {i + 1}:")
         for meal in day:
             print(f"  - {meal.name}: {meal.nutri()}")
+
+
+def do_wolt(args):
+    """Print the ingredient -> Wolt Market product correspondence table."""
+    from ingredient import ingredients
+
+    rows = []
+    for name, ingr in ingredients.items():
+        if not ingr.wolt_name:
+            continue
+        if args.filter:
+            needle = args.filter.lower()
+            if needle not in name.lower() and needle not in ingr.wolt_name.lower():
+                continue
+        rows.append((name, ingr.wolt_name, ingr.wolt.get("pack", "")))
+    rows.sort()
+
+    print("=" * 96)
+    print("INGREDIENT -> WOLT MARKET PRODUCT".center(96))
+    print("=" * 96)
+    print(f"{'ingredient':26} {'wolt product':44} {'pack':>10}")
+    print("-" * 96)
+    for name, wname, pack in rows:
+        print(f"{name[:26]:26} {wname[:44]:44} {pack:>10}")
+    print("-" * 96)
+    print(f"{len(rows)} ingredient(s) shown")
 
 
 def do_run_interactive(no_fridge=False, no_delivery=False):

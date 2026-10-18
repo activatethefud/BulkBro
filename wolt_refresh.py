@@ -36,6 +36,7 @@ from ingredient import ingredients
 
 CATALOG_FILE = "wolt_catalog.json"
 INGREDIENT_FILE = "ingredient.py"
+PRODUCTS_FILE = "wolt_products.py"
 
 # =============================================================================
 # Curated mapping: BulkBro ingredient name -> Wolt product id (+ basis)
@@ -84,14 +85,10 @@ WOLT_MAP = {
     "zamrznuti grasak svetofor 1kg": "635fb87089302d314cc99498",  # Grašak Frikom 700g
     "zaledjeni grasak": "642ffb1e8cd31a36cef315a7",     # Grašak Polar Food 400g
     "carnex posni pasulj": {"id": "62f3bc0c3b1a7a65f0a1393b", "grams_block": 400},  # Prego Pasulj posno 400g (1 can)
-    "carnex posni grasak": None,
-    "boranija svetofor 1kg": MARK_REMOVE,
+    "carnex posni grasak": "635fb87089302d314cc99498",  # Grašak Frikom 700g (closest ready-pea item)
     "zamrznuti spanac": "642ffb1e8cd31a36cef315b0",     # Spanać list u briketu Polar Food 400g
     "zaledjeni spanac": "642ffb1e8cd31a36cef315b0",
-    "zamrznuta blitva": MARK_REMOVE,
     "spanać svez": "67063a58899bf17360277b71",         # Baby spanać 90g
-    "blitva": MARK_REMOVE,
-    "zelje veza": MARK_REMOVE,
     "najlepse zelje": {"id": "7c33562a35bcade7781a6267", "grams_block": 42},  # Čokolada Lion white 42g (closest snack bar)
     "krompir": "62f3bc0c3b1a7a65f0a13820",             # Krompir crveni ~500 g
     "krompir svetofor": "634d6dca4de9349f1a00650f",    # Krompir beli opran 1kg
@@ -107,9 +104,8 @@ WOLT_MAP = {
     "patlidzan": {"id": "62f3bc0c3b1a7a65f0a1384d", "wolt_grams": 1000},  # Patlidžan 1kg
     "brokoli": "642ffb1e8cd31a36cef315aa",             # Brokoli Polar Food 400g
     "pecurke": "63297d265d8854fef2de93ee",             # Šampinjoni tacna 400g (fresh)
-    "carska mesavina": MARK_REMOVE,
-    "kinezi miks": MARK_REMOVE,
-    "smrznuti miks": MARK_REMOVE,
+    "kinezi miks": "652fcf8865146680ba5e734a",       # Mešavina povrća 4 godišnja doba Frikom 400g
+    "smrznuti miks": "652fcf8865146680ba5e734a",      # Mešavina povrća 4 godišnja doba Frikom 400g
     "borovnice": "64746bc8d826cfbe29e21035",           # Borovnica Polar Food 300g
     "pomorandza": {"id": "62f3bc0c3b1a7a65f0a137e4", "grams_block": 200},  # Pomorandža ~1000 g (1 orange ~200 g)
     "ananas": {"id": "62f3bc0c3b1a7a65f0a137e3", "wolt_grams": 1000},  # Ananas 1kom (~1 kg)
@@ -121,7 +117,6 @@ WOLT_MAP = {
     # ---- dairy / eggs -----------------------------------------------------
     "jaja 10kom": {"id": "62f3bc0b3b1a7a65f0a132c0", "unit": "pack", "pack_units": 10},  # Jaja M 10/1
     "jaje": {"id": "62f3bc0b3b1a7a65f0a132c0", "unit": "pack", "pack_units": 10},
-    "belanca 10kom": MARK_REMOVE,
     "mleko": "62f3bc0b3b1a7a65f0a1335b",               # Mleko dugotrajno 2.8% 1l
     "jogurt": "62f3bc0b3b1a7a65f0a132da",              # Jogurt 2.8%mm Moja Kravica 1kg
     "kiselo mleko": "62f3bc0b3b1a7a65f0a13253",        # Kiselo mleko extra 6% 180g
@@ -136,7 +131,6 @@ WOLT_MAP = {
     # ---- meat / fish ------------------------------------------------------
     "pilece belo 100g": "67b85803950497fd04d3a0b2",    # Pilece grudi u omotu 350g
     "pileca prsa 8": {"id": "67b85803950497fd04d3a0b2", "unit": "pack", "pack_units": 8},
-    "rebarca": MARK_REMOVE,
     "pastrmka": {"id": "6489cdc16c6d8c7d4ddda344", "grams_block": 200},  # Filet lososa 200g (closest fresh fish)
     "sardina": "b416d830eb7861fcc86a0471",             # Eva sardina u biljnom ulju 100g
     "skusa eva 170g": "24e58b429855275244b4ec22",      # Skuša fileti 125g
@@ -152,15 +146,22 @@ WOLT_MAP = {
     "dvopek": "62f3bc0c3b1a7a65f0a1367d",              # Dvopek Mulino fette 315g
     "fitnes hleb": "62f3bc0c3b1a7a65f0a13740",         # Hleb Tonus 300g
     "humus": "66549083cf1bd27db121f3db",               # Humus Grab&go Natural 130g
-    "sojino mleko": None,                               # no soy drink on this venue
+    "sojino mleko": {"id": "62f3bc0d3b1a7a65f0a13aa5", "wolt_grams": 1000},  # Napitak ovseni Boom Box 1l (closest plant drink)
     "urme": "63aeb20d48e3846acfe56a9f",                  # Suva urma organska 200g
     "urme svetofor": "63aeb20d48e3846acfe56a9f",         # Suva urma organska 200g
     "tofu 250g pak": "64e36559c094baaeb1df27e6",       # Tofu natural Joya 250g
     "kokice": "66549083cf1bd27db121f39b",              # Gricko Kokice 100g
-    "zuzu 1kg svetofor": MARK_REMOVE,
     "heidi": "d7763a5f8bcb1b92a183489a",                # Čokolada mlečna Galeb 80g (closest to Heidi)
     "sladoledi 10kom": {"id": "84d8e9ac216e9acdbf1af813", "unit": "pack", "pack_units": 10},  # Sladoled F&C Vanila 120g (single)
     "rajs kejk": {"id": "62f3bc0b3b1a7a65f0a13289", "grams_block": 100},  # Galete pirinač natural Rice Cakes 100g
+
+    # ---- ingredients restored for the Wolt-period meal set ----------------
+    "golica": "83bbbd3ca8e6d1d8484d7095",              # Golica sirova 500g
+    "socivo": "5b80050e32aec69ba3da06f3",             # Colonial Socivo zeleno 500g
+    "seme bundeve": "640a259db0542ab6b918ad7f",       # Seme bundeve suvopečeno slano Mogyi 130g
+    "jumbo mix": "62f3bc0c3b1a7a65f0a135fe",          # Protein Mix Jumbo 75g
+    "nutrino labs sok": "6684080a9065eb9c27df67c1",   # Sok Rock multivitamin 500ml
+    "paradajz": {"id": "646dd9f02ad065427d261223", "grams_block": 140},  # Paradajz ~500 g (~140 g each)
 }
 
 
@@ -495,10 +496,64 @@ def _replace_ingredient_price(source, name, new_price):
     return new_src, n
 
 
+def export_products(catalog, path=PRODUCTS_FILE):
+    """Write the Wolt product correspondence module (``wolt_products.py``).
+
+    Emits a human-readable ``WOLT_PRODUCTS`` dict mapping every BulkBro
+    ingredient to the exact Wolt product (id, name, pack). ``ingredient.py``
+    imports this at load time to attach the correspondence to each ingredient.
+
+    Parameters
+    ----------
+    catalog : dict
+        Parsed ``wolt_catalog.json``.
+    path : str, optional
+        Output module path.
+
+    Returns
+    -------
+    int
+        Number of mappings written.
+    """
+    by_id = {it["id"]: it for it in catalog["items"]}
+    rows = []
+    for name in ingredients:
+        spec = WOLT_MAP.get(name)
+        if spec is None or spec is MARK_REMOVE:
+            continue
+        pid = spec["id"] if isinstance(spec, dict) else spec
+        prod = by_id.get(pid)
+        if not prod:
+            continue
+        rows.append((name, pid, prod["name"], prod.get("unit_info") or ""))
+    rows.sort()
+
+    lines = [
+        '"""Wolt Market product correspondence for BulkBro ingredients.',
+        '',
+        'Auto-generated by ``python3 wolt_refresh.py export`` from a live',
+        '``wolt_catalog.json`` scrape. Maps each BulkBro ingredient name to the',
+        'exact Wolt Market product it represents so shopping lists can name the',
+        'product to order. Edit via WOLT_MAP in wolt_refresh.py, then re-export.',
+        '"""',
+        '',
+        '# name -> (wolt product id, exact Wolt product name, pack label)',
+        'WOLT_PRODUCTS = {',
+    ]
+    for name, pid, pname, unit in rows:
+        lines.append('    %r: (%r, %r, %r),' % (name, pid, pname, unit))
+    lines.append('}')
+    lines.append('')
+
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+    return len(rows)
+
+
 def main(argv=None):
     """Command-line entry point."""
     parser = argparse.ArgumentParser(description="Refresh ingredients from Wolt catalog")
-    parser.add_argument("command", choices=["report", "apply", "candidates"],
+    parser.add_argument("command", choices=["report", "apply", "candidates", "export"],
                         help="What to do")
     parser.add_argument("--catalog", default=CATALOG_FILE, help="Wolt catalog JSON")
     parser.add_argument("--keep-missing", action="store_true",
@@ -517,6 +572,9 @@ def main(argv=None):
         print_report(rows)
     elif args.command == "candidates":
         print_candidates(catalog)
+    elif args.command == "export":
+        n = export_products(catalog)
+        print(f"Wrote {n} product mappings to {PRODUCTS_FILE}")
     else:
         changed, removed, dups = apply_refresh(rows, remove_missing=not args.keep_missing)
         print(f"Updated {changed} prices, removed {removed} missing entries "

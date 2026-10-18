@@ -273,7 +273,8 @@ def shopping_list(plan, reach=-1):
             "Sastojak": ingr.name,
             "k": ingr.to_buy(),
             "mk": ingr.min_qty,
-            "required": ingr.qty
+            "required": ingr.qty,
+            "wolt": ingr.wolt_name,
         } for ingr in ingr_needed]
     }
     ingr_shopping_list["cena"] = sum([ingr.price * ingr.to_buy() for ingr in ingr_needed])
@@ -289,7 +290,12 @@ def clear_caches():
 
 
 def generate_shopping_list(plan, filename, reach=-1, today=None):
-    """Generate and save shopping list to file."""
+    """Generate and save shopping list to file.
+
+    Writes per-day shopping lists. Each day also gets a "WOLT MARKET ORDER"
+    block that names the exact Wolt product to order for every ingredient, so
+    the list can be used directly in the Wolt app.
+    """
     if today is None:
         today = dt.date.today()
 
@@ -298,10 +304,24 @@ def generate_shopping_list(plan, filename, reach=-1, today=None):
 
     with open(f"plans/{filename}_shopping.txt", 'w') as f:
         for idx, date in enumerate((today + dt.timedelta(n) for n in range(len(plan)))):
+            day_list = shopping_list(plan[idx:], reach)
+
             f.write("\n")
             f.write("Shopping list - ".upper() + date.isoformat() + "\n")
             f.write("----------------------------" + "\n")
-            f.write(pformat([date, plan[idx], shopping_list(plan[idx:], reach)]) + "\n")
+
+            # Clean Wolt Market order block: what to actually buy.
+            f.write("WOLT MARKET ORDER\n")
+            f.write("----------------------------" + "\n")
+            for entry in day_list["spisak"]:
+                packs = entry["k"]
+                product = entry["wolt"] or entry["Sastojak"]
+                f.write(f"  {packs} x {product}\n")
+            f.write(f"  Estimated groceries: {day_list['cena']:.0f} RSD\n")
+            f.write("\n")
+
+            # Full structured data (kept for tooling/back-compat).
+            f.write(pformat([date, plan[idx], day_list]) + "\n")
 
             for meal in plan[idx]:
                 f.write("\n")
@@ -310,4 +330,5 @@ def generate_shopping_list(plan, filename, reach=-1, today=None):
                 f.write("-------------------------" + "\n")
 
                 for ingr in meal.ingredients:
-                    f.write(f"\t\t{ingr.name}, {ingr.qty} {ingr.nutri_info}\n")
+                    wolt = f"  [Wolt: {ingr.wolt_name}]" if ingr.wolt_name else ""
+                    f.write(f"\t\t{ingr.name}, {ingr.qty} {ingr.nutri_info}{wolt}\n")
