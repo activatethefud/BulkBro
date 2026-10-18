@@ -833,6 +833,91 @@ def test_meal_rep_equal_weight():
     assert 0 <= result <= 1.0, f"meal_rep normalized score {result} out of [0,1]"
 
 
+# ============================================================
+# Delivery / discount model
+# ============================================================
+
+def test_delivery_free_above_threshold():
+    """A large basket should not pay delivery fees."""
+    import delivery
+    r = delivery.compute_delivery([config.FREE_DELIVERY_THRESHOLD + 500])
+    assert r.delivery_cost == 0, f"expected free delivery, got {r.delivery_cost}"
+
+
+def test_delivery_fee_below_threshold():
+    """A small basket pays the flat delivery fee."""
+    import delivery
+    r = delivery.compute_delivery([config.ORDER_MINIMUM])
+    assert r.delivery_cost == config.DELIVERY_FEE
+
+
+def test_delivery_order_minimum_surcharge():
+    """A basket below the order minimum incurs a surcharge."""
+    import delivery
+    r = delivery.compute_delivery([300])
+    assert r.surcharge == config.ORDER_MINIMUM - 300
+    assert r.delivery_fees >= r.surcharge
+
+
+def test_delivery_basket_discount_applied():
+    """A basket at/above the discount minimum gets the discount."""
+    import delivery
+    r = delivery.compute_delivery([config.BASKET_DISCOUNT_MIN])
+    assert r.discount == config.BASKET_DISCOUNT_AMOUNT
+
+
+def test_delivery_discount_capped():
+    """Basket discount is not farmed by splitting into many orders."""
+    import delivery
+    r = delivery.compute_delivery([config.BASKET_DISCOUNT_MIN] * 4)
+    assert r.discount == config.BASKET_DISCOUNT_AMOUNT * config.BASKET_DISCOUNT_MAX_USES
+
+
+def test_delivery_fewer_orders_cheaper():
+    """Consolidating spend into fewer baskets should not cost more."""
+    import delivery
+    one = delivery.total_plan_cost(3000, delivery.compute_delivery([3000]))
+    many = delivery.total_plan_cost(3000, delivery.compute_delivery([1000, 1000, 1000]))
+    assert one <= many, f"one big order {one} should be <= three small {many}"
+
+
+def test_delivery_disabled_returns_zero():
+    """When delivery is disabled, fees and discounts are zero."""
+    import delivery
+    orig = config.DELIVERY_ENABLED
+    try:
+        config.DELIVERY_ENABLED = False
+        r = delivery.compute_delivery([500, 500])
+        assert r.delivery_fees == 0 and r.discount == 0
+    finally:
+        config.DELIVERY_ENABLED = orig
+
+
+def test_simulate_plan_delivery_fields():
+    """simulate_plan returns delivery breakdown and a total price."""
+    day = Day([MEALS[0], MEALS[1], MEALS[2]])
+    result = simulate_plan([day])
+    for key in ('delivery_fees', 'delivery_cost', 'discount', 'num_orders', 'total_price'):
+        assert key in result, f"missing {key}"
+    assert result['total_price'] == max(
+        0, result['price'] + result['delivery_fees'] - result['discount'])
+
+
+def test_simulate_excludes_delivery_when_disabled():
+    """With delivery disabled, total_price equals grocery price."""
+    from simulation import clear_caches
+    orig = config.DELIVERY_ENABLED
+    try:
+        config.DELIVERY_ENABLED = False
+        clear_caches()
+        result = simulate_plan([Day([MEALS[0]])])
+        assert result['total_price'] == result['price']
+        assert result['delivery_fees'] == 0
+    finally:
+        config.DELIVERY_ENABLED = orig
+        clear_caches()
+
+
 def main():
     tests = [
         ("sublists", test_sublists),
@@ -980,6 +1065,16 @@ def main():
         ("no_meal_spam_regression", test_no_meal_spam_regression),
         ("normalize_score_empty_fallback", test_normalize_score_empty_fallback),
         ("meal_rep_equal_weight", test_meal_rep_equal_weight),
+        # Delivery / discount model
+        ("delivery_free_above_threshold", test_delivery_free_above_threshold),
+        ("delivery_fee_below_threshold", test_delivery_fee_below_threshold),
+        ("delivery_order_minimum_surcharge", test_delivery_order_minimum_surcharge),
+        ("delivery_basket_discount_applied", test_delivery_basket_discount_applied),
+        ("delivery_discount_capped", test_delivery_discount_capped),
+        ("delivery_fewer_orders_cheaper", test_delivery_fewer_orders_cheaper),
+        ("delivery_disabled_returns_zero", test_delivery_disabled_returns_zero),
+        ("simulate_plan_delivery_fields", test_simulate_plan_delivery_fields),
+        ("simulate_excludes_delivery_when_disabled", test_simulate_excludes_delivery_when_disabled),
     ]
 
     passed = 0

@@ -63,15 +63,15 @@
             
             <div class="stats">
                 <div class="stat">
-                    <div class="stat-value">14</div>
+                    <div class="stat-value">17</div>
                     <div class="stat-label">Python Files</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-value">52</div>
+                    <div class="stat-value">140</div>
                     <div class="stat-label">Tests</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-value">5</div>
+                    <div class="stat-value">7</div>
                     <div class="stat-label">Classes</div>
                 </div>
             </div>
@@ -122,6 +122,36 @@
 </div>
 </div>
 </div>
+<div class="module" id="delivery">
+<h3>Module: delivery</h3>
+<div class="class">
+<h4>DeliveryResult</h4>
+<p class="docstring">Breakdown of delivery-related costs for a plan.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>delivery_fees</code> : float — Total delivery fees plus order-minimum surcharges (RSD). Total delivery fees plus order-minimum surcharges (RSD).</li>
+<li><code>delivery_cost</code> : float — Portion of ``delivery_fees`` that is pure delivery fees. Portion of ``delivery_fees`` that is pure delivery fees.</li>
+<li><code>surcharge</code> : float — Portion of ``delivery_fees`` from order-minimum shortfalls. Portion of ``delivery_fees`` from order-minimum shortfalls.</li>
+<li><code>discount</code> : float — Total promotional discount applied to baskets (RSD, positive). Total promotional discount applied to baskets (RSD, positive).</li>
+<li><code>num_orders</code> : int — Number of delivery orders (baskets) simulated.</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>compute_delivery()</h4>
+<p class="docstring">Compute delivery fees and discounts for a list of order baskets. Each element of ``order_subtotals`` is the grocery subtotal (RSD) of one delivery. The function applies, per basket: 1. **Basket discount** - subtract ``config.BASKET_DISCOUNT_AMOUNT`` when the subtotal is at least ``config.BASKET_DISCOUNT_MIN``. 2. **Order-minimum surcharge** - add the shortfall when the subtotal is below ``config.ORDER_MINIMUM``. 3. **Delivery fee** - add ``config.DELIVERY_FEE`` unless the (post-discount) subtotal reaches ``config.FREE_DELIVERY_THRESHOLD``.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>order_subtotals</code> : iterable of float — Grocery subtotal of each order in RSD. Grocery subtotal of each order in RSD. DeliveryResult DeliveryResult Aggregated delivery breakdown. Aggregated delivery breakdown.</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>total_plan_cost()</h4>
+<p class="docstring">Return total plan cost = groceries + delivery - discounts.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>grocery_subtotal</code> : float — Sum of grocery prices in RSD. Sum of grocery prices in RSD. delivery : DeliveryResult</li>
+<li><code>delivery</code> : DeliveryResult — Delivery breakdown from :func:`compute_delivery`.</li>
+<li><code>Delivery breakdown from</code> : func:`compute_delivery`. — float float Total cost in RSD (never negative). Total cost in RSD (never negative).</li>
+</ul></div>
+</div>
+</div>
 <div class="module" id="djina_meals">
 <h3>Module: djina_meals</h3>
 </div>
@@ -141,6 +171,8 @@
 </div>
 <div class="function"><h5>_normalize_price()</h5>
 <p class="docstring">Normalize price score to typical budget.</p>
+</div>
+<div class="function"><h5>_normalize_score()</h5>
 </div>
 <div class="function"><h5>generate_chromosome()</h5>
 <p class="docstring">Generate a chromosome (day plan).</p>
@@ -173,7 +205,7 @@
 <p class="docstring">Generate dated plan from solution.</p>
 </div>
 <div class="function"><h5>save_plan()</h5>
-<p class="docstring">Save solution to file.</p>
+<p class="docstring">Save solution to pickle file.</p>
 </div>
 </div>
 <div class="function">
@@ -262,9 +294,6 @@
 <h4>do_run()</h4>
 </div>
 <div class="function">
-<h4>do_shop()</h4>
-</div>
-<div class="function">
 <h4>do_load()</h4>
 </div>
 <div class="function">
@@ -320,6 +349,9 @@
 </div>
 <div class="module" id="nikola_meals">
 <h3>Module: nikola_meals</h3>
+<div class="function">
+<h4>add_dessert()</h4>
+</div>
 </div>
 <div class="module" id="nutrition">
 <h3>Module: nutrition</h3>
@@ -383,7 +415,7 @@
 </div>
 <div class="function">
 <h4>_get_day_nutrition_cached()</h4>
-<p class="docstring">Get cached daily nutrition.</p>
+<p class="docstring">Get daily nutrition from Day's internal cache.</p>
 </div>
 <div class="function">
 <h4>simulate_plan()</h4>
@@ -392,7 +424,7 @@
 </div>
 <div class="function">
 <h4>generate_day()</h4>
-<p class="docstring">Generate a random day meeting nutrition targets.</p>
+<p class="docstring">Generate a day with target-biased meal selection. Meals closer to per-meal nutrition targets get higher selection weight.</p>
 <div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
 <li><code>target_nutri</code> : list — [kcal, carb, prot, fat] target values [kcal, carb, prot, fat] target values target_mealcount : int</li>
 <li><code>target_mealcount</code> : int — Desired meals per day (-1 to ignore, uses random 1-5) Desired meals per day (-1 to ignore, uses random 1-5) meals : list</li>
@@ -404,12 +436,27 @@
 <p class="docstring">Generate shopping list for a plan.</p>
 </div>
 <div class="function">
+<h4>clear_caches()</h4>
+<p class="docstring">Clear simulation caches (call when config flags change that affect simulation).</p>
+</div>
+<div class="function">
 <h4>generate_shopping_list()</h4>
 <p class="docstring">Generate and save shopping list to file.</p>
 </div>
 </div>
 <div class="module" id="util">
 <h3>Module: util</h3>
+<div class="class">
+<h4>statlist</h4>
+<div class="function"><h5>__init__()</h5>
+</div>
+<div class="function"><h5>append()</h5>
+</div>
+<div class="function"><h5>normalize()</h5>
+</div>
+<div class="function"><h5>remove_outliers()</h5>
+</div>
+</div>
 <div class="function">
 <h4>load_sol()</h4>
 <p class="docstring">Load a solution from pickle file.</p>
@@ -418,12 +465,152 @@
 <div class="module" id="vegan_meals">
 <h3>Module: vegan_meals</h3>
 </div>
+<div class="module" id="wolt_refresh">
+<h3>Module: wolt_refresh</h3>
+<div class="function">
+<h4>_grams_per_block()</h4>
+<p class="docstring">Grams represented by one ``min_qty`` block of an ingredient. BulkBro is ambiguous: for most ingredients ``min_qty`` is already grams, but for counted items (bananas, eggs, cans) ``min_qty`` is a piece count and ``nutri_std_size`` holds the gram weight of that block. The heuristic below treats small counts (``min_qty <= 12``) whose ``std`` is heavier than ``min_qty`` as counted items; everything else is grams.</p>
+</div>
+<div class="function">
+<h4>_pack_units()</h4>
+<p class="docstring">Best-effort piece count for a pack item with no gram size. Parses patterns like ``"10/1"`` or ``"12 kom"`` from the product name.</p>
+</div>
+<div class="function">
+<h4>_norm_price()</h4>
+<p class="docstring">Price of one ``min_qty`` block of ``ing`` at the Wolt product price. Two normalization modes are supported via the mapping ``spec``: - ``unit == "grams"`` (default): both sides are converted to grams. The Wolt pack has ``grams`` at ``price`` RSD, so the price of one ``min_qty`` block is ``price * grams_block / grams``. ``grams_block`` defaults to the ingredient's ``nutri_std_size`` (grams per ``min_qty`` block) and can be overridden with ``spec["grams_block"]``. - ``unit == "pack"``: the Wolt item is a multi-pack of ``pack_units`` identical pieces (default parsed from the name). The price scales by ``min_qty / pack_units``.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>product</code> : dict — Normalized Wolt catalog entry. Normalized Wolt catalog entry. ing : Ingredient</li>
+<li><code>ing</code> : Ingredient — Existing BulkBro ingredient. Existing BulkBro ingredient. spec : dict</li>
+<li><code>spec</code> : dict — Mapping spec, may carry ``unit`` / ``grams_block`` / ``pack_units`` / Mapping spec, may carry ``unit`` / ``grams_block`` / ``pack_units`` / ``wolt_grams`` overrides. ``wolt_grams`` overrides. float or None float or None Normalized price in RSD, or ``None`` if it cannot be computed. Normalized price in RSD, or ``None`` if it cannot be computed.</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>build_report()</h4>
+<p class="docstring">Compute a per-ingredient refresh report.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>catalog</code> : dict — Parsed ``wolt_catalog.json``. Parsed ``wolt_catalog.json``. list of dict list of dict One entry per current ingredient with old/new price and status. One entry per current ingredient with old/new price and status.</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>print_report()</h4>
+<p class="docstring">Print the refresh report in a readable table.</p>
+</div>
+<div class="function">
+<h4>_remove_ingredient_block()</h4>
+<p class="docstring">Remove an ingredient entry (dict literal) from the source text. Matches ``"name": Ingredient(...),`` including trailing comma and the surrounding whitespace, deleting the whole entry.</p>
+<div class="returns"><strong>Returns</strong><br><strong>-------</strong><br>tuple of (str, int) ``(new_source, count_removed)``.</div>
+</div>
+<div class="function">
+<h4>dedupe_blocks()</h4>
+<p class="docstring">Remove duplicate ingredient entries, keeping the first occurrence. BulkBro's ingredient dict silently overwrites duplicate keys, so duplicate ``Ingredient`` entries are dead code. This deletes every duplicate block after the first.</p>
+<div class="returns"><strong>Returns</strong><br><strong>-------</strong><br>tuple of (str, int) ``(new_source, duplicates_removed)``.</div>
+</div>
+<div class="function">
+<h4>apply_refresh()</h4>
+<p class="docstring">Write refreshed prices (and remove missing items) into ingredient.py. Only ``ok`` rows with a computed ``new_price`` are applied. When ``remove_missing`` is true, ``remove`` rows are deleted from the file. The file is rewritten in place.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>rows</code> : list of dict — Output of :func:`build_report`.</li>
+<li><code>Output of</code> : func:`build_report`. — source_path : str, optional</li>
+<li><code>source_path</code> : str, optional — Path to ``ingredient.py``. Path to ``ingredient.py``. remove_missing : bool, optional</li>
+<li><code>remove_missing</code> : bool, optional — Whether to delete entries marked for removal. Whether to delete entries marked for removal. tuple of (int, int) tuple of (int, int) ``(prices_changed, entries_removed)``. ``(prices_changed, entries_removed)``.</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>print_candidates()</h4>
+<p class="docstring">Print notable Wolt products not yet in the BulkBro catalog. Lists available food products sorted by protein-per-100g where known, to suggest new ingredient candidates for the catalog.</p>
+</div>
+<div class="function">
+<h4>_replace_ingredient_price()</h4>
+<p class="docstring">Replace the numeric price for ``name`` in the ingredient.py source text. Matches the pattern:: "name": Ingredient( "name", <price>, ...</p>
+</div>
+<div class="function">
+<h4>main()</h4>
+<p class="docstring">Command-line entry point.</p>
+</div>
+</div>
+<div class="module" id="wolt_scraper">
+<h3>Module: wolt_scraper</h3>
+<div class="function">
+<h4>_get()</h4>
+<p class="docstring">Perform a GET request and return parsed JSON.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>url</code> : str — Full URL to request. Full URL to request. retries : int, optional</li>
+<li><code>retries</code> : int, optional — Number of retries on transient failure. Number of retries on transient failure. timeout : int, optional</li>
+<li><code>timeout</code> : int, optional — Timeout in seconds. Timeout in seconds. dict dict Parsed JSON response. Parsed JSON response.</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>_post()</h4>
+<p class="docstring">Perform a POST request with a JSON body and return parsed JSON.</p>
+</div>
+<div class="function">
+<h4>fetch_assortment()</h4>
+<p class="docstring">Fetch the top-level assortment (category tree) for a venue.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>venue</code> : str, optional — Venue slug. Venue slug. language : str, optional</li>
+<li><code>language</code> : str, optional — Menu language code. Menu language code. dict dict Raw assortment with a ``categories`` tree. Raw assortment with a ``categories`` tree.</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>walk_food_categories()</h4>
+<p class="docstring">Return leaf food categories as ``(top_name, slug, name)`` tuples. Walks the category tree, keeping only categories under :data:`FOOD_CATEGORY_SLUGS`. Non-leaf categories are expanded.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>assortment</code> : dict — Result of :func:`fetch_assortment`.</li>
+<li><code>Result of</code> : func:`fetch_assortment`. — list of tuple list of tuple ``(top_name, leaf_slug, leaf_name)`` entries. ``(top_name, leaf_slug, leaf_name)`` entries.</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>fetch_category_items()</h4>
+<p class="docstring">Fetch all items (with pagination) for a leaf category.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>venue</code> : str — Venue slug. Venue slug. category_slug : str</li>
+<li><code>category_slug</code> : str — Leaf category slug. Leaf category slug. language : str, optional</li>
+<li><code>language</code> : str, optional — Menu language code. Menu language code. list of dict list of dict Item records as returned inline by the category endpoint. Item records as returned inline by the category endpoint.</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>fetch_item_details()</h4>
+<p class="docstring">Bulk-fetch full item records by ID.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>venue</code> : str — Venue slug. Venue slug. item_ids : iterable of str</li>
+<li><code>item_ids</code> : iterable of str — Item IDs to fetch. Item IDs to fetch. language : str, optional</li>
+<li><code>language</code> : str, optional — Menu language code. Menu language code. batch : int, optional</li>
+<li><code>batch</code> : int, optional — Number of IDs per POST. Number of IDs per POST. dict dict Mapping ``item_id -> item record``. Mapping ``item_id -> item record``.</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>_unit_grams()</h4>
+<p class="docstring">Best-effort conversion of ``unit_info`` text to grams. Wolt unit strings look like ``"300 g"``, ``"1,32 l"``, ``"1 kg"``, ``"150 ml"``. Returns grams for solids and millilitres for liquids (treated as 1:1 for catalog purposes), or ``None`` if unknown.</p>
+</div>
+<div class="function">
+<h4>normalize_item()</h4>
+<p class="docstring">Convert a raw Wolt item record to a compact catalog entry. Prices from the API are in *para* (1 RSD = 100 para); this converts to RSD.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>item</code> : dict — Raw item record. Raw item record. top_name : str</li>
+<li><code>top_name</code> : str — Top-level category name. Top-level category name. leaf_name : str</li>
+<li><code>leaf_name</code> : str — Leaf category name. Leaf category name. dict dict Normalized catalog entry. Normalized catalog entry.</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>scrape()</h4>
+<p class="docstring">Scrape the full food catalog of a Wolt Market venue.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>venue</code> : str, optional — Venue slug. Venue slug. language : str, optional</li>
+<li><code>language</code> : str, optional — Menu language code. Menu language code. verbose : bool, optional</li>
+<li><code>verbose</code> : bool, optional — Print progress. Print progress. dict dict ``{"venue": ..., "scraped_at": ..., "categories": [...], ``{"venue": ..., "scraped_at": ..., "categories": [...], "items": [...]}`` with normalized item entries. "items": [...]}`` with normalized item entries.</li>
+</ul></div>
+</div>
+<div class="function">
+<h4>main()</h4>
+<p class="docstring">Command-line entry point.</p>
+</div>
+</div>
 
         </section>
         
         <section id="tests" class="section">
             <h2>Test Coverage</h2>
-            <p>Total Tests: 52</p>
+            <p>Total Tests: 140</p>
             <div class="test-list">
 <div class="test-item">test_sublists</div>
 <div class="test-item">test_generate_day</div>
@@ -466,9 +653,16 @@
 <div class="test-item">test_shopping_list</div>
 <div class="test-item">test_generate_shopping_list_with_custom_date</div>
 <div class="test-item">test_generate_shopping_list_default_date</div>
+<div class="test-item">test_save_plan_auto_generates_shopping_list</div>
 <div class="test-item">test_date_parsing_valid</div>
 <div class="test-item">test_date_parsing_invalid</div>
 <div class="test-item">test_caching</div>
+<div class="test-item">test_cache_nutrition_accuracy</div>
+<div class="test-item">test_cache_different_plans_same_meals</div>
+<div class="test-item">test_cache_after_optimization</div>
+<div class="test-item">test_extreme_low_kcal</div>
+<div class="test-item">test_extreme_high_kcal</div>
+<div class="test-item">test_extreme_kcal_very_low</div>
 <div class="test-item">test_performance</div>
 <div class="test-item">test_optimizer_init</div>
 <div class="test-item">test_target_score</div>
@@ -477,6 +671,87 @@
 <div class="test-item">test_crowding_empty</div>
 <div class="test-item">test_constraint_penalty</div>
 <div class="test-item">test_optimizer_first_pass</div>
+<div class="test-item">test_statlist_basic</div>
+<div class="test-item">test_statlist_normalize_empty</div>
+<div class="test-item">test_fitness_scores_normalized_range</div>
+<div class="test-item">test_fitness_equal_weight_criteria</div>
+<div class="test-item">test_no_meal_spam_regression</div>
+<div class="test-item">test_normalize_score_empty_fallback</div>
+<div class="test-item">test_meal_rep_equal_weight</div>
+<div class="test-item">test_delivery_free_above_threshold</div>
+<div class="test-item">test_delivery_fee_below_threshold</div>
+<div class="test-item">test_delivery_order_minimum_surcharge</div>
+<div class="test-item">test_delivery_basket_discount_applied</div>
+<div class="test-item">test_delivery_discount_capped</div>
+<div class="test-item">test_delivery_fewer_orders_cheaper</div>
+<div class="test-item">test_delivery_disabled_returns_zero</div>
+<div class="test-item">test_simulate_plan_delivery_fields</div>
+<div class="test-item">test_simulate_excludes_delivery_when_disabled</div>
+<div class="test-item">test_diversity_calculation_basic</div>
+<div class="test-item">test_diversity_different_plans</div>
+<div class="test-item">test_diversity_empty_plan</div>
+<div class="test-item">test_diversity_single_meal</div>
+<div class="test-item">test_diversity_fitness_scoring</div>
+<div class="test-item">test_diversity_goal_not_set</div>
+<div class="test-item">test_diversity_all_same_ingredients</div>
+<div class="test-item">test_no_fridge_get_day_rots</div>
+<div class="test-item">test_no_fridge_simulate_plan</div>
+<div class="test-item">test_no_fridge_shopping_list</div>
+<div class="test-item">test_no_fridge_optimizer_runs</div>
+<div class="test-item">test_extreme_ratio_keto</div>
+<div class="test-item">test_extreme_ratio_high_protein</div>
+<div class="test-item">test_extreme_ratio_low_carb_variety</div>
+<div class="test-item">test_meal_diversity_metric</div>
+<div class="test-item">test_generate_day_target_biased</div>
+<div class="test-item">test_extreme_ratio_no_single_meal_obsession</div>
+<div class="test-item">test_nutrition_add_identical</div>
+<div class="test-item">test_nutrition_mul_zero</div>
+<div class="test-item">test_nutrition_mul_fraction</div>
+<div class="test-item">test_nutrition_dist_identical</div>
+<div class="test-item">test_nutrition_dist_non_nutrition</div>
+<div class="test-item">test_nutrition_sum_multiple</div>
+<div class="test-item">test_nutrition_eq_type_check</div>
+<div class="test-item">test_meal_empty_ingredients_nutri_zero</div>
+<div class="test-item">test_meal_portion_zero_no_ingredients</div>
+<div class="test-item">test_meal_equality_different_name</div>
+<div class="test-item">test_meal_lt_by_name</div>
+<div class="test-item">test_day_empty_nutrition_zero</div>
+<div class="test-item">test_day_len_zero</div>
+<div class="test-item">test_day_set_meal_updates_total</div>
+<div class="test-item">test_day_lt_always_true</div>
+<div class="test-item">test_day_meal_nutri_index</div>
+<div class="test-item">test_ingredient_not_equal</div>
+<div class="test-item">test_ingredient_portion_small_qty_no_scale</div>
+<div class="test-item">test_ingredient_mul_creates_copy</div>
+<div class="test-item">test_ingredient_to_buy_rounds_up</div>
+<div class="test-item">test_ingredient_is_rotten_check</div>
+<div class="test-item">test_ingredient_hash_is_name_based</div>
+<div class="test-item">test_insulin_index_zero_macros</div>
+<div class="test-item">test_insulin_index_negative_clamped</div>
+<div class="test-item">test_insulin_index_ii_category</div>
+<div class="test-item">test_insulin_index_boundaries</div>
+<div class="test-item">test_insulin_index_empty_meals_list</div>
+<div class="test-item">test_insulin_index_day_empty</div>
+<div class="test-item">test_generate_day_empty_meals</div>
+<div class="test-item">test_clear_caches_no_error</div>
+<div class="test-item">test_sublists_empty</div>
+<div class="test-item">test_sublists_single_element</div>
+<div class="test-item">test_sublists_all_identical</div>
+<div class="test-item">test_optimizer_init_pop_non_empty</div>
+<div class="test-item">test_optimizer_chromosome_length</div>
+<div class="test-item">test_optimizer_fitness_is_callable</div>
+<div class="test-item">test_optimizer_objectives_has_required_keys</div>
+<div class="test-item">test_optimizer_compute_objectives_all_keys</div>
+<div class="test-item">test_optimizer_target_nutri_calculation</div>
+<div class="test-item">test_diversity_no_penalty_when_meeting_target</div>
+<div class="test-item">test_diversity_rep_penalty_all_same</div>
+<div class="test-item">test_diversity_rep_penalty_all_unique</div>
+<div class="test-item">test_config_defaults_positive</div>
+<div class="test-item">test_meal_source_valid</div>
+<div class="test-item">test_cache_does_not_grow_unbounded</div>
+<div class="test-item">test_shopping_list_empty_plan</div>
+<div class="test-item">test_shopping_list_zero_reach</div>
+<div class="test-item">test_default_meal_source_is_djina</div>
 
             </div>
         </section>
@@ -484,6 +759,18 @@
         <section id="architecture" class="section">
             <h2>Architecture</h2>
             <h3>Module Dependencies</h3>
+<div class="graph">
+<span class="graph-node">day</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">nutrition</span>
+</div>
+<div class="graph">
+<span class="graph-node">delivery</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">dataclasses</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">config</span>
+</div>
 <div class="graph">
 <span class="graph-node">djina_meals</span>
 <span class="graph-arrow">→</span>
@@ -505,6 +792,8 @@
 <span class="graph-node local">day</span>
 <span class="graph-arrow">→</span>
 <span class="graph-node local">meals</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">util</span>
 </div>
 <div class="graph">
 <span class="graph-node">ingredient</span>
@@ -566,6 +855,8 @@
 <span class="graph-node local">meals</span>
 <span class="graph-arrow">→</span>
 <span class="graph-node local">config</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">delivery</span>
 </div>
 <div class="graph">
 <span class="graph-node">vegan_meals</span>
@@ -574,12 +865,34 @@
 <span class="graph-arrow">→</span>
 <span class="graph-node local">meal</span>
 </div>
+<div class="graph">
+<span class="graph-node">wolt_refresh</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">json</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">re</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">ingredient</span>
+</div>
+<div class="graph">
+<span class="graph-node">wolt_scraper</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">json</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">time</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">urllib.error</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">urllib.parse</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">urllib.request</span>
+</div>
 
         </section>
     </div>
     
     <footer>
-        <p>Generated: 2026-04-14 23:12</p>
+        <p>Generated: 2026-10-18 13:53</p>
     </footer>
 </body>
 </html>

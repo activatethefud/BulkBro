@@ -26,7 +26,44 @@ Options:
   -t, --time-limit  Optimization time limit in seconds (default: 60)
 -o, --output      Output filename (default: meal_plan)
   --pop-size     Population size (default: 200)
+  --no-fridge    All ingredients spoil in 1 day (no refrigerator)
+  --no-delivery  Ignore Wolt delivery fees and basket discounts
 ```
+
+### Wolt Market delivery optimization
+
+The optimizer minimizes the **grand total** (groceries + delivery - discounts), not
+just the grocery subtotal. Groceries bought between stock refills form a delivery
+basket; the model rewards fewer/larger baskets that clear the free-delivery
+threshold and unlocks the basket discount. Tunables live in `config.py`:
+
+```python
+DELIVERY_ENABLED = True        # include delivery economics in the objective
+ORDER_MINIMUM = 1500           # RSD; shortfalls incur a surcharge
+DELIVERY_FEE = 119             # RSD flat fee (waived above free threshold)
+FREE_DELIVERY_THRESHOLD = 2500 # RSD basket value for free delivery
+BASKET_DISCOUNT_AMOUNT = 400   # RSD off once the basket reaches the minimum
+BASKET_DISCOUNT_MIN = 1000     # RSD minimum basket for the discount
+```
+
+### Refresh ingredient prices from Wolt Market
+
+`ingredient.py` prices can be refreshed from the live Wolt Market catalog. The
+scraper and refresher live in `wolt_scraper.py` and `wolt_refresh.py`:
+
+```bash
+python3 wolt_scraper.py                    # fetch live catalog -> wolt_catalog.json
+python3 wolt_refresh.py report             # price/availability report (no writes)
+python3 wolt_refresh.py candidates         # suggest new products to add
+python3 wolt_refresh.py apply              # write refreshed prices, drop missing items
+python3 wolt_refresh.py apply --keep-missing   # refresh prices only, keep all entries
+```
+
+Prices are normalized to the ingredient's `min_qty` using `nutri_std_size`
+(grams per block) so counted items (eggs, bananas) compare fairly. Wolt does not
+expose nutrition data, so nutrition is preserved from the existing records. The
+`WOLT_MAP` in `wolt_refresh.py` curates which Wolt product each ingredient maps
+to; ``MARK_REMOVE`` flags products no longer sold.
 
 ### Generate Shopping List
 
@@ -63,16 +100,35 @@ Generate shopping list:
 
 ## Structure
 
-- `main.py` - CLI entry point + core simulation (+ generate_day, simulate_plan)
+- `main.py` - CLI entry point (+ generate_day, simulate_plan wiring)
 - `harmony.py` - HarmonyOptimizer class
 - `nutrition.py`, `meal.py`, `day.py` - Domain models
 - `meals.py`, `nikola_meals.py`, `vegan_meals.py`, `djina_meals.py` - Meal sources
-- `ingredient.py` - Ingredient catalog (~1000 ingredients)
+- `ingredient.py` - Ingredient catalog (~90 ingredients, Wolt Market priced)
 - `insulin_index.py` - Insulin Index predictor
-- `simulation.py` - Core simulation functions
+- `simulation.py` - Core simulation functions (incl. basket/order tracking)
+- `delivery.py` - Wolt delivery-fee + basket-discount cost model
+- `wolt_scraper.py` - Scrape live Wolt Market food catalog
+- `wolt_refresh.py` - Refresh/normalize ingredient prices from the catalog
+- `config.py` - Central tunables (targets, optimizer, delivery economics)
 - `util.py` - Utilities (load_sol)
-- `test_runner.py` - Test suite (48 tests)
+- `test_runner.py` - Test suite (140 tests)
 - `docs.py` - Documentation generator
+
+## Delivery & Discount Model
+
+`delivery.py` models Wolt Market order economics per delivery basket:
+
+- **Order minimum** - baskets below `ORDER_MINIMUM` incur a surcharge.
+- **Delivery fee** - `DELIVERY_FEE` applies unless the basket reaches
+  `FREE_DELIVERY_THRESHOLD`.
+- **Basket discount** - `BASKET_DISCOUNT_AMOUNT` off once the basket reaches
+  `BASKET_DISCOUNT_MIN`, capped at `BASKET_DISCOUNT_MAX_USES` orders so the
+  optimizer cannot farm the discount by splitting into many tiny orders.
+
+`simulate_plan` returns `price`, `delivery_fees`, `discount`, `num_orders` and
+`total_price`. The optimizer's `delivery` objective minimizes net delivery
+overhead as a fraction of groceries, naturally preferring fewer, larger baskets.
 
 ## Meal Source Selection
 
@@ -89,7 +145,7 @@ Or use `set_meal_source('vegan')` function.
 python3 test_runner.py
 ```
 
-Run 48 tests covering core functionality.
+Run 140 tests covering core functionality, including the delivery/discount model.
 
 ## Documentation
 
