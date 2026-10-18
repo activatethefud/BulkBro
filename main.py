@@ -117,11 +117,11 @@ def main():
     load_parser = subparsers.add_parser('load', help='Load and display solution')
     load_parser.add_argument('solution', type=str, help='Solution pickle file')
 
-    # wolt subcommand: show ingredient -> Wolt product correspondence
+    # maxi subcommand: show ingredient -> Maxi product correspondence
     wolt_parser = subparsers.add_parser(
-        'wolt', help='Show ingredient -> Wolt Market product correspondence')
+        'maxi', help='Show ingredient -> Maxi product correspondence')
     wolt_parser.add_argument('-f', '--filter', type=str, default=None,
-                            help='Only show ingredients whose name or Wolt product contains this text')
+                            help='Only show ingredients whose name or Maxi product contains this text')
 
     args = parser.parse_args()
 
@@ -133,8 +133,8 @@ def main():
         do_run(args)
     elif args.command == 'load':
         do_load(args)
-    elif args.command == 'wolt':
-        do_wolt(args)
+    elif args.command == 'maxi':
+        do_maxi(args)
 
 
 def do_run(args):
@@ -219,8 +219,8 @@ def do_load(args):
             print(f"  - {meal.name}: {meal.nutri()}")
 
 
-def do_wolt(args):
-    """Print the ingredient -> Wolt Market product correspondence table."""
+def do_maxi(args):
+    """Print the ingredient -> Maxi product correspondence table."""
     from ingredient import ingredients
 
     rows = []
@@ -235,9 +235,9 @@ def do_wolt(args):
     rows.sort()
 
     print("=" * 96)
-    print("INGREDIENT -> WOLT MARKET PRODUCT".center(96))
+    print("INGREDIENT -> MAXI PRODUCT".center(96))
     print("=" * 96)
-    print(f"{'ingredient':26} {'wolt product':44} {'pack':>10}")
+    print(f"{'ingredient':26} {'maxi product':44} {'pack':>10}")
     print("-" * 96)
     for name, wname, pack in rows:
         print(f"{name[:26]:26} {wname[:44]:44} {pack:>10}")

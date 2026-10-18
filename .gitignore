@@ -9,6 +9,7 @@ bin/
 plans/*
 fig.png
 wolt_catalog.json
+maxi_catalog.json
 *~
 *#*#*
 \.*#*

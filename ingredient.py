@@ -202,14 +202,14 @@ ingredients = {
 
         "pastrmka": Ingredient(
                 "pastrmka",
-                819,
+                399,
                 1,
                 2,
                 Nutrition(239,0,33.8,10.5)
         ),
         "borovnice": Ingredient(
                 "borovnice",
-                316,
+                400,
                 250,
                 4,
                 Nutrition(143,30.4,1.7,0.8)
@@ -217,7 +217,7 @@ ingredients = {
         
         "rio mare tuna": Ingredient(
                 "rio mare tuna",
-                429,
+                146,
                 1,
                 30,
                 Nutrition(328,0,13.6,30.4)
@@ -225,7 +225,7 @@ ingredients = {
 
         "rio mare kuskus": Ingredient(
                 "rio mare kuskus",
-                539,
+                427,
                 1,
                 30,
                 Nutrition(380.8,24,16,24)
@@ -233,7 +233,7 @@ ingredients = {
 
         "pasta 500g": Ingredient(
                 "pasta 500g",
-                199,
+                131,
                 500,
                 30,
                 Nutrition(1794.1,355.9,62.4,10)
@@ -241,7 +241,7 @@ ingredients = {
 
         "stari sir": Ingredient(
                 "stari sir",
-                148,
+                48,
                 100,
                 10,
                 Nutrition(258,0,15,22)
@@ -250,7 +250,7 @@ ingredients = {
 
         "kikiriki": Ingredient(
                 "kikiriki",
-                105,
+                88,
                 100,
                 7,
                 #Nutrition(567,16,26,49)
@@ -258,21 +258,21 @@ ingredients = {
         ),
         "kikiriki svetofor": Ingredient(
                 "kikiriki svetofor",
-                1276,
+                883,
                 1000,
                 15,
                 Nutrition(567,25,26,49)*10
         ),
         "jogurt":  Ingredient(
                 "jogurt",
-                148,
+                113,
                 1000,
                 3,
                 Nutrition(540,42,31,28)
         ),
         "banana": Ingredient(
                 "banana",
-                41,
+                42,
                 1,
                 3,
                 Nutrition(89,23,1.1,0.3),
@@ -280,70 +280,70 @@ ingredients = {
         ),
         "pasulj": Ingredient(
                 "pasulj",
-                224,
+                229,
                 500,
                 90,
                 Nutrition(176,21,8.1,7)*0.5
         ),
         "pasulj beli svetofor 1kg": Ingredient(
                 "pasulj beli svetofor 1kg",
-                448,
+                458,
                 1000,
                 90,
                 Nutrition(333,60,3.8,23.6)*10
         ),
         "zamrznuti grasak svetofor 1kg": Ingredient(
                 "zamrznuti grasak svetofor 1kg",
-                470,
+                172,
                 1000,
                 90,
                 Nutrition(810,145,54,4)
         ),
         "ovsene svetofor 500g": Ingredient(
                 "ovsene svetofor 500g",
-                99,
+                84,
                 500,
                 30,
                 Nutrition(389,66.3,16.9,6.9)*5
         ),
         "pasirani paradajz svetofor": Ingredient(
                 "pasirani paradajz svetofor",
-                318,
+                147,
                 1000,
                 10,
                 Nutrition(25, 5.3, 0.9, 0.1)*10
         ),
         "pirinac svetofor": Ingredient(
                 "pirinac svetofor",
-                1078,
+                151,
                 900,
                 25,
                 Nutrition(3522,804.2,66.5,5.4)*0.9
         ),
         "pilece belo 100g": Ingredient(
                 "pilece belo 100g",
-                134,
+                100,
                 100,
                 90,
                 Nutrition(164,0,27,6.4)
         ),
         "pirinac 1kg": Ingredient(
                 "pirinac 1kg",
-                958,
+                134,
                 800,
                 90,
                 Nutrition(3522,804.2,66.5,5.4)*0.8
         ),
         "ovsene pahuljice": Ingredient(
                 "ovsene pahuljice",
-                20,
+                17,
                 100,
                 10,
                 Nutrition(389,66.3,16.9,6.9)
         ),
         "jaja 10kom": Ingredient(
                 "jaja 10kom",
-                199,
+                200,
                 10,
                 6,
                 Nutrition(720,4,63,48),
@@ -360,21 +360,21 @@ ingredients = {
 
         "badem": Ingredient(
                 "badem",
-                385,
+                187,
                 100,
                 3,
                 Nutrition(598,21,21,53)
         ),
         "badem svetofor": Ingredient(
                 "badem svetofor",
-                1927,
+                936,
                 500,
                 15,
                 Nutrition(598,21,21,53)*(1.0/0.5)
         ),
         "urme svetofor": Ingredient(
                 "urme svetofor",
-                1812,
+                553,
                 550,
                 15,
                 Nutrition(282,75,0.4,2.5)*5.5
@@ -382,7 +382,7 @@ ingredients = {
         ),
         "urme": Ingredient(
                 "urme",
-                165,
+                50,
                 50,
                 10,
                 Nutrition(1150,300,10,0),
@@ -390,35 +390,35 @@ ingredients = {
         ),
         "sojino mleko": Ingredient(
             "sojino mleko",
-            389,
+            500,
             1000,
             3,
             Nutrition(38,0.7,3.2,1.9)*10
         ),
         "mleko": Ingredient(
                 "mleko",
-                137,
+                97,
                 1000,
                 3,
                 Nutrition(660,48,32,39)
         ),
         "krompir":Ingredient(
                 "krompir",
-                149,
+                165,
                 1000,
                 15,
                 Nutrition(770,167.9,19.4,1)
         ),
         "krompir svetofor": Ingredient(
                 "krompir svetofor",
-                149,
+                165,
                 1000,
                 15,
                 Nutrition(770,167.9,19.4,1)
         ),
         "skusa la perla": Ingredient(
                 "skusa la perla",
-                352,
+                248,
                 1,
                 90,
                 Nutrition(227,0,25.5,13.9),
@@ -426,7 +426,7 @@ ingredients = {
         ),
         "skusa eva 170g": Ingredient(
                 "skusa eva 170g",
-                352,
+                248,
                 1,
                 90,
                 Nutrition(583,0,13.8,58.65),
@@ -434,7 +434,7 @@ ingredients = {
         ),
         "sardina": Ingredient(
                 "sardina",
-                249,
+                157,
                 1,
                 90,
                 (Nutrition(286,0,19.5,22.9)+Nutrition(132,4.3,15.4,6))*(1/2),
@@ -442,28 +442,28 @@ ingredients = {
         ),
         "pecurke": Ingredient(
                 "pecurke",
-                250,
+                200,
                 400,
                 3,
                 Nutrition(88,13.2,12.4,1.2)
         ),
         "jabuka": Ingredient(
                 "jabuka",
-                48,
+                18,
                 1,
                 5,
                 Nutrition(104,28,0.5,0.3),
         ),
         "brokoli": Ingredient(
                 "brokoli",
-                249,
+                196,
                 400,
                 90,
                 Nutrition(153,29.7,12.6,1.8)*(4/4.5)
         ),
         "kupus": Ingredient(
                 "kupus",
-                59,
+                52,
                 1,
                 5,
                 Nutrition(250,58,13,1),
@@ -471,7 +471,7 @@ ingredients = {
         ),
         "zbregov": Ingredient(
                 "zbregov",
-                379,
+                205,
                 1,
                 5,
                 Nutrition(315,25.5,50,1.25),
@@ -479,28 +479,28 @@ ingredients = {
         ),
         "maslinovo ulje": Ingredient(
                 "maslinovo ulje",
-                1499,
+                797,
                 1000,
                 45,
                 Nutrition(8884,0,0,1000)
         ),
         "dukatos": Ingredient(
                 "dukatos",
-                160,
+                48,
                 400,
                 3,
                 Nutrition(600,22.8,14.4,38.8)
         ),
         "heidi": Ingredient(
                 "heidi",
-                259,
+                368,
                 80,
                 7,
                 Nutrition(485,14,6,45.6)
         ),
         "avokado": Ingredient(
                 "avokado",
-                179,
+                200,
                 1,
                 3,
                 Nutrition(240,13,3,22),
@@ -508,7 +508,7 @@ ingredients = {
         ),
         "zamrznuti spanac": Ingredient(
                 "zamrznuti spanac",
-                199,
+                126,
                 400,
                 95,
                 Nutrition(92,14.4,11.6,1.6)
@@ -516,21 +516,21 @@ ingredients = {
         # Prakticno isto kao spanac
         "suncokret": Ingredient(
                 "suncokret",
-                30,
+                23,
                 50,
                 5,
                 Nutrition(608,20,17,55)*0.5
         ),
         "puter": Ingredient(
                 "puter",
-                510,
+                96,
                 200,
                 15,
                 Nutrition(1457,0,0,164)
         ),
         "sargarepa kom": Ingredient(
                 "sargarepa kom",
-                78,
+                35,
                 4,
                 5,
                 Nutrition(25,6,0.5,0),
@@ -538,28 +538,28 @@ ingredients = {
         ),
         "ananas": Ingredient(
                 "ananas",
-                899,
+                840,
                 1000,
                 3,
                 Nutrition(452,119,4.9,0)
         ),
         "zaledjeni spanac": Ingredient(
                 "zaledjeni spanac",
-                224,
+                142,
                 450,
                 95,
                 Nutrition(103,16.335,12.87,1.755)
         ),
         "zaledjeni grasak": Ingredient(
                 "zaledjeni grasak",
-                179,
+                71,
                 400,
                 95,
                 Nutrition(810,145,54,4)*0.4
         ),
         "crveni kupus kom": Ingredient(
                 "crveni kupus kom",
-                70,
+                49,
                 1,
                 3,
                 Nutrition(0,0,0,0),
@@ -567,7 +567,7 @@ ingredients = {
         ),
         "batat kom": Ingredient(
                 "batat kom",
-                191,
+                105,
                 3,
                 15,
                 Nutrition(103,23.6,2.3,0.2)*3,
@@ -575,7 +575,7 @@ ingredients = {
         ),
         "cvekla kom": Ingredient(
                 "cvekla kom",
-                70,
+                31,
                 4,
                 4,
                 Nutrition(2.5*43,2.5*9.6,0,0)*4,
@@ -583,7 +583,7 @@ ingredients = {
         ),
         "beli luk": Ingredient(
                 "beli luk",
-                129,
+                465,
                 250,
                 10,
                 Nutrition(0,0,0,0),
@@ -591,14 +591,14 @@ ingredients = {
         ),
         "crni luk svetofor": Ingredient(
                 "crni luk svetofor",
-                12,
+                4,
                 100,
                 10,
                 Nutrition(349,83,9,0)
         ),
         "crni luk kom": Ingredient(
                 "crni luk kom",
-                18,
+                7,
                 1,
                 6,
                 Nutrition(60,14,1.7,0.2),
@@ -606,7 +606,7 @@ ingredients = {
         ),
         "crveni luk kom": Ingredient(
                 "crveni luk kom",
-                161,
+                61,
                 3,
                 5,
                 Nutrition(0,0,0,0),
@@ -614,7 +614,7 @@ ingredients = {
         ),
         "braon pirinac 500g": Ingredient(
                "braon pirinac 500g",
-               848,
+               164,
                500,
                30,
                Nutrition(560,120,11.5,4)
@@ -659,7 +659,7 @@ ingredients = {
         #
         "kiselo mleko": Ingredient(
                "kiselo mleko",
-               36,
+               27,
                180,
                5,
                Nutrition(97.2, 7.2, 5.58, 5.04)
@@ -692,7 +692,7 @@ ingredients = {
         #
         "zott jogurt": Ingredient(
                "zott jogurt",
-               64,
+               57,
                1,
                3,
                Nutrition(130,12,20,0.4),
@@ -701,7 +701,7 @@ ingredients = {
         
         "pasirani paradajz": Ingredient(
                 "pasirani paradajz",
-                159,
+                80,
                 500,
                 5,
                 Nutrition(25, 5.3, 0.9, 0.1)*4
@@ -709,7 +709,7 @@ ingredients = {
         
         "integralna pasta": Ingredient(
                 "integralna pasta",
-                159,
+                114,
                 400,
                 90,
                 Nutrition(371.46, 79.88, 9.84, 1.4)*4
@@ -717,7 +717,7 @@ ingredients = {
         #
         "kefir casa": Ingredient(
                "kefir casa",
-               39,
+               32,
                1,
                7,
                Nutrition(97.2, 6.48, 5.4, 5.04),
@@ -746,7 +746,7 @@ ingredients = {
 
         "pasulj konzerva": Ingredient(
                 "pasulj konzerva",
-                179,
+                183,
                 400,
                 3,
                 Nutrition(380, 56, 26, 0.8)
@@ -762,7 +762,7 @@ ingredients = {
 
         "patlidzan": Ingredient(
                 "patlidzan",
-                109,
+                88,
                 1,
                 4,
                 Nutrition(152,32,6,0),
@@ -771,7 +771,7 @@ ingredients = {
 
         "kinoa": Ingredient(
            "kinoa",
-           354,
+           161,
            100,
            30,
            Nutrition(374,68.9,13.1,5.8)
@@ -779,7 +779,7 @@ ingredients = {
 
         "humus": Ingredient(
             "humus",
-            229,
+            451,
             200,
             3,
             Nutrition(231,6.7,5.5,19)*2
@@ -787,7 +787,7 @@ ingredients = {
 
         "dvopek": Ingredient(
             "dvopek",
-            266,
+            133,
             210,
             3,
             Nutrition(394, 68, 12, 7)*2.1
@@ -795,7 +795,7 @@ ingredients = {
 
         "rajs kejk": Ingredient(
                 "rajs kejk",
-                139,
+                63,
                 100,
                 5,
                 Nutrition(393,78.3,8.3,4.3)
@@ -836,7 +836,7 @@ ingredients = {
 
         "tofu 250g pak": Ingredient(
                 "tofu 250g pak",
-                449,
+                200,
                 250,
                 3,
                 Nutrition(142,2.02,14.17,9.5)*2.5
@@ -844,7 +844,7 @@ ingredients = {
 
         "chia semenke maxi": Ingredient(
                 "chia semenke maxi",
-                150,
+                61,
                 100,
                 30,
                 Nutrition(486, 42, 17, 31)
@@ -852,7 +852,7 @@ ingredients = {
 
         "leblebije maxi": Ingredient(
                 "leblebije maxi",
-                280,
+                928,
                 500,
                 30,
                 Nutrition(1820, 305, 95, 30)
@@ -860,7 +860,7 @@ ingredients = {
 
         "grcki jogurt olimpus": Ingredient(
                "grcki jogurt olimpus",
-               55,
+               56,
                150,
                3,
                Nutrition(134,4,7,10)*1.5
@@ -868,7 +868,7 @@ ingredients = {
         
         "fitnes hleb": Ingredient(
                "fitnes hleb",
-               498,
+               353,
                500,
                5,
                Nutrition(188,32.6,5.9,1.8)*5
@@ -876,7 +876,7 @@ ingredients = {
         
         "indijski orah": Ingredient(
                "indijski orah",
-               557,
+               158,
                100,
                5,
                Nutrition(553,30.19,18.22,43.85)
@@ -884,7 +884,7 @@ ingredients = {
 
         "rukola": Ingredient(
                 "rukola",
-                116,
+                135,
                 70,
                 3,
                 Nutrition(0,0,0,0)
@@ -894,7 +894,7 @@ ingredients = {
 
         "palenta svetofor": Ingredient(
                 "palenta svetofor",
-                125,
+                53,
                 450,
                 15,
                 Nutrition(336,68.9,8.1,2)*(450/100)
@@ -902,98 +902,98 @@ ingredients = {
 
         "posne makarone svetofor": Ingredient(
                 "posne makarone svetofor",
-                279,
+                184,
                 700,
                 30,
                 Nutrition(344, 65.87, 12.18, 1.86)*(700/100)
         ),
         "pileca prsa 8": Ingredient(
                 "pileca prsa 8",
-                469,
+                500,
                 8,
                 2,
                 Nutrition(98, 2, 18, 2)
         ),
         "tortilja 8": Ingredient(
                 "tortilja 8",
-                119,
+                24,
                 8,
                 3,
                 Nutrition(300, 53, 9.1, 4.9)*3.2
         ),
         "kikiriki puter dm": Ingredient(
                 "kikiriki puter dm",
-                204,
+                150,
                 170,
                 10,
                 Nutrition(647, 15.7, 20.4, 58.9)*1.7
         ),
         "dzem dm": Ingredient(
                 "dzem dm",
-                399,
+                132,
                 250,
                 10,
                 Nutrition(100, 20, 1, 1)*2.5
         ),
         "kokice": Ingredient(
                 "kokice",
-                68,
+                73,
                 100,
                 15,
                 Nutrition(375, 73, 11, 4)
         ),
         "carnex posni pasulj": Ingredient(
                 "carnex posni pasulj",
-                299,
+                158,
                 1,
                 30,
                 Nutrition(100,16,4.4,2.2)*4
         ),
         "carnex posni grasak": Ingredient(
                 "carnex posni grasak",
-                329,
+                186,
                 1,
                 30,
                 Nutrition(75,10,4.1,2.1)*4
         ),
         "socivo pasta": Ingredient(
                 "socivo pasta",
-                119,
+                79,
                 300,
                 30,
                 Nutrition(334,50,26,1.7)*3
         ),
         "pomorandza": Ingredient(
                 "pomorandza",
-                52,
+                50,
                 1,
                 7,
                 Nutrition(61, 16, 1.2, 0.1)
         ),
         "spanać svez": Ingredient(
                 "spanać svez",
-                331,
+                133,
                 200,
                 3,
                 Nutrition(46, 7.2, 5.8, 0.8)
         ),
         "lanene semenke": Ingredient(
                 "lanene semenke",
-                180,
+                61,
                 100,
                 30,
                 Nutrition(534, 29, 18, 42)
         ),
         "najlepse zelje": Ingredient(
                 "najlepse zelje",
-                89,
+                220,
                 1,
                 10,
                 Nutrition(539, 54, 9, 32)*0.3 # 30 grama
         ),
         "sladoledi 10kom": Ingredient(
                 "sladoledi 10kom",
-                449,
+                550,
                 10,
                 30,
                 Nutrition(278, 24, 2.7, 19)*(100/278)
@@ -1003,56 +1003,56 @@ ingredients = {
         # Prices refreshed from Wolt Market Dorcol (Oct 2026).
         "golica": Ingredient(
                 "golica",
-                100,          # Golica sirova 500g = 499 -> per 100g
+                186,          # Golica sirova 500g = 499 -> per 100g
                 100,
                 7,
                 Nutrition(539,18,25,46)
         ),
         "socivo": Ingredient(
                 "socivo",
-                40,           # Colonial Socivo zeleno 500g = 199 -> per 100g
+                46,           # Colonial Socivo zeleno 500g = 199 -> per 100g
                 100,
                 90,
                 Nutrition(353,60.08,25.8,1.06)
         ),
         "seme bundeve": Ingredient(
                 "seme bundeve",
-                290,          # Semenke bundeve Jumbo 150g
+                204,          # Semenke bundeve Jumbo 150g
                 130,
                 15,
                 Nutrition(403, 2, 24, 31)
         ),
         "jumbo mix": Ingredient(
                 "jumbo mix",
-                258,          # Protein Mix Jumbo 75g = 257.99
+                139,          # Protein Mix Jumbo 75g = 257.99
                 75,
                 10,
                 Nutrition(549, 23, 19, 41)*0.75
         ),
         "kinezi miks": Ingredient(
                 "kinezi miks",
-                389,          # Mesavina povrca 4 godisnja doba Frikom 400g
+                99,          # Mesavina povrca 4 godisnja doba Frikom 400g
                 400,
                 90,
                 Nutrition(195, 37.6, 10, 0.4)
         ),
         "smrznuti miks": Ingredient(
                 "smrznuti miks",
-                389,          # Mesavina povrca 4 godisnja doba Frikom 400g
+                99,          # Mesavina povrca 4 godisnja doba Frikom 400g
                 400,
                 90,
                 Nutrition(195, 37.6, 10, 0.4)
         ),
         "nutrino labs sok": Ingredient(
                 "nutrino labs sok",
-                119,          # Sok multivitamin 500ml = 119
+                230,          # Sok multivitamin 500ml = 119
                 1,
                 10,
                 Nutrition(84, 17, 0.7, 0.6)*2
         ),
         "paradajz": Ingredient(
                 "paradajz",
-                430,          # Paradajz čeri 500g -> per ~140g tomato
+                42,          # Paradajz čeri 500g -> per ~140g tomato
                 1,
                 3,
                 Nutrition(19,3,0,0),
@@ -1061,17 +1061,17 @@ ingredients = {
 
 }
 
-# Attach the Wolt Market product correspondence (exact product name/id/pack)
-# so it is available everywhere ingredients are used (e.g. shopping lists).
-# The mapping lives in the committed ``wolt_products.py`` module, generated by
-# ``python3 wolt_refresh.py export`` from a live catalog scrape.
+# Attach the Maxi product correspondence (exact product name/id/pack) so it is
+# available everywhere ingredients are used (e.g. shopping lists). The mapping
+# lives in the committed ``maxi_products.py`` module, generated by
+# ``python3 maxi_refresh.py export`` from a live catalog scrape.
 try:
-        from wolt_products import WOLT_PRODUCTS as _WOLT_PRODUCTS
+        from maxi_products import MAXI_PRODUCTS as _MAXI_PRODUCTS
 except Exception:
-        _WOLT_PRODUCTS = {}
+        _MAXI_PRODUCTS = {}
 
 for _name, _ingr in ingredients.items():
-        _entry = _WOLT_PRODUCTS.get(_name)
+        _entry = _MAXI_PRODUCTS.get(_name)
         if _entry:
                 _wid, _wname, _pack = _entry
                 _ingr.wolt = {"id": _wid, "name": _wname, "pack": _pack}

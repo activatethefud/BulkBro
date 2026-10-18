@@ -2037,17 +2037,17 @@ def test_refresh_suspicious_guard_flags_unit_mismatch():
 
 
 def test_shopping_list_includes_wolt_product():
-    """shopping_list entries name the exact Wolt product to order."""
+    """shopping_list entries name the exact Maxi product to order."""
     day = Day([MEALS[0]])
     result = shopping_list([day])
     assert result['spisak'], "expected non-empty shopping list"
-    assert all('wolt' in e for e in result['spisak'])
-    # At least one entry should resolve to a real Wolt product name.
-    assert any(e['wolt'] for e in result['spisak'])
+    assert all('maxi' in e for e in result['spisak'])
+    # At least one entry should resolve to a real Maxi product name.
+    assert any(e['maxi'] for e in result['spisak'])
 
 
 def test_generate_shopping_list_has_wolt_order_block():
-    """Generated shopping list file contains the WOLT MARKET ORDER block."""
+    """Generated shopping list file contains the MAXI ORDER block."""
     import datetime as dt
     import os
     day = Day([MEALS[0]])
@@ -2055,7 +2055,7 @@ def test_generate_shopping_list_has_wolt_order_block():
     path = 'plans/test_wolt_order_shopping.txt'
     try:
         content = open(path).read()
-        assert 'WOLT MARKET ORDER' in content
+        assert 'MAXI ORDER' in content
         assert 'Estimated groceries' in content
     finally:
         if os.path.exists(path):

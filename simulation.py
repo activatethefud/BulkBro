@@ -327,7 +327,7 @@ def shopping_list(plan, reach=-1):
             "k": ingr.to_buy(),
             "mk": ingr.min_qty,
             "required": ingr.qty,
-            "wolt": ingr.wolt_name,
+            "maxi": ingr.wolt_name,
         } for ingr in ingr_needed]
     }
     ingr_shopping_list["cena"] = sum([ingr.price * ingr.to_buy() for ingr in ingr_needed])
@@ -345,9 +345,9 @@ def clear_caches():
 def generate_shopping_list(plan, filename, reach=-1, today=None):
     """Generate and save shopping list to file.
 
-    Writes per-day shopping lists. Each day also gets a "WOLT MARKET ORDER"
-    block that names the exact Wolt product to order for every ingredient, so
-    the list can be used directly in the Wolt app.
+    Writes per-day shopping lists. Each day also gets a "MAXI ORDER"
+    block that names the exact Maxi product to order for every ingredient, so
+    the list can be used directly in the Maxi app.
     """
     if today is None:
         today = dt.date.today()
@@ -369,12 +369,12 @@ def generate_shopping_list(plan, filename, reach=-1, today=None):
                     f"({date.isoformat()} -> {end_date.isoformat()})\n")
             f.write("----------------------------" + "\n")
 
-            # Clean Wolt Market order block: what to actually buy.
-            f.write("WOLT MARKET ORDER\n")
+            # Clean Maxi order block: what to actually buy.
+            f.write("MAXI ORDER\n")
             f.write("----------------------------" + "\n")
             for entry in day_list["spisak"]:
                 packs = entry["k"]
-                product = entry["wolt"] or entry["Sastojak"]
+                product = entry["maxi"] or entry["Sastojak"]
                 f.write(f"  {packs} x {product}\n")
             f.write(f"  Estimated groceries: {day_list['cena']:.0f} RSD\n")
             f.write("\n")
@@ -389,5 +389,5 @@ def generate_shopping_list(plan, filename, reach=-1, today=None):
                 f.write("-------------------------" + "\n")
 
                 for ingr in meal.ingredients:
-                    wolt = f"  [Wolt: {ingr.wolt_name}]" if ingr.wolt_name else ""
+                    wolt = f"  [Maxi: {ingr.wolt_name}]" if ingr.wolt_name else ""
                     f.write(f"\t\t{ingr.name}, {ingr.qty} {ingr.nutri_info}{wolt}\n")
