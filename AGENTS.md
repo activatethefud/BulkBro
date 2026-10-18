@@ -145,7 +145,7 @@ Generate shopping list:
 - `wolt_refresh.py` - Refresh/normalize ingredient prices from the catalog
 - `config.py` - Central tunables (targets, optimizer, delivery economics)
 - `util.py` - Utilities (load_sol)
-- `test_runner.py` - Test suite (150 tests)
+- `test_runner.py` - Test suite (157 tests)
 - `docs.py` - Documentation generator
 
 ## Delivery & Discount Model
@@ -163,6 +163,25 @@ Generate shopping list:
 `total_price`. The optimizer's `delivery` objective minimizes net delivery
 overhead as a fraction of groceries, naturally preferring fewer, larger baskets.
 
+## Fine-grained rotting (sealed vs opened)
+
+Each ingredient has two shelf lives:
+
+- `rots_in` - days a pack lasts **once opened / in use** (the everyday value).
+- `rots_sealed` - days an **unopened** pack lasts (usually longer; defaults to
+  `rots_in` where opening makes no difference, e.g. fresh produce/meat).
+
+`simulate_plan` keeps a two-pool inventory per ingredient (sealed vs opened).
+Packages bought go into the sealed pool and are opened as they're consumed.
+Shelf-stable goods (dry goods, oils, nuts, canned, frozen) have a long sealed
+life; perishables rot soon after opening. This gives **truer waste**: leftover
+shelf-stable stock at plan end is *carried over* (not thrown away), so `waste`
+reflects only food that actually spoils. `rots_sealed` values are assigned by a
+category heuristic at the bottom of `ingredient.py` (`SEALED_OVERRIDES` for
+special cases). `config.WASTE_ENABLED` adds an always-on `waste_frac` objective
+so the optimizer also avoids plans that discard food. `main.py run` prints a
+`Food Waste:` line. `NO_FRIDGE` forces both shelf lives to 1 day.
+
 ## Meal Source Selection
 
 Edit `meals.py` to change source:
@@ -178,7 +197,7 @@ Or use `set_meal_source('vegan')` function.
 python3 test_runner.py
 ```
 
-Run 150 tests covering core functionality, including the delivery/discount model.
+Run 157 tests covering core functionality, including the delivery/discount model.
 
 ## Documentation
 

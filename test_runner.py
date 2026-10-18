@@ -990,6 +990,14 @@ def main():
         ("no_fridge_simulate_plan", test_no_fridge_simulate_plan),
         ("no_fridge_shopping_list", test_no_fridge_shopping_list),
         ("no_fridge_optimizer_runs", test_no_fridge_optimizer_runs),
+        # Fine-grained rotting (sealed vs opened)
+        ("rots_sealed_defaults", test_ingredient_rots_sealed_defaults_to_rots_in),
+        ("rots_sealed_distinct", test_ingredient_rots_sealed_distinct),
+        ("rots_sealed_propagates", test_rots_sealed_propagates_through_copies),
+        ("catalog_has_shelf_stable", test_catalog_has_shelf_stable_items),
+        ("shelf_stable_leftover_not_waste", test_shelf_stable_leftover_not_counted_as_waste),
+        ("perishable_leftover_is_waste", test_perishable_leftover_counted_as_waste),
+        ("fine_grained_reduces_waste", test_fine_grained_reduces_reported_waste),
         ("extreme_ratio_keto", test_extreme_ratio_keto),
         ("extreme_ratio_high_protein", test_extreme_ratio_high_protein),
         ("extreme_ratio_low_carb_variety", test_extreme_ratio_low_carb_variety),
@@ -1302,6 +1310,90 @@ def test_no_fridge_optimizer_runs():
 
     assert sol is not None, "No-fridge optimization should produce a solution"
     assert len(sol) == 2, "Should have 2 days"
+
+
+# ============================================================
+# Fine-grained rotting (sealed vs opened shelf life)
+# ============================================================
+
+def test_ingredient_rots_sealed_defaults_to_rots_in():
+    """When no sealed life is given, rots_sealed == rots_in (back-compat)."""
+    ingr = Ingredient('x', 100, 500, 5, Nutrition(100, 20, 10, 5))
+    assert ingr.rots_sealed == ingr.rots_in == 5
+    assert not ingr.is_shelf_stable
+
+
+def test_ingredient_rots_sealed_distinct():
+    """A sealed life longer than opened life marks a shelf-stable item."""
+    ingr = Ingredient('x', 100, 500, 5, Nutrition(100, 20, 10, 5), rots_sealed=300)
+    assert ingr.rots_in == 5
+    assert ingr.rots_sealed == 300
+    assert ingr.is_shelf_stable
+
+
+def test_rots_sealed_propagates_through_copies():
+    """rots_sealed survives scoping/copy operations."""
+    ingr = Ingredient('x', 100, 500, 5, Nutrition(100, 20, 10, 5), rots_sealed=300)
+    for variant in (ingr * 2, ingr ** 0.5, ingr.copy()):
+        assert variant.rots_sealed == 300
+        assert variant.is_shelf_stable
+
+
+def test_catalog_has_shelf_stable_items():
+    """Catalog distinguishes shelf-stable (sealed>>opened) staples."""
+    from ingredient import ingredients
+    assert ingredients['maslinovo ulje'].is_shelf_stable
+    assert ingredients['pirinac 1kg'].is_shelf_stable
+    # Fresh produce / meat: no sealing benefit.
+    assert not ingredients['banana'].is_shelf_stable
+    assert not ingredients['pilece belo 100g'].is_shelf_stable
+
+
+def test_shelf_stable_leftover_not_counted_as_waste():
+    """Leftover shelf-stable stock is carried over, not wasted."""
+    from ingredient import ingredients
+    from meal import Meal
+    oil = ingredients['maslinovo ulje']  # shelf-stable, opened life 45
+    plan = [Day([Meal('oil', [oil * 13], [])]) for _ in range(3)]
+    main_module.clear_caches()
+    r = simulate_plan(plan)
+    # Buying a 1L bottle to use ~39ml: the leftover is kept (not waste).
+    assert r['waste'] == 0, f"shelf-stable leftover should not be waste, got {r['waste']}"
+    main_module.clear_caches()
+
+
+def test_perishable_leftover_counted_as_waste():
+    """Leftover perishable stock (short opened life) is waste."""
+    from ingredient import ingredients
+    from meal import Meal
+    tofu = ingredients['tofu 250g pak']  # opened life 3 days, perishable
+    plan = [Day([Meal('tofu', [tofu * 10], [])]) for _ in range(2)]
+    main_module.clear_caches()
+    r = simulate_plan(plan)
+    assert r['waste'] > 0, "perishable leftover should count as waste"
+    main_module.clear_caches()
+
+
+def test_fine_grained_reduces_reported_waste():
+    """Two-clock model reports less waste than treating all stock as opened."""
+    import random
+    from day import Day
+    from meals import meals
+    main_module.clear_caches()
+    random.seed(4)
+    plan = [Day([random.choice(meals) for _ in range(3)]) for _ in range(7)]
+    waste_fine = simulate_plan(plan)['waste']
+    # Force sealed==opened for all (old single-clock behaviour)
+    saved = dict(main_module._ingr_rots_sealed)
+    for n in main_module._ingr_rots_sealed:
+        main_module._ingr_rots_sealed[n] = main_module._ingr_rots_opened[n]
+    main_module.clear_caches()
+    waste_single = simulate_plan(plan)['waste']
+    main_module._ingr_rots_sealed.clear()
+    main_module._ingr_rots_sealed.update(saved)
+    main_module.clear_caches()
+    assert waste_fine <= waste_single + 1e-6, (
+        f"fine-grained waste {waste_fine:.0f} should not exceed single-clock {waste_single:.0f}")
 
 
 # =============================================================================

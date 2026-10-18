@@ -45,6 +45,9 @@ def print_plan_summary(solution, targets):
           f"{nutri.carb:.0f}g carb   {nutri.prot:.0f}g prot ({achieved_prot:.0f}%)   "
           f"{nutri.fat:.0f}g fat   {achieved_ratio:.1f} c/f ratio")
     print(f"Total Price: {sim['price']:.0f} RSD")
+    if sim.get('waste', 0) > 0:
+        waste_pct = sim['waste'] / max(sim['price'], 1) * 100
+        print(f"Food Waste:  {sim['waste']:.0f} RSD ({waste_pct:.0f}%) - perishable leftovers spoiling")
     if config.DELIVERY_ENABLED and sim.get('num_orders', 0) > 0:
         net_delivery = sim.get('delivery_fees', 0) - sim.get('discount', 0)
         print(f"Delivery:    {sim['delivery_fees']:.0f} RSD in {sim['num_orders']} order(s)"

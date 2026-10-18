@@ -19,6 +19,19 @@ import delivery as delivery_mod
 _ingr_price = {name: i.price for name, i in ingredients.items()}
 _ingr_min_qty = {name: i.min_qty for name, i in ingredients.items()}
 _ingr_rots_in = {name: i.rots_in for name, i in ingredients.items()}
+# Opened/in-use shelf life == ``rots_in``; sealed shelf life can be longer.
+_ingr_rots_opened = {name: i.rots_in for name, i in ingredients.items()}
+_ingr_rots_sealed = {name: getattr(i, "rots_sealed", i.rots_in) for name, i in ingredients.items()}
+
+#: Ingredients whose opened shelf life is at most this many days are considered
+#: perishable (their leftovers spoil, so they count as waste). Shelf-stable
+#: items with a longer opened life are carried over to the next plan instead.
+_PERISHABLE_MAX_OPENED_DAYS = config.PERISHABLE_MAX_OPENED_DAYS
+
+
+def _is_perishable(name):
+    """True if leftover stock of this ingredient will spoil (counts as waste)."""
+    return _ingr_rots_opened.get(name, config.DEFAULT_ROTS_IN) <= _PERISHABLE_MAX_OPENED_DAYS
 
 # Caches
 _sim_cache = {}
@@ -93,8 +106,19 @@ def simulate_plan(plan):
 
     price = 0
     waste = 0
-    ingredients_info = {}
-    rot_info = {}
+
+    # Two-pool inventory per ingredient, distinguishing sealed (unopened) vs
+    # opened (in-use) stock:
+    #   sealed_qty[name] / sealed_rot[name]  - unopened packs + their clock
+    #   opened_qty[name] / opened_rot[name]  - currently-open portion + clock
+    # A pack lasts ``rots_sealed`` while sealed and ``rots_opened`` (== the
+    # everyday ``rots_in``) once opened. This lets shelf-stable goods be
+    # stockpiled without being counted as wasted mid-plan, while perishables
+    # still rot soon after opening.
+    sealed_qty = {}
+    sealed_rot = {}
+    opened_qty = {}
+    opened_rot = {}
 
     # Grocery subtotal accumulated since the last delivery order. Tracked so
     # the delivery model can price the basket (min order, free-delivery
@@ -116,33 +140,52 @@ def simulate_plan(plan):
                 name = ingr.name
                 price_val = _ingr_price.get(name, 0)
                 min_qty = _ingr_min_qty.get(name, config.DEFAULT_MIN_QTY)
-                rots_in = 1 if config.NO_FRIDGE else _ingr_rots_in.get(name, config.DEFAULT_ROTS_IN)
+                if config.NO_FRIDGE:
+                    rots_opened = rots_sealed = 1
+                else:
+                    rots_opened = _ingr_rots_opened.get(name, config.DEFAULT_ROTS_IN)
+                    rots_sealed = _ingr_rots_sealed.get(name, rots_opened)
 
-                if name not in ingredients_info:
-                    qty = ingr.qty
-                    to_buy = (qty + min_qty - 1) // min_qty
-                    price += to_buy * price_val
-                    ingredients_info[name] = to_buy * min_qty
-                    rot_info[name] = rots_in
+                need = ingr.qty
 
-                if rot_info[name] <= 0:
-                    qty = ingr.qty
-                    to_buy = (qty + min_qty - 1) // min_qty
-                    price += to_buy * price_val
-                    waste += (ingredients_info[name] / min_qty) * price_val
-                    ingredients_info[name] = to_buy * min_qty
-                    rot_info[name] = rots_in
+                # 1. Consume from the opened pool first.
+                already_open = opened_qty.get(name, 0)
+                take = min(already_open, need)
+                if take:
+                    opened_qty[name] = already_open - take
+                    need -= take
 
-                ingredients_info[name] -= ingr.qty
+                # 2. If more is needed, open sealed packs / buy fresh ones.
+                while need > 0:
+                    if sealed_qty.get(name, 0) >= min_qty:
+                        sealed_qty[name] -= min_qty
+                    else:
+                        # Buy a fresh pack (goes straight to opened for use).
+                        price += price_val
 
-                if (remaining := ingredients_info[name]) < 0:
-                    to_buy = (-remaining + min_qty - 1) // min_qty
-                    price += to_buy * price_val
-                    ingredients_info[name] = to_buy * min_qty
-                    rot_info[name] = rots_in
+                    # Open one pack's worth into the opened pool.
+                    opened_qty[name] = opened_qty.get(name, 0) + min_qty
+                    opened_rot[name] = rots_opened
 
-        for name in ingredients_info:
-            rot_info[name] -= 1
+                    take = min(opened_qty[name], need)
+                    opened_qty[name] -= take
+                    need -= take
+
+        # Age both pools; anything whose clock runs out is wasted.
+        for name in list(opened_qty):
+            if opened_qty[name] > 0:
+                opened_rot[name] = opened_rot.get(name, 0) - 1
+                if opened_rot[name] <= 0:
+                    min_qty = _ingr_min_qty.get(name, 1)
+                    waste += (opened_qty[name] / min_qty) * _ingr_price.get(name, 0)
+                    opened_qty[name] = 0
+        for name in list(sealed_qty):
+            if sealed_qty[name] > 0:
+                sealed_rot[name] = sealed_rot.get(name, 0) - 1
+                if sealed_rot[name] <= 0:
+                    min_qty = _ingr_min_qty.get(name, 1)
+                    waste += (sealed_qty[name] / min_qty) * _ingr_price.get(name, 0)
+                    sealed_qty[name] = 0
 
         # On a refill day the groceries bought since the previous order form one
         # delivery basket. Record its subtotal for the delivery model.
@@ -155,9 +198,19 @@ def simulate_plan(plan):
     if price - order_start_price > 0:
         order_subtotals.append(price - order_start_price)
 
-    for name in ingredients_info:
-        min_qty = _ingr_min_qty.get(name, 1)
-        waste += (ingredients_info[name] / min_qty) * _ingr_price.get(name, 0)
+    # End-of-plan leftovers: only *perishable* food left over is thrown away.
+    # Shelf-stable stock (long shelf life, opened or sealed) is kept and eaten
+    # over the following days, so it is carried over rather than counted as
+    # waste. During-plan rot expiry (above) already counts food that actually
+    # spoiled.
+    for name, qty in opened_qty.items():
+        if qty > 0 and _is_perishable(name):
+            min_qty = _ingr_min_qty.get(name, 1)
+            waste += (qty / min_qty) * _ingr_price.get(name, 0)
+    for name, qty in sealed_qty.items():
+        if qty > 0 and _is_perishable(name):
+            min_qty = _ingr_min_qty.get(name, 1)
+            waste += (qty / min_qty) * _ingr_price.get(name, 0)
 
     delivery = delivery_mod.compute_delivery(order_subtotals)
     total_price = delivery_mod.total_plan_cost(price, delivery)

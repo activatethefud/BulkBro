@@ -14,7 +14,7 @@ class Ingredient:
 
         id = 0
         
-        def __init__(self,name: str,price,min_qty,rots_in,nutri_info = None,nutri_std_size = None, wolt = None):
+        def __init__(self,name: str,price,min_qty,rots_in,nutri_info = None,nutri_std_size = None, wolt = None, rots_sealed = None):
 
                 Ingredient.id += 1
                 self.id = Ingredient.id
@@ -22,7 +22,14 @@ class Ingredient:
                 self.price = price
                 self.min_qty = min_qty
                 self.qty = min_qty
+                # ``rots_in`` is the shelf life of a pack once opened / in use
+                # (this is the everyday "how many days until it spoils" value).
+                # ``rots_sealed`` is the (usually longer) shelf life of an
+                # *unopened/sealed* pack, enabling stockpiling of shelf-stable
+                # goods without waste. Defaults to ``rots_in`` for ingredients
+                # where opening makes no difference (fresh produce/meat).
                 self.rots_in = rots_in
+                self.rots_sealed = rots_in if rots_sealed == None else rots_sealed
                 self.nutri_info = nutri_info
 
                 # Correspondence to the Wolt Market product this ingredient
@@ -46,6 +53,16 @@ class Ingredient:
                 """Wolt product id, or ``None``."""
                 return self.wolt.get("id") if self.wolt else None
 
+        @property
+        def is_shelf_stable(self):
+                """True when a sealed pack outlasts an opened one.
+
+                Shelf-stable ingredients keep for a long time unopened and can
+                be stockpiled/reused; their unopened leftovers are not waste.
+                """
+                return self.rots_sealed > self.rots_in
+
+
         def __repr__(self):
                 return str(self.__dict__)
 
@@ -62,7 +79,8 @@ class Ingredient:
                             self.min_qty,
                             self.rots_in,
                             self.nutri_info,
-                            wolt=self.wolt
+                            wolt=self.wolt,
+                            rots_sealed=self.rots_sealed
                         )
 
                         cpy.qty = cpy.min_qty * other
@@ -83,7 +101,8 @@ class Ingredient:
                             self.min_qty,
                             self.rots_in,
                             self.nutri_info,
-                            wolt=self.wolt
+                            wolt=self.wolt,
+                            rots_sealed=self.rots_sealed
                         )
 
                         cpy.qty = self.qty
@@ -105,7 +124,8 @@ class Ingredient:
                             self.min_qty,
                             self.rots_in,
                             self.nutri_info,
-                            wolt=self.wolt
+                            wolt=self.wolt,
+                            rots_sealed=self.rots_sealed
                         )
 
                         #cpy = copy(self)
@@ -136,7 +156,8 @@ class Ingredient:
                         self.min_qty,
                         self.rots_in,
                         self.nutri_info,
-                        wolt=self.wolt
+                        wolt=self.wolt,
+                        rots_sealed=self.rots_sealed
                 )
 
                 cpy.qty = self.qty
@@ -1054,6 +1075,55 @@ for _name, _ingr in ingredients.items():
         if _entry:
                 _wid, _wname, _pack = _entry
                 _ingr.wolt = {"id": _wid, "name": _wname, "pack": _pack}
+
+# ---------------------------------------------------------------------------
+# Fine-grained rotting: sealed (unopened) vs opened shelf life.
+#
+# ``rots_in`` (per-ingredient, above) is the OPENED/in-use shelf life - how
+# long a pack lasts once you start using it. ``rots_sealed`` is how long an
+# UNOPENED pack keeps. They are equal for fresh produce/meat/fish (opening
+# makes no difference) but sealed >> opened for shelf-stable goods (dry goods,
+# oils, nuts, canned, frozen), which lets the planner stockpile/reuse those
+# without the leftover counting as waste.
+#
+# Values are assigned by category heuristic below; an explicit override entry
+# in ``SEALED_OVERRIDES`` wins for special cases.
+# ---------------------------------------------------------------------------
+SEALED_OVERRIDES = {
+    # Mostly for clarity / explicit shelf-stable staples.
+}
+
+# (keywords in name) -> sealed shelf life in days. First match wins.
+_SEALED_RULES = [
+    # canned fish / ready meals in cans: years unopened, days once opened
+    (("rio mare", "skusa", "sardina", "carnex", "konzerva", "tuna"), 540),
+    # dry pantry staples: grains, pasta, flour, seeds, nuts, oils
+    (("pirinac", "pasta", "integralna", "makarone", "ovsene", "palenta",
+      "kinoa", "socivo", "chia", "lanene", "seme", "golica", "suncokret",
+      "badem", "indijski", "kikiriki", "jumbo", "maslinovo", "kokice",
+      "brasno", "kikiriki puter", "dzem", "med", "urme",
+      "pasulj", "leblebije", "beli luk", "krompir"), 300),
+    # frozen goods: long unopened (freezer)
+    (("zamrznut", "zaledjen", "smrznut", "kinezi", "sladoled"), 200),
+    # dairy / spreads / bread: moderate sealed shelf life, short once opened
+    (("jogurt", "mleko", "kiselo", "kefir", "pavlaka", "sir", "puter",
+      "tofu", "humus", "dvopek", "nutrino", "fitnes", "dukatos", "zott",
+      "grcki", "sojino", "zbregov", "tortilja", "rajs kejk", "heidi",
+      "najlepse zelje"), 45),
+]
+
+# Produce / meat / fish / eggs get no sealing benefit (sealed == opened).
+
+for _name, _ingr in ingredients.items():
+        _sealed = SEALED_OVERRIDES.get(_name)
+        if _sealed is None:
+                _low = _name.lower()
+                for _keys, _days in _SEALED_RULES:
+                        if any(_k in _low for _k in _keys):
+                                _sealed = max(_days, _ingr.rots_in)
+                                break
+        if _sealed is not None:
+                _ingr.rots_sealed = _sealed
 
 def export_to_csv(ingredients,filename = sys.stdout):
         s = "\n".join([i.csv() for i in ingredients.values()])

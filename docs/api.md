@@ -190,6 +190,10 @@ fat : float
 
 ## Module: simulation
 
+### Function: _is_perishable()
+
+True if leftover stock of this ingredient will spoil (counts as waste).
+
 ### Function: sublists()
 
 Group elements by identity. Args: arr: List of elements

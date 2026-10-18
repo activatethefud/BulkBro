@@ -67,7 +67,7 @@
                     <div class="stat-label">Python Files</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-value">150</div>
+                    <div class="stat-value">157</div>
                     <div class="stat-label">Tests</div>
                 </div>
                 <div class="stat">
@@ -224,6 +224,9 @@
 </div>
 <div class="function"><h5>wolt_id()</h5>
 <p class="docstring">Wolt product id, or ``None``.</p>
+</div>
+<div class="function"><h5>is_shelf_stable()</h5>
+<p class="docstring">True when a sealed pack outlasts an opened one. Shelf-stable ingredients keep for a long time unopened and can be stockpiled/reused; their unopened leftovers are not waste.</p>
 </div>
 <div class="function"><h5>__repr__()</h5>
 </div>
@@ -411,6 +414,10 @@
 </div>
 <div class="module" id="simulation">
 <h3>Module: simulation</h3>
+<div class="function">
+<h4>_is_perishable()</h4>
+<p class="docstring">True if leftover stock of this ingredient will spoil (counts as waste).</p>
+</div>
 <div class="function">
 <h4>sublists()</h4>
 <p class="docstring">Group elements by identity. Args: arr: List of elements</p>
@@ -636,7 +643,7 @@
         
         <section id="tests" class="section">
             <h2>Test Coverage</h2>
-            <p>Total Tests: 150</p>
+            <p>Total Tests: 157</p>
             <div class="test-list">
 <div class="test-item">test_sublists</div>
 <div class="test-item">test_generate_day</div>
@@ -724,6 +731,13 @@
 <div class="test-item">test_no_fridge_simulate_plan</div>
 <div class="test-item">test_no_fridge_shopping_list</div>
 <div class="test-item">test_no_fridge_optimizer_runs</div>
+<div class="test-item">test_ingredient_rots_sealed_defaults_to_rots_in</div>
+<div class="test-item">test_ingredient_rots_sealed_distinct</div>
+<div class="test-item">test_rots_sealed_propagates_through_copies</div>
+<div class="test-item">test_catalog_has_shelf_stable_items</div>
+<div class="test-item">test_shelf_stable_leftover_not_counted_as_waste</div>
+<div class="test-item">test_perishable_leftover_counted_as_waste</div>
+<div class="test-item">test_fine_grained_reduces_reported_waste</div>
 <div class="test-item">test_extreme_ratio_keto</div>
 <div class="test-item">test_extreme_ratio_high_protein</div>
 <div class="test-item">test_extreme_ratio_low_carb_variety</div>
@@ -938,7 +952,7 @@
     </div>
     
     <footer>
-        <p>Generated: 2026-10-18 19:01</p>
+        <p>Generated: 2026-10-18 20:14</p>
     </footer>
 </body>
 </html>

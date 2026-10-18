@@ -84,6 +84,15 @@ BASKET_DISCOUNT_MAX_USES = 1
 """int: Max number of orders per plan that can claim the basket discount"""
 
 # =============================================================================
+# Fine-grained rotting (sealed vs opened shelf life)
+# =============================================================================
+WASTE_ENABLED = True
+"""bool: Include food-waste (spoiled value) in the objective"""
+
+PERISHABLE_MAX_OPENED_DAYS = 14
+"""int: Opened shelf life at/below which leftovers count as waste (spoil)"""
+
+# =============================================================================
 # Variance Thresholds
 # =============================================================================
 VARIANCE_GOOD = 10

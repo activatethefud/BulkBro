@@ -109,6 +109,7 @@ class HarmonyOptimizer:
             'ratio': statlist(),
             'price': statlist(),
             'waste': statlist(),
+            'waste_frac': statlist(),
             'diversity': statlist(),
             'mealcount': statlist(),
             'consistency': statlist(),
@@ -416,6 +417,17 @@ class HarmonyOptimizer:
             self.statlists['delivery'].append(delivery_score_raw)
         else:
             delivery_score_raw = 0.0
+
+        # Food waste (always active when enabled): fraction of grocery spend
+        # that is thrown away. Minimising this steers the plan toward
+        # ingredients/batches that get fully eaten (fewer perishable leftovers),
+        # which also tends to lower cost.
+        if config.WASTE_ENABLED:
+            waste_ratio = result.get('waste', 0) / max(price, 1)
+            waste_frac_score_raw = min(1.0, waste_ratio)
+            self.statlists['waste_frac'].append(waste_frac_score_raw)
+        else:
+            waste_frac_score_raw = 0.0
         
         # Day-to-day consistency (always active)
         self.statlists['consistency'].append(consistency_score)
@@ -438,6 +450,7 @@ class HarmonyOptimizer:
         consistency_score_norm = self._normalize_score('consistency', consistency_score)
         diversity_score = self._normalize_score('diversity', diversity_score_raw)
         delivery_score = self._normalize_score('delivery', delivery_score_raw)
+        waste_frac_score = self._normalize_score('waste_frac', waste_frac_score_raw)
         
         # =========================================================================
         # COMBINE SCORES (equal weight per active criterion)
@@ -463,6 +476,8 @@ class HarmonyOptimizer:
         num_active += 2
         if config.DELIVERY_ENABLED:
             num_active += 1
+        if config.WASTE_ENABLED:
+            num_active += 1
         
         weight = 1.0 / max(num_active, 1)
         
@@ -486,6 +501,8 @@ class HarmonyOptimizer:
         score += -weight * consistency_score_norm
         if config.DELIVERY_ENABLED:
             score += -weight * delivery_score
+        if config.WASTE_ENABLED:
+            score += -weight * waste_frac_score
         
         # Store in cache
         self.fitness_cache[sol_hash] = score
