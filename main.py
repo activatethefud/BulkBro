@@ -53,6 +53,13 @@ def print_plan_summary(solution, targets):
               f"(items {sim['price']:.0f} {'+' if net_delivery >= 0 else '-'} "
               f"{abs(net_delivery):.0f})")
     print(f"Variance:    kcal ±{var_kcal:.0f}%, prot ±{var_prot:.0f}%  ({var_desc})")
+    try:
+        from simulation import shopping_list
+        reach_days = shopping_list(solution)["za broj dana"]
+        print(f"Shopping:    earliest fresh buy lasts {reach_days} day(s) "
+              f"(limited by fastest-spoiling item)")
+    except Exception:
+        pass
     print("=" * config.PRINT_WIDTH)
     
     for i, day in enumerate(solution[:config.DAYS_PREVIEW]):
@@ -197,6 +204,11 @@ def do_load(args):
     sim = simulate_plan(sol)
     print(f"Price: {sim['price']:.2f}")
     print(f"Nutrition: {sim['nutri']}")
+
+    from simulation import shopping_list
+    sl = shopping_list(sol)
+    print(f"First shopping list lasts: {sl['za broj dana']} day(s) "
+          f"(rotting-limited), {sl['cena']:.0f} RSD")
 
     for i, day in enumerate(sol):
         print(f"\nDay {i + 1}:")

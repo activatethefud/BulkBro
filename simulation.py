@@ -305,9 +305,15 @@ def generate_shopping_list(plan, filename, reach=-1, today=None):
     with open(f"plans/{filename}_shopping.txt", 'w') as f:
         for idx, date in enumerate((today + dt.timedelta(n) for n in range(len(plan)))):
             day_list = shopping_list(plan[idx:], reach)
+            reach_days = day_list["za broj dana"]
+            end_date = date + dt.timedelta(days=max(reach_days - 1, 0))
 
             f.write("\n")
             f.write("Shopping list - ".upper() + date.isoformat() + "\n")
+            # Duration of this shopping trip, derived from ingredient shelf life
+            # (the fastest-spoiling ingredient limits how long the buy lasts).
+            f.write(f"LASTS {reach_days} DAY(S)  "
+                    f"({date.isoformat()} -> {end_date.isoformat()})\n")
             f.write("----------------------------" + "\n")
 
             # Clean Wolt Market order block: what to actually buy.

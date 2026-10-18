@@ -1063,6 +1063,8 @@ def main():
         ("wolt_correlation_propagates_copies", test_wolt_correspondence_propagates_through_copies),
         ("shopping_list_includes_wolt_product", test_shopping_list_includes_wolt_product),
         ("shopping_list_has_wolt_order_block", test_generate_shopping_list_has_wolt_order_block),
+        ("shopping_list_duration_matches_reach", test_shopping_list_duration_matches_reach),
+        ("generate_shopping_list_has_lasts_line", test_generate_shopping_list_has_lasts_line),
         # Statlist normalization & meal spam regression
         ("statlist_basic", test_statlist_basic),
         ("statlist_normalize_empty", test_statlist_normalize_empty),
@@ -1922,6 +1924,31 @@ def test_generate_shopping_list_has_wolt_order_block():
         content = open(path).read()
         assert 'WOLT MARKET ORDER' in content
         assert 'Estimated groceries' in content
+    finally:
+        if os.path.exists(path):
+            os.remove(path)
+
+
+def test_shopping_list_duration_matches_reach():
+    """shopping_list exposes 'za broj dana' equal to the rotting-based reach."""
+    from simulation import shopping_list
+    day = Day([MEALS[0]])
+    result = shopping_list([day, day, day])
+    assert 'za broj dana' in result
+    # A fresh buy can't cover more days than the plan length.
+    assert 1 <= result['za broj dana'] <= 3
+
+
+def test_generate_shopping_list_has_lasts_line():
+    """Generated shopping file states how many days each shopping lasts."""
+    import datetime as dt
+    import os
+    day = Day([MEALS[0]])
+    generate_shopping_list([day, day], 'test_lasts', today=dt.date(2026, 10, 18))
+    path = 'plans/test_lasts_shopping.txt'
+    try:
+        content = open(path).read()
+        assert 'LASTS' in content and 'DAY(S)' in content
     finally:
         if os.path.exists(path):
             os.remove(path)

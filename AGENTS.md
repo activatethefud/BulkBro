@@ -83,6 +83,12 @@ The generated shopping list (`plans/<output>_shopping.txt`) includes a
 **WOLT MARKET ORDER** block per day listing each product by its exact Wolt
 name and pack count, so it can be used directly in the Wolt app.
 
+Each shopping block also states **how many days it lasts** (`LASTS N DAY(S)`),
+derived from the rotting logic: a buy covers consecutive days until the
+fastest-spoiling ingredient in it would expire. The same value is available
+programmatically as `shopping_list(plan)["za broj dana"]` and is shown by
+`main.py run` / `main.py load` ("First shopping list lasts: N day(s)").
+
 ### Generate Shopping List
 
 ```bash
@@ -131,7 +137,7 @@ Generate shopping list:
 - `wolt_refresh.py` - Refresh/normalize ingredient prices from the catalog
 - `config.py` - Central tunables (targets, optimizer, delivery economics)
 - `util.py` - Utilities (load_sol)
-- `test_runner.py` - Test suite (145 tests)
+- `test_runner.py` - Test suite (147 tests)
 - `docs.py` - Documentation generator
 
 ## Delivery & Discount Model
@@ -164,7 +170,7 @@ Or use `set_meal_source('vegan')` function.
 python3 test_runner.py
 ```
 
-Run 145 tests covering core functionality, including the delivery/discount model.
+Run 147 tests covering core functionality, including the delivery/discount model.
 
 ## Documentation
 
