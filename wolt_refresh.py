@@ -54,16 +54,16 @@ WOLT_MAP = {
     # ---- nuts / seeds -----------------------------------------------------
     "kikiriki": "637b786c880553d6340e1ce4",            # Kikiriki pečeni slani 180g
     "kikiriki svetofor": "62f3bc0b3b1a7a65f0a13489",   # Kikiriki prženi vakum Fun&Fit 250g
-    "badem": "640a259db0542ab6b918ad74",               # Badem prženi slani Mogyi 70g
-    "badem svetofor": "640a259db0542ab6b918ad74",
+    "badem": "62f3bc0b3b1a7a65f0a134b0",               # Badem sirovi Jumbo Fun&Fit 75g (raw, cheapest/kg)
+    "badem svetofor": "62f3bc0b3b1a7a65f0a134b0",
     "suncokret": "d9fd028fa9c66488c8e176b0",           # Colonial Suncokret oljušteni 100g
-    "orah": "682da8dc03c8982ca77494f7",                # Orah sapa 220g
+    "orah": None,                                     # no plain walnut kernels on this venue (only cookie/oil/spread)
     "indijski orah": "62f3bc0b3b1a7a65f0a13458",       # Indijski orah prženi Jumbo 75g
-    "kikiriki puter dm": "62f3bc0b3b1a7a65f0a13410",   # Puter kikiriki Granum 170g
+    "kikiriki puter dm": "fa50bf247e93a942b72deb1f",   # Well Kikiriki puter crunchy 500g (cheapest/kg)
     "kinoa": "98c4cdb0557a5c6d63dc6f8e",               # Kinoa bela BIO 200g
     "chia semenke maxi": "68751e4bedff0b60df2bcff8",   # Čia Colonial 200g
     "lanene semenke": "66471ddac67bc77287dbca2a",      # Laneno seme BIO 200gr
-    "leblebije maxi": "c1aa01d404a90a7ad845ba22",      # Leblebija sirova u zrnu 500g
+    "leblebije maxi": "62f3bc0b3b1a7a65f0a132cf",      # Leblebija kuvana Benlian Food 480g (canned)
 
     # ---- carbs / grains / pasta ------------------------------------------
     "ovsene pahuljice": "055c2b65629346bb3e308cd2",    # Pahuljice ovsene 500g
@@ -79,8 +79,8 @@ WOLT_MAP = {
     "tortilja 8": {"id": "3a9c19e243121812cabb639a", "unit": "pack", "pack_units": 12},  # Tortilje 12 kom
 
     # ---- veg / legumes ----------------------------------------------------
-    "pasulj beli svetofor 1kg": "63297d265d8854fef2de93e6",  # Pasulj sitni beli 500g
-    "pasulj": "63297d265d8854fef2de93e6",
+    "pasulj beli svetofor 1kg": "e52b26187337d3c3d22919f7",  # Beli pasulj Podravka 400g (canned)
+    "pasulj": "e52b26187337d3c3d22919f7",
     "pasulj konzerva": "e52b26187337d3c3d22919f7",     # Beli pasulj Podravka 400g
     "zamrznuti grasak svetofor 1kg": "635fb87089302d314cc99498",  # Grašak Frikom 700g
     "zaledjeni grasak": "642ffb1e8cd31a36cef315a7",     # Grašak Polar Food 400g
@@ -90,8 +90,8 @@ WOLT_MAP = {
     "zaledjeni spanac": "642ffb1e8cd31a36cef315b0",
     "spanać svez": "67063a58899bf17360277b71",         # Baby spanać 90g
     "najlepse zelje": {"id": "7c33562a35bcade7781a6267", "grams_block": 42},  # Čokolada Lion white 42g (closest snack bar)
-    "krompir": "62f3bc0c3b1a7a65f0a13820",             # Krompir crveni ~500 g
-    "krompir svetofor": "634d6dca4de9349f1a00650f",    # Krompir beli opran 1kg
+    "krompir": "63297d265d8854fef2de93d8",             # Krompir beli mreža 2kg (cheapest/kg)
+    "krompir svetofor": "63297d265d8854fef2de93d8",    # Krompir beli mreža 2kg (cheapest/kg)
     "batat kom": {"id": "62f3bc0c3b1a7a65f0a13858", "grams_block": 600},  # Batat 1kg (block ~3 batats)
     "crni luk kom": "62f3bc0c3b1a7a65f0a1383b",        # Luk crni ~500 g
     "crni luk svetofor": "62f3bc0c3b1a7a65f0a1383b",
@@ -108,18 +108,18 @@ WOLT_MAP = {
     "smrznuti miks": "652fcf8865146680ba5e734a",      # Mešavina povrća 4 godišnja doba Frikom 400g
     "borovnice": "64746bc8d826cfbe29e21035",           # Borovnica Polar Food 300g
     "pomorandza": {"id": "62f3bc0c3b1a7a65f0a137e4", "grams_block": 200},  # Pomorandža ~1000 g (1 orange ~200 g)
-    "ananas": {"id": "62f3bc0c3b1a7a65f0a137e3", "wolt_grams": 1000},  # Ananas 1kom (~1 kg)
+    "ananas": {"id": "347cf55b70d2d5bfe4adba89", "wolt_grams": 1000},  # Ananas baby 1kom (fresh whole pineapple)
     "avokado": "63aeb20d48e3846acfe56a8a",             # Avokado organski 400g
     "rukola": "68c9111b3b54e1ed3a431508",              # Rukola 90g
     "banana": "6328478e1474ebf1bf1ca543",              # Banana organska 1kg
-    "jabuka": {"id": "62f3bc0c3b1a7a65f0a13842", "grams_block": 150},  # Jabuka ajdared ~500 g (1 apple ~150 g)
+    "jabuka": {"id": "62f3bc0c3b1a7a65f0a137fd", "grams_block": 150},  # Jabuka Zlatni delišes ~500 g (cheapest/kg)
 
     # ---- dairy / eggs -----------------------------------------------------
     "jaja 10kom": {"id": "62f3bc0b3b1a7a65f0a132c0", "unit": "pack", "pack_units": 10},  # Jaja M 10/1
     "jaje": {"id": "62f3bc0b3b1a7a65f0a132c0", "unit": "pack", "pack_units": 10},
-    "mleko": "62f3bc0b3b1a7a65f0a1335b",               # Mleko dugotrajno 2.8% 1l
-    "jogurt": "62f3bc0b3b1a7a65f0a132da",              # Jogurt 2.8%mm Moja Kravica 1kg
-    "kiselo mleko": "62f3bc0b3b1a7a65f0a13253",        # Kiselo mleko extra 6% 180g
+    "mleko": "65f2fcb88998c58ded7966ea",               # Sveže mleko 2.8% Moja Kravica D3 PET 1.75l (cheapest/kg)
+    "jogurt": "65f2fcb88998c58ded7966ec",              # Jogurt Kravica 2.8% 1.75kg PET (cheapest/kg)
+    "kiselo mleko": "62f3bc0b3b1a7a65f0a13298",        # Mleko kiselo 2.8%mm Moja Kravica 400g (cheapest/kg)
     "kefir casa": {"id": "6581a5e22330911ef4c02261", "grams_block": 180},  # Kefir 2.8% 1kg (1 cup ~180 g)
     "grcki jogurt olimpus": "62f3bc0d3b1a7a65f0a13ac0",  # Jogurt Grekos 9% 400g
     "zott jogurt": {"id": "62f3bc0b3b1a7a65f0a13502", "grams_block": 115},  # Jogurt voćni Zottis 115g
@@ -139,7 +139,7 @@ WOLT_MAP = {
     "rio mare kuskus": {"id": "62f3bc0b3b1a7a65f0a13341", "grams_block": 160},  # Tunjevina salata kus kus 160g
 
     # ---- pantry / sauces --------------------------------------------------
-    "maslinovo ulje": "f537affdc21089e14c1a4537",      # Ulje maslinovo extra Lugli 500ml
+    "maslinovo ulje": "6618ff4a56a12eb63a6f1762",      # Fontoliva Extra Devičansko Maslinovo Ulje 1L (cheapest EVOO/kg)
     "pasirani paradajz": "e5646b5bc8719ea0a31817a8",   # Pasirani paradajz 500g
     "pasirani paradajz svetofor": "e5646b5bc8719ea0a31817a8",
     "dzem dm": "67efb20568fdca5c47058568",             # Džem jagoda Bakina tajna 375g
@@ -158,10 +158,10 @@ WOLT_MAP = {
     # ---- ingredients restored for the Wolt-period meal set ----------------
     "golica": "83bbbd3ca8e6d1d8484d7095",              # Golica sirova 500g
     "socivo": "5b80050e32aec69ba3da06f3",             # Colonial Socivo zeleno 500g
-    "seme bundeve": "640a259db0542ab6b918ad7f",       # Seme bundeve suvopečeno slano Mogyi 130g
+    "seme bundeve": "67e1a1846bf9b03d44047ec0",       # Semenke bundeve Jumbo 150g (cheapest/kg)
     "jumbo mix": "62f3bc0c3b1a7a65f0a135fe",          # Protein Mix Jumbo 75g
     "nutrino labs sok": {"id": "6684080a9065eb9c27df67c1", "grams_block": 500},  # Sok Rock multivitamin 500ml (1 bottle)
-    "paradajz": {"id": "646dd9f02ad065427d261223", "grams_block": 140},  # Paradajz ~500 g (~140 g each)
+    "paradajz": {"id": "30b345b6c6d3d90e686f81b7", "grams_block": 140},  # Paradajz koktel harmony rajska 500g (fresh tomato)
 }
 
 

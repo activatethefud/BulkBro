@@ -344,6 +344,7 @@ def normalize_item(item, top_name, leaf_name):
         "category": leaf_name,
         "barcode": item.get("barcode_gtin"),
         "description": (item.get("description") or "").strip(),
+        "image": (item.get("images") or [{}])[0].get("url"),
     }
 
 

@@ -244,7 +244,7 @@ ingredients = {
         ),
         "jogurt":  Ingredient(
                 "jogurt",
-                175,
+                148,
                 1000,
                 3,
                 Nutrition(540,42,31,28)
@@ -259,14 +259,14 @@ ingredients = {
         ),
         "pasulj": Ingredient(
                 "pasulj",
-                249,
+                224,
                 500,
                 90,
                 Nutrition(176,21,8.1,7)*0.5
         ),
         "pasulj beli svetofor 1kg": Ingredient(
                 "pasulj beli svetofor 1kg",
-                498,
+                448,
                 1000,
                 90,
                 Nutrition(333,60,3.8,23.6)*10
@@ -339,14 +339,14 @@ ingredients = {
 
         "badem": Ingredient(
                 "badem",
-                470,
+                385,
                 100,
                 3,
                 Nutrition(598,21,21,53)
         ),
         "badem svetofor": Ingredient(
                 "badem svetofor",
-                2350,
+                1927,
                 500,
                 15,
                 Nutrition(598,21,21,53)*(1.0/0.5)
@@ -376,21 +376,21 @@ ingredients = {
         ),
         "mleko": Ingredient(
                 "mleko",
-                160,
+                137,
                 1000,
                 3,
                 Nutrition(660,48,32,39)
         ),
         "krompir":Ingredient(
                 "krompir",
-                238,
+                94,
                 1000,
                 15,
                 Nutrition(770,167.9,19.4,1)
         ),
         "krompir svetofor": Ingredient(
                 "krompir svetofor",
-                149,
+                94,
                 1000,
                 15,
                 Nutrition(770,167.9,19.4,1)
@@ -435,7 +435,7 @@ ingredients = {
         ),
         "jabuka": Ingredient(
                 "jabuka",
-                54,
+                48,
                 1,
                 5,
                 Nutrition(104,28,0.5,0.3),
@@ -465,7 +465,7 @@ ingredients = {
         ),
         "maslinovo ulje": Ingredient(
                 "maslinovo ulje",
-                1798,
+                1499,
                 1000,
                 45,
                 Nutrition(8884,0,0,1000)
@@ -524,7 +524,7 @@ ingredients = {
         ),
         "ananas": Ingredient(
                 "ananas",
-                329,
+                899,
                 1000,
                 3,
                 Nutrition(452,119,4.9,0)
@@ -645,7 +645,7 @@ ingredients = {
         #
         "kiselo mleko": Ingredient(
                "kiselo mleko",
-               57,
+               36,
                180,
                5,
                Nutrition(97.2, 7.2, 5.58, 5.04)
@@ -838,7 +838,7 @@ ingredients = {
 
         "leblebije maxi": Ingredient(
                 "leblebije maxi",
-                239,
+                280,
                 500,
                 30,
                 Nutrition(1820, 305, 95, 30)
@@ -909,7 +909,7 @@ ingredients = {
         ),
         "kikiriki puter dm": Ingredient(
                 "kikiriki puter dm",
-                289,
+                204,
                 170,
                 10,
                 Nutrition(647, 15.7, 20.4, 58.9)*1.7
@@ -1003,7 +1003,7 @@ ingredients = {
         ),
         "seme bundeve": Ingredient(
                 "seme bundeve",
-                339,          # Seme bundeve Mogyi 130g = 339
+                290,          # Semenke bundeve Jumbo 150g
                 130,
                 15,
                 Nutrition(403, 2, 24, 31)
@@ -1038,7 +1038,7 @@ ingredients = {
         ),
         "paradajz": Ingredient(
                 "paradajz",
-                75,           # Paradajz ~500g = 269 -> per ~140g tomato
+                140,          # Paradajz koktel harmony 500g -> per ~140g tomato
                 1,
                 3,
                 Nutrition(19,3,0,0),
