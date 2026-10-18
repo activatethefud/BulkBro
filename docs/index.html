@@ -587,6 +587,14 @@
 </ul></div>
 </div>
 <div class="function">
+<h4>fetch_section_items()</h4>
+<p class="docstring">Collect items shown in the venue page's carousel sections. Leaf-category listings miss items that are only surfaced in homepage-like sections (e.g. sell-by-weight produce such as regular bananas, or "popular"/"fresh picks" carousels). This fetches the public venue page and extracts every item embedded in its dehydrated query state.</p>
+<div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
+<li><code>venue</code> : str — Venue slug. Venue slug. language : str, optional</li>
+<li><code>language</code> : str, optional — Menu language code. Menu language code. dict dict Mapping ``item_id -> raw item record`` for items found in sections. Mapping ``item_id -> raw item record`` for items found in sections.</li>
+</ul></div>
+</div>
+<div class="function">
 <h4>fetch_item_details()</h4>
 <p class="docstring">Bulk-fetch full item records by ID.</p>
 <div class="args"><strong>Parameters</strong><br><strong>----------</strong><ul>
@@ -921,13 +929,15 @@
 <span class="graph-node local">urllib.parse</span>
 <span class="graph-arrow">→</span>
 <span class="graph-node local">urllib.request</span>
+<span class="graph-arrow">→</span>
+<span class="graph-node local">re</span>
 </div>
 
         </section>
     </div>
     
     <footer>
-        <p>Generated: 2026-10-18 18:27</p>
+        <p>Generated: 2026-10-18 18:47</p>
     </footer>
 </body>
 </html>

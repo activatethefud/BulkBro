@@ -251,7 +251,7 @@ ingredients = {
         ),
         "banana": Ingredient(
                 "banana",
-                102,
+                41,
                 1,
                 3,
                 Nutrition(89,23,1.1,0.3),
@@ -383,14 +383,14 @@ ingredients = {
         ),
         "krompir":Ingredient(
                 "krompir",
-                94,
+                149,
                 1000,
                 15,
                 Nutrition(770,167.9,19.4,1)
         ),
         "krompir svetofor": Ingredient(
                 "krompir svetofor",
-                94,
+                149,
                 1000,
                 15,
                 Nutrition(770,167.9,19.4,1)
@@ -486,7 +486,7 @@ ingredients = {
         ),
         "avokado": Ingredient(
                 "avokado",
-                429,
+                179,
                 1,
                 3,
                 Nutrition(240,13,3,22),
@@ -1038,7 +1038,7 @@ ingredients = {
         ),
         "paradajz": Ingredient(
                 "paradajz",
-                140,          # Paradajz koktel harmony 500g -> per ~140g tomato
+                430,          # Paradajz čeri 500g -> per ~140g tomato
                 1,
                 3,
                 Nutrition(19,3,0,0),

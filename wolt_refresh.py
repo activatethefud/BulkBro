@@ -90,8 +90,8 @@ WOLT_MAP = {
     "zaledjeni spanac": "642ffb1e8cd31a36cef315b0",
     "spanać svez": "67063a58899bf17360277b71",         # Baby spanać 90g
     "najlepse zelje": {"id": "7c33562a35bcade7781a6267", "grams_block": 42},  # Čokolada Lion white 42g (closest snack bar)
-    "krompir": "63297d265d8854fef2de93d8",             # Krompir beli mreža 2kg (cheapest/kg)
-    "krompir svetofor": "63297d265d8854fef2de93d8",    # Krompir beli mreža 2kg (cheapest/kg)
+    "krompir": "634d6dca4de9349f1a00650f",             # Krompir beli opran 1kg (cheapest/kg)
+    "krompir svetofor": "634d6dca4de9349f1a00650f",    # Krompir beli opran 1kg (cheapest/kg)
     "batat kom": {"id": "62f3bc0c3b1a7a65f0a13858", "grams_block": 600},  # Batat 1kg (block ~3 batats)
     "crni luk kom": "62f3bc0c3b1a7a65f0a1383b",        # Luk crni ~500 g
     "crni luk svetofor": "62f3bc0c3b1a7a65f0a1383b",
@@ -109,9 +109,9 @@ WOLT_MAP = {
     "borovnice": "64746bc8d826cfbe29e21035",           # Borovnica Polar Food 300g
     "pomorandza": {"id": "62f3bc0c3b1a7a65f0a137e4", "grams_block": 200},  # Pomorandža ~1000 g (1 orange ~200 g)
     "ananas": {"id": "347cf55b70d2d5bfe4adba89", "wolt_grams": 1000},  # Ananas baby 1kom (fresh whole pineapple)
-    "avokado": "63aeb20d48e3846acfe56a8a",             # Avokado organski 400g
+    "avokado": {"id": "62f3bc0c3b1a7a65f0a13811", "wolt_grams": 215},  # Avokado 1kom (single, cheapest)
     "rukola": "68c9111b3b54e1ed3a431508",              # Rukola 90g
-    "banana": "6328478e1474ebf1bf1ca543",              # Banana organska 1kg
+    "banana": "62f3bc0c3b1a7a65f0a1384c",              # Banana, ~1000 g (regular, cheapest)
     "jabuka": {"id": "62f3bc0c3b1a7a65f0a137fd", "grams_block": 150},  # Jabuka Zlatni delišes ~500 g (cheapest/kg)
 
     # ---- dairy / eggs -----------------------------------------------------
@@ -161,7 +161,7 @@ WOLT_MAP = {
     "seme bundeve": "67e1a1846bf9b03d44047ec0",       # Semenke bundeve Jumbo 150g (cheapest/kg)
     "jumbo mix": "62f3bc0c3b1a7a65f0a135fe",          # Protein Mix Jumbo 75g
     "nutrino labs sok": {"id": "6684080a9065eb9c27df67c1", "grams_block": 500},  # Sok Rock multivitamin 500ml (1 bottle)
-    "paradajz": {"id": "30b345b6c6d3d90e686f81b7", "grams_block": 140},  # Paradajz koktel harmony rajska 500g (fresh tomato)
+    "paradajz": {"id": "62f3bc0c3b1a7a65f0a137ff", "grams_block": 140},  # Paradajz čeri 500g (fresh cherry tomato)
 }
 
 

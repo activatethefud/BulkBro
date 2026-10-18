@@ -234,6 +234,61 @@ def fetch_category_items(venue, category_slug, language=DEFAULT_LANGUAGE):
     return items
 
 
+def fetch_section_items(venue, language=DEFAULT_LANGUAGE):
+    """Collect items shown in the venue page's carousel sections.
+
+    Leaf-category listings miss items that are only surfaced in homepage-like
+    sections (e.g. sell-by-weight produce such as regular bananas, or
+    "popular"/"fresh picks" carousels). This fetches the public venue page and
+    extracts every item embedded in its dehydrated query state.
+
+    Parameters
+    ----------
+    venue : str
+        Venue slug.
+    language : str, optional
+        Menu language code.
+
+    Returns
+    -------
+    dict
+        Mapping ``item_id -> raw item record`` for items found in sections.
+    """
+    url = f"https://wolt.com/{language}/srb/belgrade/venue/{venue}"
+    req = urllib.request.Request(url, headers=HEADERS)
+    try:
+        with urllib.request.urlopen(req, timeout=40) as resp:
+            html = resp.read().decode("utf-8")
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError):
+        return {}
+
+    import re
+    match = re.search(
+        r'<script type="application/json" class="query-state">(.*?)</script>',
+        html, re.S)
+    if not match:
+        return {}
+    try:
+        data = json.loads(match.group(1))
+    except json.JSONDecodeError:
+        return {}
+
+    found = {}
+
+    def walk(obj):
+        if isinstance(obj, dict):
+            if {"id", "name", "price"} <= obj.keys():
+                found[obj["id"]] = obj
+            for value in obj.values():
+                walk(value)
+        elif isinstance(obj, list):
+            for value in obj:
+                walk(value)
+
+    walk(data)
+    return found
+
+
 def fetch_item_details(venue, item_ids, language=DEFAULT_LANGUAGE, batch=60):
     """Bulk-fetch full item records by ID.
 
@@ -389,7 +444,20 @@ def scrape(venue=DEFAULT_VENUE, language=DEFAULT_LANGUAGE, verbose=True):
     if verbose:
         print(f"Total unique items: {len(item_ids)}; fetching details ...")
 
+    # Merge items surfaced only in venue-page carousel sections (e.g.
+    # sell-by-weight produce like regular bananas). These are not in any leaf
+    # category, so they would otherwise be missed.
+    section_items = fetch_section_items(venue, language)
+    for iid in section_items:
+        item_ids.setdefault(iid, ("Sekcije", "Sekcije"))
+    if verbose and section_items:
+        print(f"  + {len(section_items)} items from venue page sections")
+
     details = fetch_item_details(venue, item_ids.keys(), language)
+    # Section scrape gives full records too; use them for items the bulk
+    # detail endpoint may not return (keeps images/description intact).
+    for iid, raw in section_items.items():
+        details.setdefault(iid, raw)
 
     catalog_items = []
     for iid, (top, leaf) in item_ids.items():

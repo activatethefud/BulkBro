@@ -400,6 +400,17 @@ category_slug : str
 language : str, optional
     Menu language code. Menu language code. list of dict list of dict Item records as returned inline by the category endpoint. Item records as returned inline by the category endpoint.
 
+### Function: fetch_section_items()
+
+Collect items shown in the venue page's carousel sections. Leaf-category listings miss items that are only surfaced in homepage-like sections (e.g. sell-by-weight produce such as regular bananas, or "popular"/"fresh picks" carousels). This fetches the public venue page and extracts every item embedded in its dehydrated query state.
+
+**Parameters**
+----------
+venue : str
+    Venue slug. Venue slug. language : str, optional
+language : str, optional
+    Menu language code. Menu language code. dict dict Mapping ``item_id -> raw item record`` for items found in sections. Mapping ``item_id -> raw item record`` for items found in sections.
+
 ### Function: fetch_item_details()
 
 Bulk-fetch full item records by ID.
