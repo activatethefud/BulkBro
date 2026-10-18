@@ -165,8 +165,6 @@ Switch meal source. Args: source: One of 'nikola', 'vegan', 'djina'
 
 ## Module: nikola_meals
 
-### Function: add_dessert()
-
 
 ## Module: nutrition
 

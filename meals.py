@@ -26,7 +26,10 @@ def _init_meal_data():
     """Initialize derived meal data (runs at module load and after source change)."""
     global meals, meals_cpy, ingredients_in_meals, ingredients_in_meals_list
     global meals_complement, breakfasts, snacks, lunches, dinners, healthy, eye, nutris
-    
+
+    # Work on a fresh copy so the raw source list in MEAL_SOURCES is never
+    # mutated (portion expansion below appends to ``meals``).
+    meals = [deepcopy(m) for m in MEAL_SOURCES[current_source]]
     meals_cpy = deepcopy(meals)
     ingredients_in_meals = {ingr.name for meal in meals_cpy for ingr in meal.ingredients}
     ingredients_in_meals_list = sorted(ingredients_in_meals, key=lambda x: -ingredients[x].price)
