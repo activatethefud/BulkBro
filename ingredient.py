@@ -965,6 +965,65 @@ ingredients = {
                 Nutrition(278, 24, 2.7, 19)*(100/278)
         ),
 
+        # === Ingredients restored for the Wolt-period meal set ===
+        # Prices refreshed from Wolt Market Dorcol (Oct 2026).
+        "golica": Ingredient(
+                "golica",
+                100,          # Golica sirova 500g = 499 -> per 100g
+                100,
+                7,
+                Nutrition(539,18,25,46)
+        ),
+        "socivo": Ingredient(
+                "socivo",
+                40,           # Colonial Socivo zeleno 500g = 199 -> per 100g
+                100,
+                90,
+                Nutrition(353,60.08,25.8,1.06)
+        ),
+        "seme bundeve": Ingredient(
+                "seme bundeve",
+                339,          # Seme bundeve Mogyi 130g = 339
+                130,
+                15,
+                Nutrition(403, 2, 24, 31)
+        ),
+        "jumbo mix": Ingredient(
+                "jumbo mix",
+                258,          # Protein Mix Jumbo 75g = 257.99
+                75,
+                10,
+                Nutrition(549, 23, 19, 41)*0.75
+        ),
+        "kinezi miks": Ingredient(
+                "kinezi miks",
+                389,          # Mesavina povrca 4 godisnja doba Frikom 400g
+                400,
+                90,
+                Nutrition(195, 37.6, 10, 0.4)
+        ),
+        "smrznuti miks": Ingredient(
+                "smrznuti miks",
+                389,          # Mesavina povrca 4 godisnja doba Frikom 400g
+                400,
+                90,
+                Nutrition(195, 37.6, 10, 0.4)
+        ),
+        "nutrino labs sok": Ingredient(
+                "nutrino labs sok",
+                119,          # Sok multivitamin 500ml = 119
+                1,
+                10,
+                Nutrition(84, 17, 0.7, 0.6)*2
+        ),
+        "paradajz": Ingredient(
+                "paradajz",
+                75,           # Paradajz ~500g = 269 -> per ~140g tomato
+                1,
+                3,
+                Nutrition(19,3,0,0),
+                140
+        ),
 
 }
 
