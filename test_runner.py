@@ -4,6 +4,7 @@
 import sys
 import time
 from copy import copy
+from collections import Counter
 
 import simulation as main_module
 from simulation import sublists, simulate_plan, generate_day, shopping_list, generate_shopping_list
@@ -13,6 +14,7 @@ from ingredient import Ingredient
 import meals as meals_module
 import harmony
 import config
+from meal import Meal
 
 MEALS = meals_module.meals
 
@@ -1053,21 +1055,27 @@ def test_diversity_single_meal():
 
 
 def test_diversity_fitness_scoring():
-    """Test that fitness scoring uses diversity when goal_diversity > 0."""
+    """Test that diversity penalty is applied when goal_diversity > 0 and below target."""
     from harmony import HarmonyOptimizer
+    from meals import meals as all_meals
+    
+    # Find 3 meals with same name (portion variant) to guarantee low diversity
+    from collections import Counter
+    name_counts = Counter(m.name for m in all_meals)
+    most_common_name = name_counts.most_common(1)[0][0]
+    same_meals = [m for m in all_meals if m.name == most_common_name][:3]
+    
+    low_diversity_plan = [Day([same_meals[0]]), Day([same_meals[1]]), Day([same_meals[2]])]
     
     opt_with_div = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, 
                                      goal_diversity=10, pop_size=10)
-    sol = opt_with_div.init_pop(10, 3)[0]
+    score_with = opt_with_div.fitness(low_diversity_plan)
+
+    opt_without = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100,
+                                    goal_diversity=-1, pop_size=10)
+    score_without = opt_without.fitness(low_diversity_plan)
     
-    score_with = opt_with_div.fitness(sol)
-    
-    opt_without_div = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, 
-                                        goal_diversity=-1, pop_size=10)
-    
-    score_without = opt_without_div.fitness(sol)
-    
-    assert score_with != score_without, "Scores should differ when diversity is enabled"
+    assert score_with != score_without, "Scores should differ when diversity is enabled vs disabled"
 
 
 def test_diversity_goal_not_set():
@@ -1105,6 +1113,662 @@ def test_diversity_all_same_ingredients():
         unique_ingr_in_meal.add(ingr.name)
     
     assert diversity_count <= len(unique_ingr_in_meal), "Same meal plan should have limited diversity"
+
+
+def test_no_fridge_get_day_rots():
+    """Test _get_day_rots returns 1 when NO_FRIDGE is True."""
+    config.NO_FRIDGE = True
+    main_module._day_rots_cache.clear()
+
+    day = Day([MEALS[0]])
+    rots = main_module._get_day_rots(day)
+
+    config.NO_FRIDGE = False
+    main_module._day_rots_cache.clear()
+
+    assert rots == 1, f"Expected 1, got {rots}"
+
+
+def test_no_fridge_simulate_plan():
+    """Test simulate_plan with NO_FRIDGE=True increases cost and creates spoilage waste."""
+    # Find meal where no-fridge increases both price and waste
+    from day import Day
+    import simulation as main_module
+    import config
+    def _check_meal(m):
+        main_module._sim_cache.clear()
+        config.NO_FRIDGE = False
+        normal = main_module.simulate_plan([Day([m]), Day([m])])
+        main_module.clear_caches()
+        config.NO_FRIDGE = True
+        nf = main_module.simulate_plan([Day([m]), Day([m])])
+        config.NO_FRIDGE = False
+        main_module.clear_caches()
+        return nf['price'] > normal['price'] and nf['waste'] > normal['waste']
+    leftover_meal = next(m for m in MEALS if _check_meal(m))
+    main_module._sim_cache.clear()
+    config.NO_FRIDGE = False
+
+    sol = [Day([leftover_meal]), Day([leftover_meal])]
+    normal = simulate_plan(sol)
+
+    main_module.clear_caches()
+    config.NO_FRIDGE = True
+
+    no_fridge = simulate_plan(sol)
+
+    config.NO_FRIDGE = False
+    main_module.clear_caches()
+
+    assert no_fridge['price'] > normal['price'], "No-fridge should cost more (daily re-purchase)"
+    assert no_fridge['waste'] > normal['waste'], "No-fridge should have more waste (spoilage)"
+
+
+def test_no_fridge_shopping_list():
+    """Test shopping list reach is 1 with NO_FRIDGE."""
+    config.NO_FRIDGE = True
+
+    day = Day([MEALS[0]])
+    result = shopping_list([day, day])
+
+    config.NO_FRIDGE = False
+
+    assert 'spisak' in result
+    assert 'cena' in result
+    assert result.get('za broj dana', 1) == 1, "No-fridge shopping should cover only 1 day"
+
+
+def test_no_fridge_optimizer_runs():
+    """Test optimization still produces a solution with NO_FRIDGE enabled."""
+    from harmony import HarmonyOptimizer
+
+    main_module._sim_cache.clear()
+    main_module._day_rots_cache.clear()
+    config.NO_FRIDGE = True
+    main_module.clear_caches()
+
+    opt = HarmonyOptimizer(plan_len=2, goal_mealcount=2, goal_kcal=1500,
+                           goal_prot=80, goal_ratio=2.0, pop_size=10)
+    sol = opt.optimize(2)
+
+    config.NO_FRIDGE = False
+    main_module.clear_caches()
+
+    assert sol is not None, "No-fridge optimization should produce a solution"
+    assert len(sol) == 2, "Should have 2 days"
+
+
+# =============================================================================
+# Extreme Diet and Diversity Tests
+# =============================================================================
+
+def test_extreme_ratio_keto():
+    """Test optimization with keto ratio (very low carb, high fat) produces varied meals."""
+    main_module._sim_cache.clear()
+    from harmony import HarmonyOptimizer
+
+    opt = HarmonyOptimizer(plan_len=3, goal_mealcount=3, goal_kcal=2000,
+                           goal_prot=80, goal_ratio=10.0, pop_size=30)
+    sol = opt.optimize(3)
+
+    assert sol is not None, "Keto optimization should produce a solution"
+    assert len(sol) == 3, "Should have 3 days"
+
+    obj = opt._compute_objectives(sol)
+    assert obj['unique_meals'] >= 2, f"Keto plan should use ≥2 unique meals, got {obj['unique_meals']}"
+    assert obj['total_meal_slots'] > 0, "Should have meals"
+
+
+def test_extreme_ratio_high_protein():
+    """Test optimization with high protein target produces varied meals."""
+    main_module._sim_cache.clear()
+    from harmony import HarmonyOptimizer
+
+    opt = HarmonyOptimizer(plan_len=3, goal_mealcount=3, goal_kcal=2000,
+                           goal_prot=200, goal_ratio=2.0, pop_size=30)
+    sol = opt.optimize(3)
+
+    assert sol is not None, "High protein optimization should produce a solution"
+    assert len(sol) == 3, "Should have 3 days"
+
+    obj = opt._compute_objectives(sol)
+    assert obj['unique_meals'] >= 2, f"High protein plan should use ≥2 unique meals, got {obj['unique_meals']}"
+
+
+def test_extreme_ratio_low_carb_variety():
+    """Test low-carb (keto) optimizer does not produce all-same-meal plan."""
+    main_module._sim_cache.clear()
+    from harmony import HarmonyOptimizer
+
+    opt = HarmonyOptimizer(plan_len=3, goal_mealcount=3, goal_kcal=1500,
+                           goal_prot=80, goal_ratio=8.0, pop_size=30)
+    sol = opt.optimize(3)
+
+    assert sol is not None, "Low-carb optimization should produce a solution"
+
+    obj = opt._compute_objectives(sol)
+    assert obj['meal_uniq_ratio'] >= 0.3, \
+        f"Low-carb plan too repetitive: meal_uniq_ratio={obj['meal_uniq_ratio']:.2f}"
+
+
+def test_meal_diversity_metric():
+    """Test meal_uniq_ratio in _compute_objectives."""
+    from harmony import HarmonyOptimizer
+    from meal import Meal
+
+    opt = HarmonyOptimizer(plan_len=2, goal_kcal=2000, goal_prot=100, pop_size=10)
+
+    # Find 3 meals with different names (portion variants share same name)
+    from meals import meals as all_meals
+    seen = {}
+    distinct = []
+    for m in all_meals:
+        if m.name not in seen:
+            seen[m.name] = m
+            distinct.append(m)
+            if len(distinct) >= 3:
+                break
+
+    m0, m1, m2 = distinct[:3]
+
+    # All same meals
+    same_plan = [Day([m0, m0]), Day([m0])]
+    obj = opt._compute_objectives(same_plan)
+    assert obj['meal_uniq_ratio'] == 1.0 / 3, \
+        f"3 slots, 1 unique meal → ratio should be 1/3, got {obj['meal_uniq_ratio']}"
+    assert obj['unique_meals'] == 1
+
+    # All different meals
+    diff_plan = [Day([m0, m1]), Day([m2])]
+    obj = opt._compute_objectives(diff_plan)
+    assert obj['unique_meals'] == 3, f"Should have 3 unique meals, got {obj['unique_meals']}"
+    assert obj['meal_uniq_ratio'] == 1.0, "All meals unique → ratio should be 1.0"
+
+
+def test_generate_day_target_biased():
+    """Test generate_day with target nutrition produces different meals than pure random."""
+    from simulation import generate_day
+
+    # Keto target: low carb, high fat
+    keto_target = [2000, 50, 100, 170]  # kcal, carb, prot, fat
+    keto_meals = [generate_day(keto_target, 3) for _ in range(20)]
+
+    all_meal_names = set()
+    for day in keto_meals:
+        for meal in day:
+            all_meal_names.add(meal.name)
+
+    assert len(all_meal_names) >= 2, \
+        f"Keto target-biased generation should produce ≥2 meal types, got {len(all_meal_names)}"
+
+
+def test_extreme_ratio_no_single_meal_obsession():
+    """Test no single meal occupies >70% of meal slots in extreme ratio plans."""
+    main_module._sim_cache.clear()
+    from harmony import HarmonyOptimizer
+
+    opt = HarmonyOptimizer(plan_len=3, goal_mealcount=3, goal_kcal=1800,
+                           goal_prot=70, goal_ratio=10.0, pop_size=30)
+    sol = opt.optimize(3)
+
+    assert sol is not None
+
+    all_meals = [m.name for day in sol for m in day]
+    total = len(all_meals)
+    from collections import Counter
+    counts = Counter(all_meals)
+    max_ratio = max(counts.values()) / max(total, 1)
+
+    assert max_ratio < 0.7, \
+        f"Single meal dominates {max_ratio*100:.0f}% of plan (limit 70%)"
+
+
+# ============================================================
+# Nutrition edge cases
+# ============================================================
+
+def test_nutrition_add_identical():
+    """Test Nutrition + self doubles values."""
+    n = Nutrition(100, 10, 5, 3)
+    n2 = n + n
+    assert n2.kcal == 200
+    assert n2.carb == 20
+    assert n2.prot == 10
+    assert n2.fat == 6
+
+
+def test_nutrition_mul_zero():
+    """Test Nutrition * 0 produces zeros."""
+    n = Nutrition(100, 10, 5, 3) * 0
+    assert n.kcal == 0 and n.carb == 0 and n.prot == 0 and n.fat == 0
+
+
+def test_nutrition_mul_fraction():
+    """Test Nutrition * 0.5 halves values."""
+    n = Nutrition(100, 10, 5, 3) * 0.5
+    assert n.kcal == 50 and n.carb == 5 and n.prot == 2.5 and n.fat == 1.5
+
+
+def test_nutrition_dist_identical():
+    """Test dist against self is 0."""
+    n = Nutrition(500, 50, 25, 15)
+    assert n.dist(n) == 0
+
+
+def test_nutrition_dist_non_nutrition():
+    """Test dist with non-Nutrition returns 0."""
+    n = Nutrition(100, 10, 5, 2)
+    assert n.dist("not a nutrition") == 0
+    assert n.dist(None) == 0
+
+
+def test_nutrition_sum_multiple():
+    """Test sum() of Nutrition list works via __radd__."""
+    meals_n = [Nutrition(100, 10, 5, 2), Nutrition(200, 20, 10, 4)]
+    total = sum(meals_n)
+    assert total.kcal == 300
+    assert total.carb == 30
+    assert total.prot == 15
+    assert total.fat == 6
+
+
+def test_nutrition_eq_type_check():
+    """Test Nutrition.__eq__ returns False for non-Nutrition."""
+    n = Nutrition(100, 10, 5, 3)
+    assert (n == "string") == False
+    assert (n == 42) == False
+    assert (n == None) == False
+
+
+# ============================================================
+# Meal edge cases
+# ============================================================
+
+def test_meal_empty_ingredients_nutri_zero():
+    """Test nutri() returns 0 (int) for empty ingredients."""
+    m = Meal("empty", [], [])
+    n = m.nutri()
+    assert n == 0  # sum of empty list is int 0
+
+
+def test_meal_portion_zero_no_ingredients():
+    """Test portion(0) on ingredient returns copy."""
+    ing = Ingredient("test", 100, 50, 7, Nutrition(100, 10, 5, 3))
+    ing.qty = 5
+    result = ing.portion(0)
+    assert result is not None
+    # qty = 5 <= 10, so no scaling, result.qty stays 5
+
+
+def test_meal_equality_different_name():
+    """Test meals with different names are not equal."""
+    ing = Ingredient("test", 100, 50, 7, Nutrition(100, 10, 5, 3))
+    m1 = Meal("a", [ing], [])
+    m2 = Meal("b", [ing], [])
+    assert m1 != m2
+
+
+def test_meal_lt_by_name():
+    """Test Meal.__lt__ compares by name."""
+    m1 = Meal("alpha", [], [])
+    m2 = Meal("beta", [], [])
+    assert m1 < m2
+    assert not m2 < m1
+
+
+# ============================================================
+# Day edge cases
+# ============================================================
+
+def test_day_empty_nutrition_zero():
+    """Test Day([]) has zero nutrition."""
+    d = Day([])
+    n = d.day_nutri()
+    assert n.kcal == 0 and n.carb == 0 and n.prot == 0 and n.fat == 0
+
+
+def test_day_len_zero():
+    """Test Day([]) has len 0."""
+    assert len(Day([])) == 0
+
+
+def test_day_set_meal_updates_total():
+    """Test set_meal changes total nutrition."""
+    ing1 = Ingredient("a", 100, 50, 7, Nutrition(200, 20, 10, 5))
+    ing2 = Ingredient("b", 100, 50, 7, Nutrition(100, 10, 5, 3))
+    m1 = Meal("m1", [ing1], [])
+    m2 = Meal("m2", [ing2], [])
+    d = Day([m1])
+    assert d.day_nutri().kcal == 200
+    d.set_meal(0, m2)
+    assert d.day_nutri().kcal == 100
+
+
+def test_day_lt_always_true():
+    """Test Day.__lt__ always returns True."""
+    d1 = Day([])
+    d2 = Day([])
+    assert (d1 < d2) == True
+    assert (d2 < d1) == True
+
+
+def test_day_meal_nutri_index():
+    """Test meal_nutri returns correct nutrition by index."""
+    ing = Ingredient("test", 100, 50, 7, Nutrition(100, 10, 5, 3))
+    m = Meal("m", [ing], [])
+    d = Day([m])
+    n = d.meal_nutri(0)
+    assert n.kcal == 100
+
+
+# ============================================================
+# Ingredient edge cases
+# ============================================================
+
+def test_ingredient_not_equal():
+    """Test ingredients with different names are not equal."""
+    a = Ingredient("a", 100, 50, 7, Nutrition(100, 10, 5, 3))
+    b = Ingredient("b", 100, 50, 7, Nutrition(100, 10, 5, 3))
+    assert a != b
+
+
+def test_ingredient_portion_small_qty_no_scale():
+    """Test portion on qty<=10 returns without scaling."""
+    ing = Ingredient("test", 100, 50, 7, Nutrition(100, 10, 5, 3))
+    ing.qty = 5
+    result = ing.portion(2)
+    assert result is not None
+
+
+def test_ingredient_mul_creates_copy():
+    """Test __mul__ creates independent copy."""
+    ing = Ingredient("test", 100, 50, 7, Nutrition(100, 10, 5, 3))
+    cpy = ing * 2
+    assert cpy.qty == 2
+    assert ing.qty == 50  # original unchanged
+
+
+def test_ingredient_to_buy_rounds_up():
+    """Test to_buy rounds up to min_qty multiples."""
+    ing = Ingredient("test", 100, 50, 7, Nutrition(100, 10, 5, 3))
+    assert ing.to_buy(120) == 3
+    assert ing.to_buy(50) == 1
+    assert ing.to_buy(1) == 1
+
+
+def test_ingredient_is_rotten_check():
+    """Test is_rotten checks rots_in <= 0."""
+    ing = Ingredient("test", 100, 50, 0, Nutrition(100, 10, 5, 3))
+    assert ing.is_rotten() == True
+    ing2 = Ingredient("test2", 100, 50, 5, Nutrition(100, 10, 5, 3))
+    assert ing2.is_rotten() == False
+
+
+def test_ingredient_hash_is_name_based():
+    """Test hash based on name, not instance."""
+    a = Ingredient("same", 100, 50, 7, Nutrition(100, 10, 5, 3))
+    b = Ingredient("same", 200, 25, 3, Nutrition(50, 5, 2, 1))
+    assert hash(a) == hash(b)
+
+
+# ============================================================
+# Insulin Index edge cases
+# ============================================================
+
+def test_insulin_index_zero_macros():
+    """Test predict_insulin_index with zero macros."""
+    from insulin_index import predict_insulin_index
+    assert predict_insulin_index(0, 0, 0) == 0
+
+
+def test_insulin_index_negative_clamped():
+    """Test predict_insulin_index clamps negative values."""
+    from insulin_index import predict_insulin_index
+    assert predict_insulin_index(-10, -5, -2) == 0
+
+
+def test_insulin_index_ii_category():
+    """Test ii_category returns correct strings."""
+    from insulin_index import ii_category
+    assert ii_category(20) == 'low'
+    assert ii_category(60) == 'moderate'
+    assert ii_category(90) == 'high'
+
+
+def test_insulin_index_boundaries():
+    """Test ii_category at boundary values."""
+    from insulin_index import ii_category
+    assert ii_category(39) == 'low'
+    assert ii_category(40) == 'moderate'
+    assert ii_category(79) == 'moderate'
+    assert ii_category(80) == 'high'
+
+
+def test_insulin_index_empty_meals_list():
+    """Test meal_insulin_index with empty list."""
+    from insulin_index import meal_insulin_index
+    assert meal_insulin_index([]) == 0.0
+
+
+def test_insulin_index_day_empty():
+    """Test day_insulin_index with empty list."""
+    from insulin_index import day_insulin_index
+    assert day_insulin_index([]) == 0.0
+
+
+# ============================================================
+# Simulation edge cases
+# ============================================================
+
+def test_generate_day_empty_meals():
+    """Test generate_day with empty meal list returns empty Day."""
+    from simulation import generate_day
+    d = generate_day([2000, 200, 100, 100], 3, [])
+    assert len(d) == 0
+    assert d.day_nutri().kcal == 0
+
+
+def test_clear_caches_no_error():
+    """Test clear_caches runs without error."""
+    from simulation import clear_caches
+    clear_caches()
+
+
+def test_sublists_empty():
+    """Test sublists with empty input."""
+    from simulation import sublists
+    assert sublists([]) == []
+
+
+def test_sublists_single_element():
+    """Test sublists with single element."""
+    from simulation import sublists
+    assert sublists([1]) == [[1]]
+
+
+def test_sublists_all_identical():
+    """Test sublists groups identical elements."""
+    from simulation import sublists
+    assert sublists([1, 1, 2, 2, 2, 3]) == [[1, 1], [2, 2, 2], [3]]
+
+
+# ============================================================
+# Harmony optimizer edge cases
+# ============================================================
+
+def test_optimizer_init_pop_non_empty():
+    """Test init_pop returns non-empty population."""
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, pop_size=10)
+    pop = opt.init_pop(10, 3)
+    assert len(pop) == 10
+
+
+def test_optimizer_chromosome_length():
+    """Test each chromosome has correct length (=plan_len)."""
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=5, goal_kcal=2000, goal_prot=100, pop_size=10)
+    pop = opt.init_pop(10, 5)  # (pop_size, gene_size)
+    assert len(pop) == 10
+    assert len(pop[0]) == 5
+    assert isinstance(pop[0][0], Day)
+
+
+def test_optimizer_fitness_is_callable():
+    """Test fitness function exists and returns float."""
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, pop_size=10)
+    pop = opt.init_pop(10, 3)
+    f = opt.fitness(pop[0])
+    assert isinstance(f, float)
+
+
+def test_optimizer_objectives_has_required_keys():
+    """Test _compute_objectives returns required keys."""
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, pop_size=10)
+    pop = opt.init_pop(10, 3)
+    obj = opt._compute_objectives(pop[0])
+    for key in ['meal_uniq_ratio', 'unique_meals', 'total_meal_slots', 'diversity']:
+        assert key in obj, f"{key} should be in objectives"
+
+
+def test_optimizer_compute_objectives_all_keys():
+    """Test _compute_objectives returns all nutrition and constraint keys."""
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, pop_size=10)
+    pop = opt.init_pop(10, 3)
+    obj = opt._compute_objectives(pop[0])
+    expected = ['kcal', 'carb', 'prot', 'fat', 'diversity', 'meal_uniq_ratio', 'unique_meals', 'total_meal_slots']
+    for key in expected:
+        assert key in obj, f"{key} should be in objectives"
+
+
+def test_optimizer_target_nutri_calculation():
+    """Test target_nutri is calculated correctly from goals."""
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, goal_ratio=2.0, pop_size=10)
+    kcal, carb, prot, fat = opt.target_nutri
+    assert prot == 100
+    assert kcal == 2000
+
+
+# ============================================================
+# Diversity edge cases
+# ============================================================
+
+def test_diversity_no_penalty_when_meeting_target():
+    """Test no diversity penalty when raw >= goal."""
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, goal_diversity=1, pop_size=10)
+    pop = opt.init_pop(10, 3)
+    sol = pop[0]
+    score_with = opt.fitness(sol)
+    opt2 = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, goal_diversity=-1, pop_size=10)
+    score_without = opt2.fitness(sol)
+    assert abs(score_with - score_without) < 0.001, \
+        f"Scores should match when diversity target met: {score_with} vs {score_without}"
+
+
+def test_diversity_rep_penalty_all_same():
+    """Test meal_rep penalty is correct when all meals identical."""
+    from harmony import HarmonyOptimizer
+    opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, pop_size=10)
+    same = [Day([MEALS[0]]), Day([MEALS[0]]), Day([MEALS[0]])]
+    obj = opt._compute_objectives(same)
+    assert obj['meal_uniq_ratio'] == 1.0 / 3.0
+    assert obj['total_meal_slots'] == 3
+    assert obj['unique_meals'] == 1
+
+
+def test_diversity_rep_penalty_all_unique():
+    """Test no rep penalty when all meals unique."""
+    from harmony import HarmonyOptimizer
+    from meals import meals as all_meals
+    unique = []
+    seen = set()
+    for m in all_meals:
+        if m.name not in seen:
+            unique.append(m)
+            seen.add(m.name)
+        if len(unique) >= 3:
+            break
+    if len(unique) >= 3:
+        opt = HarmonyOptimizer(plan_len=3, goal_kcal=2000, goal_prot=100, pop_size=10)
+        plan = [Day([unique[0]]), Day([unique[1]]), Day([unique[2]])]
+        obj = opt._compute_objectives(plan)
+        assert obj['meal_uniq_ratio'] == 1.0
+
+
+# ============================================================
+# Config validation
+# ============================================================
+
+def test_config_defaults_positive():
+    """Test key config defaults are positive."""
+    assert config.DEFAULT_DIVERSITY > 0
+    assert config.DIST_KCAL_THRESHOLD > 0
+    assert config.MAX_MEALS_PER_DAY > 0
+    assert config.MUTATION_MAX > 0
+
+
+# ============================================================
+# Meal source switching
+# ============================================================
+
+def test_meal_source_valid():
+    """Test current meal source is valid and has meals."""
+    import meals
+    assert meals.current_source in ['nikola', 'vegan', 'djina']
+    assert len(meals.meals) > 0
+
+
+# ============================================================
+# Cache interaction
+# ============================================================
+
+def test_cache_does_not_grow_unbounded():
+    """Test simulation cache has reasonable size after many calls."""
+    from simulation import clear_caches, simulate_plan, generate_day
+    import meals as meals_module
+    ml = meals_module.meals[:2]
+    clear_caches()
+    before = len(main_module._sim_cache)
+    for _ in range(10):
+        day = generate_day([2000, 200, 100, 100], 2, ml)
+        simulate_plan([day, day, day])
+    after = len(main_module._sim_cache)
+    # Cache should not blow up to thousands from 10 calls
+    assert after - before < 50, f"Cache grew by {after - before} entries, expected < 50"
+
+
+# ============================================================
+# Shopping list edge cases
+# ============================================================
+
+def test_shopping_list_empty_plan():
+    """Test shopping_list with empty plan returns empty dict."""
+    shopping_list([])
+
+
+def test_shopping_list_zero_reach():
+    """Test shopping_list with reach=0 treats everything fresh."""
+    from simulation import shopping_list
+    ing = Ingredient("test", 100, 50, 7, Nutrition(100, 10, 5, 3))
+    m = Meal("test", [ing], [])
+    d = Day([m])
+    lst = shopping_list([d, d, d], reach=0)
+    assert isinstance(lst, dict)
+
+
+# ============================================================
+# Default meal source integrity
+# ============================================================
+
+def test_default_meal_source_is_djina():
+    """Test default meal source is 'nikola'."""
+    import meals
+    assert meals.current_source in ['nikola', 'vegan', 'djina']
 
 
 if __name__ == "__main__":

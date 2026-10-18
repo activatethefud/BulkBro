@@ -85,3 +85,6 @@ PRINT_WIDTH = 80
 # =============================================================================
 DIST_KCAL_THRESHOLD = 65
 """int: kcal difference threshold for squared penalty in dist()"""
+
+NO_FRIDGE = False
+"""bool: When True, all ingredients spoil in 1 day (simulates no refrigerator)"""

@@ -46,6 +46,8 @@ def sublists(arr):
 
 def _get_day_rots(day):
     """Get minimum shelf life (rots_in) for any ingredient in day."""
+    if config.NO_FRIDGE:
+        return 1
     did = id(day)
     if did in _day_rots_cache:
         return _day_rots_cache[did]
@@ -110,7 +112,7 @@ def simulate_plan(plan):
                 name = ingr.name
                 price_val = _ingr_price.get(name, 0)
                 min_qty = _ingr_min_qty.get(name, config.DEFAULT_MIN_QTY)
-                rots_in = _ingr_rots_in.get(name, config.DEFAULT_ROTS_IN)
+                rots_in = 1 if config.NO_FRIDGE else _ingr_rots_in.get(name, config.DEFAULT_ROTS_IN)
 
                 if name not in ingredients_info:
                     qty = ingr.qty
@@ -172,7 +174,9 @@ def simulate_plan(plan):
 
 
 def generate_day(target_nutri, target_mealcount, meals=meals):
-    """Generate a random day meeting nutrition targets.
+    """Generate a day with target-biased meal selection.
+    
+    Meals closer to per-meal nutrition targets get higher selection weight.
      
     Parameters
     ----------
@@ -198,13 +202,29 @@ def generate_day(target_nutri, target_mealcount, meals=meals):
         target_meals = target_mealcount
     else:
         target_meals = rd.randint(1, 3)
-    
+
+    per_kcal = max(target_nutri[0] / target_meals, 1)
+    per_carb = target_nutri[1] / target_meals
+    per_prot = max(target_nutri[2] / target_meals, 1)
+    per_fat = target_nutri[3] / target_meals
+
+    weights = []
+    for meal in meals:
+        mn = meal.nutri()
+        kcal_err = abs(mn.kcal - per_kcal) / per_kcal
+        prot_err = abs(mn.prot - per_prot) / per_prot
+        ratio_err = 0
+        if per_fat > 1:
+            target_ratio = per_carb / max(per_fat, 0.01)
+            meal_ratio = mn.carb / mn.fat if mn.fat > 0 else 999
+            ratio_err = abs(meal_ratio - target_ratio) / max(target_ratio, 0.01)
+        weights.append(1.0 / (kcal_err + prot_err + ratio_err + 0.01))
+
     meal_count = 0
     while meal_count < target_meals and meal_count < config.MAX_MEALS_PER_DAY:
-        chosen_meal = rd.choice(meals)
-        day.append(chosen_meal)
+        day.append(rd.choices(meals, weights=weights, k=1)[0])
         meal_count += 1
-    
+
     if len(day) == 0 and N > 0:
         day = [rd.choice(meals)]
 
@@ -213,7 +233,7 @@ def generate_day(target_nutri, target_mealcount, meals=meals):
 
 def shopping_list(plan, reach=-1):
     """Generate shopping list for a plan."""
-    fastest_rot_arr = [min([ingr.rots_in for meal in day for ingr in meal.ingredients]) for day in plan]
+    fastest_rot_arr = [1 if config.NO_FRIDGE else min([ingr.rots_in for meal in day for ingr in meal.ingredients]) for day in plan]
 
     if reach == -1:
         reach = 1
@@ -241,6 +261,12 @@ def shopping_list(plan, reach=-1):
     ingr_shopping_list["za broj dana"] = reach
 
     return ingr_shopping_list
+
+
+def clear_caches():
+    """Clear simulation caches (call when config flags change that affect simulation)."""
+    _sim_cache.clear()
+    _day_rots_cache.clear()
 
 
 def generate_shopping_list(plan, filename, reach=-1, today=None):

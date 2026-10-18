@@ -481,7 +481,7 @@ ingredients = {
         ),
         "heidi": Ingredient(
                 "heidi",
-                355,
+                387,
                 80,
                 7,
                 Nutrition(485,14,6,45.6)
@@ -866,13 +866,21 @@ ingredients = {
                 Nutrition(142,2.02,14.17,9.5)*2.5
         ),
 
-        #"cija semenke 100gr": Ingredient(
-        #        "cija semenke 100gr",
-        #        50,
-        #        100,
-        #        30,
-        #        Nutrition(436,2,20,31),
-        #),
+        "chia semenke maxi": Ingredient(
+                "chia semenke maxi",
+                148,
+                100,
+                30,
+                Nutrition(486, 42, 17, 31)
+        ),
+
+        "leblebije maxi": Ingredient(
+                "leblebije maxi",
+                160,
+                500,
+                30,
+                Nutrition(1820, 305, 95, 30)
+        ),
 
         "grcki jogurt olimpus": Ingredient(
                "grcki jogurt olimpus",
@@ -992,7 +1000,49 @@ ingredients = {
                 300,
                 30,
                 Nutrition(334,50,26,1.7)*3
-        )
+        ),
+        "blitva": Ingredient(
+                "blitva",
+                80,
+                250,
+                3,
+                Nutrition(47, 9, 4, 0.5)
+        ),
+        "pomorandza": Ingredient(
+                "pomorandza",
+                20,
+                1,
+                7,
+                Nutrition(61, 16, 1.2, 0.1)
+        ),
+        "spanać svez": Ingredient(
+                "spanać svez",
+                96,
+                200,
+                3,
+                Nutrition(46, 7.2, 5.8, 0.8)
+        ),
+        "lanene semenke": Ingredient(
+                "lanene semenke",
+                150,
+                100,
+                30,
+                Nutrition(534, 29, 18, 42)
+        ),
+        "najlepse zelje": Ingredient(
+                "najlepse zelje",
+                68,
+                1,
+                10,
+                Nutrition(539, 54, 9, 32)*0.3 # 30 grama
+        ),
+        "sladoledi 10kom": Ingredient(
+                "sladoledi 10kom",
+                320,
+                10,
+                30,
+                Nutrition(278, 24, 2.7, 19)*(100/278)
+        ),
 
 
 }

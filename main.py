@@ -5,7 +5,7 @@ import pickle
 import os
 
 import numpy as np
-from simulation import simulate_plan, generate_shopping_list
+from simulation import simulate_plan, generate_shopping_list, clear_caches
 import config
 
 
@@ -42,8 +42,8 @@ def print_plan_summary(solution, targets):
           f"{targets['kcal']}kcal, {targets['prot']}g prot, {targets['ratio']:.1f} c/f")
     print("-" * config.PRINT_WIDTH)
     print(f"Achieved:    {nutri.kcal:.0f}kcal ({achieved_kcal:.0f}%)   "
-          f"{nutri.prot:.0f}g prot ({achieved_prot:.0f}%)   "
-          f"{achieved_ratio:.1f} c/f ratio")
+          f"{nutri.carb:.0f}g carb   {nutri.prot:.0f}g prot ({achieved_prot:.0f}%)   "
+          f"{nutri.fat:.0f}g fat   {achieved_ratio:.1f} c/f ratio")
     print(f"Total Price: {sim['price']:.0f} RSD")
     print(f"Variance:    kcal ±{var_kcal:.0f}%, prot ±{var_prot:.0f}%  ({var_desc})")
     print("=" * config.PRINT_WIDTH)
@@ -63,6 +63,9 @@ def main():
         prog='bulkbro',
         description='BulkBro Meal Planner - Optimize meal plans for nutrition and cost'
     )
+
+    parser.add_argument('--no-fridge', action='store_true',
+                        help='Simulate no refrigerator (all ingredients spoil in 1 day)')
 
     subparsers = parser.add_subparsers(dest='command', help='Commands')
 
@@ -86,6 +89,8 @@ def main():
                           help='Output filename (default: meal_plan)')
     run_parser.add_argument('--pop-size', type=int, default=config.DEFAULT_POP_SIZE,
                           help=f'Population size (default: {config.DEFAULT_POP_SIZE})')
+    run_parser.add_argument('--no-fridge', action='store_true',
+                          help='Simulate no refrigerator (all ingredients spoil in 1 day)')
 
     # load subcommand
     load_parser = subparsers.add_parser('load', help='Load and display solution')
@@ -94,7 +99,7 @@ def main():
     args = parser.parse_args()
 
     if args.command is None:
-        do_run_interactive()
+        do_run_interactive(no_fridge=args.no_fridge)
         return
 
     if args.command == 'run':
@@ -106,6 +111,10 @@ def main():
 def do_run(args):
     from harmony import HarmonyOptimizer
 
+    if args.no_fridge:
+        config.NO_FRIDGE = True
+        clear_caches()
+
     print("BulkBro Meal Planner")
     print("=" * 40)
     print(f"Days: {args.days}")
@@ -115,6 +124,7 @@ def do_run(args):
     print(f"Carb/fat ratio: {args.ratio}")
     print(f"Target diversity: {args.diversity}" if args.diversity > 0 else "Target diversity: -1 (ignored)")
     print(f"Time limit: {args.time_limit}s")
+    print(f"No fridge: {args.no_fridge}")
     print("=" * 40)
 
     optimizer = HarmonyOptimizer(
@@ -171,7 +181,7 @@ def do_load(args):
             print(f"  - {meal.name}: {meal.nutri()}")
 
 
-def do_run_interactive():
+def do_run_interactive(no_fridge=False):
     from harmony import HarmonyOptimizer
 
     print("BulkBro Meal Planner")
@@ -182,9 +192,17 @@ def do_run_interactive():
     goal_kcal = int(input("Goal kcal: "))
     goal_prot = int(input("Goal prot: "))
     goal_ratio = float(input("Goal carb/fat ratio: "))
+    if not no_fridge:
+        no_fridge = input("No fridge (ingredients spoil daily)? (y/n): ").strip().lower() == 'y'
+    else:
+        print("No fridge: yes (from --no-fridge flag)")
     time_limit = int(input("Improvement time limit (sec)?: "))
 
     print()
+
+    if no_fridge:
+        config.NO_FRIDGE = True
+        clear_caches()
 
     optimizer = HarmonyOptimizer(
         plan_len=plan_len,
