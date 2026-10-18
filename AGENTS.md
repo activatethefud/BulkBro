@@ -27,10 +27,39 @@ Options:
 -o, --output      Output filename (default: meal_plan)
   --pop-size     Population size (default: 200)
   --no-fridge    All ingredients spoil in 1 day (no refrigerator)
-  --no-delivery  Ignore Wolt delivery fees and basket discounts
+  --no-delivery  Ignore delivery fees and basket discounts
 ```
 
-### Wolt Market delivery optimization
+### Ingredient sourcing: Maxi (this branch)
+
+On the `maxi` branch every ingredient is sourced from **Maxi** (Belgrade
+`maxi-kralja-milana` venue, scraped via the Wolt consumer assortment API). This
+branch replaces the earlier Wolt Market sourcing: prices in `ingredient.py` and
+the product correspondence come from the Maxi catalog.
+
+```bash
+python3 maxi_scraper.py            # scrape Maxi catalog -> maxi_catalog.json (gitignored)
+python3 maxi_refresh.py report     # price/availability report (no writes)
+python3 maxi_refresh.py apply      # write refreshed prices, drop missing items
+python3 maxi_refresh.py export     # regenerate maxi_products.py
+python3 main.py maxi              # full ingredient -> Maxi product table
+python3 main.py maxi -f jogurt    # filter by ingredient or product name
+```
+
+The curated `MAXI_MAP` in `maxi_refresh.py` maps each ingredient concept to the
+cheapest suitable single-ingredient Maxi product. Loose produce is priced
+per-kg (`wolt_grams=1000`); counted/per-piece produce uses a `grams_block`
+override. A few ingredients Maxi does not stock are mapped to the closest
+single-ingredient substitute (lentils->white beans, chia->flaxseed, rice
+cakes->crispbread, dried pineapple->raisins). The generated `maxi_products.py`
+(`MAXI_PRODUCTS`) is attached at import as `ingr.wolt` with `ingr.wolt_name` /
+`ingr.wolt_id`. Shopping lists emit a `MAXI ORDER` block with exact product names.
+
+Maxi via Wolt: min order **1,500 RSD**, delivery fee ~49-249 RSD (flat 249 for
+large baskets), basket discount 400 RSD off >=1,000 RSD. Maxi's own site has a
+3,500 RSD minimum and 199 RSD fee; not used here.
+
+### Delivery optimization
 
 The optimizer minimizes the **grand total** (groceries + delivery - discounts), not
 just the grocery subtotal. Groceries bought between stock refills form a delivery
@@ -46,7 +75,7 @@ BASKET_DISCOUNT_AMOUNT = 400   # RSD off once the basket reaches the minimum
 BASKET_DISCOUNT_MIN = 1000     # RSD minimum basket for the discount
 ```
 
-### Refresh ingredient prices from Wolt Market
+### Legacy (wolt branch): refresh prices from Wolt Market
 
 `ingredient.py` prices can be refreshed from the live Wolt Market catalog. The
 scraper and refresher live in `wolt_scraper.py` and `wolt_refresh.py`:
@@ -66,7 +95,7 @@ expose nutrition data, so nutrition is preserved from the existing records. The
 `WOLT_MAP` in `wolt_refresh.py` curates which Wolt product each ingredient maps
 to.
 
-### Ingredient -> Wolt product correspondence
+### Legacy (wolt branch): ingredient -> Wolt product correspondence
 
 **Every ingredient must be sourced from Wolt Market.** The catalog only contains
 ingredients that map to a real Wolt Market product; an ingredient with no
@@ -136,11 +165,14 @@ Generate shopping list:
 - `harmony.py` - HarmonyOptimizer class
 - `nutrition.py`, `meal.py`, `day.py` - Domain models
 - `meals.py`, `nikola_meals.py`, `vegan_meals.py`, `djina_meals.py` - Meal sources
-- `ingredient.py` - Ingredient catalog (~90 ingredients, Wolt Market priced)
-- `wolt_products.py` - Generated Ingredient -> Wolt product name/id/pack map
+- `ingredient.py` - Ingredient catalog (~97 ingredients, Maxi priced)
+- `maxi_products.py` - Generated Ingredient -> Maxi product name/id/pack map
+- `maxi_scraper.py` - Scrape live Maxi catalog (via Wolt venue API)
+- `maxi_refresh.py` - Refresh/normalize ingredient prices from the Maxi catalog
+- `wolt_products.py` - Legacy Wolt correspondence (from the `wolt` branch)
 - `insulin_index.py` - Insulin Index predictor
 - `simulation.py` - Core simulation functions (incl. basket/order tracking)
-- `delivery.py` - Wolt delivery-fee + basket-discount cost model
+- `delivery.py` - Delivery-fee + basket-discount cost model
 - `wolt_scraper.py` - Scrape live Wolt Market food catalog
 - `wolt_refresh.py` - Refresh/normalize ingredient prices from the catalog
 - `config.py` - Central tunables (targets, optimizer, delivery economics)
