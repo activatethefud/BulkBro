@@ -137,7 +137,7 @@ Generate shopping list:
 - `wolt_refresh.py` - Refresh/normalize ingredient prices from the catalog
 - `config.py` - Central tunables (targets, optimizer, delivery economics)
 - `util.py` - Utilities (load_sol)
-- `test_runner.py` - Test suite (147 tests)
+- `test_runner.py` - Test suite (149 tests)
 - `docs.py` - Documentation generator
 
 ## Delivery & Discount Model
@@ -170,7 +170,7 @@ Or use `set_meal_source('vegan')` function.
 python3 test_runner.py
 ```
 
-Run 147 tests covering core functionality, including the delivery/discount model.
+Run 149 tests covering core functionality, including the delivery/discount model.
 
 ## Documentation
 

@@ -369,7 +369,7 @@ ingredients = {
         ),
         "sojino mleko": Ingredient(
             "sojino mleko",
-            130,
+            389,
             1000,
             3,
             Nutrition(38,0.7,3.2,1.9)*10
@@ -765,7 +765,7 @@ ingredients = {
 
         "humus": Ingredient(
             "humus",
-            383,
+            229,
             200,
             3,
             Nutrition(231,6.7,5.5,19)*2
@@ -923,7 +923,7 @@ ingredients = {
         ),
         "kokice": Ingredient(
                 "kokice",
-                119,
+                68,
                 100,
                 15,
                 Nutrition(375, 73, 11, 4)
@@ -937,7 +937,7 @@ ingredients = {
         ),
         "carnex posni grasak": Ingredient(
                 "carnex posni grasak",
-                180,
+                329,
                 1,
                 30,
                 Nutrition(75,10,4.1,2.1)*4

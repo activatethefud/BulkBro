@@ -85,7 +85,7 @@ WOLT_MAP = {
     "zamrznuti grasak svetofor 1kg": "635fb87089302d314cc99498",  # Grašak Frikom 700g
     "zaledjeni grasak": "642ffb1e8cd31a36cef315a7",     # Grašak Polar Food 400g
     "carnex posni pasulj": {"id": "62f3bc0c3b1a7a65f0a1393b", "grams_block": 400},  # Prego Pasulj posno 400g (1 can)
-    "carnex posni grasak": "635fb87089302d314cc99498",  # Grašak Frikom 700g (closest ready-pea item)
+    "carnex posni grasak": {"id": "635fb87089302d314cc99498", "grams_block": 700},  # Grašak Frikom 700g (1 pack)
     "zamrznuti spanac": "642ffb1e8cd31a36cef315b0",     # Spanać list u briketu Polar Food 400g
     "zaledjeni spanac": "642ffb1e8cd31a36cef315b0",
     "spanać svez": "67063a58899bf17360277b71",         # Baby spanać 90g
@@ -145,12 +145,12 @@ WOLT_MAP = {
     "dzem dm": "67efb20568fdca5c47058568",             # Džem jagoda Bakina tajna 375g
     "dvopek": "62f3bc0c3b1a7a65f0a1367d",              # Dvopek Mulino fette 315g
     "fitnes hleb": "62f3bc0c3b1a7a65f0a13740",         # Hleb Tonus 300g
-    "humus": "66549083cf1bd27db121f3db",               # Humus Grab&go Natural 130g
-    "sojino mleko": {"id": "62f3bc0d3b1a7a65f0a13aa5", "wolt_grams": 1000},  # Napitak ovseni Boom Box 1l (closest plant drink)
+    "humus": "62f3bc0b3b1a7a65f0a13399",               # Hummus natural Ribella 200g (straight hummus, not Grab&go combo)
+    "sojino mleko": {"id": "62f3bc0b3b1a7a65f0a133b3", "wolt_grams": 1000},  # Napitak od soje bez šećera i soli Alpro 1l (plain unsweetened soy milk)
     "urme": "63aeb20d48e3846acfe56a9f",                  # Suva urma organska 200g
     "urme svetofor": "63aeb20d48e3846acfe56a9f",         # Suva urma organska 200g
     "tofu 250g pak": "64e36559c094baaeb1df27e6",       # Tofu natural Joya 250g
-    "kokice": "66549083cf1bd27db121f39b",              # Gricko Kokice 100g
+    "kokice": "62f3bc0c3b1a7a65f0a139ae",              # Kukuruz kokičar Fun&Fit 200g (popcorn kernels, not ready-salted popcorn)
     "heidi": "d7763a5f8bcb1b92a183489a",                # Čokolada mlečna Galeb 80g (closest to Heidi)
     "sladoledi 10kom": {"id": "84d8e9ac216e9acdbf1af813", "unit": "pack", "pack_units": 10},  # Sladoled F&C Vanila 120g (single)
     "rajs kejk": {"id": "62f3bc0b3b1a7a65f0a13289", "grams_block": 100},  # Galete pirinač natural Rice Cakes 100g
@@ -160,7 +160,7 @@ WOLT_MAP = {
     "socivo": "5b80050e32aec69ba3da06f3",             # Colonial Socivo zeleno 500g
     "seme bundeve": "640a259db0542ab6b918ad7f",       # Seme bundeve suvopečeno slano Mogyi 130g
     "jumbo mix": "62f3bc0c3b1a7a65f0a135fe",          # Protein Mix Jumbo 75g
-    "nutrino labs sok": "6684080a9065eb9c27df67c1",   # Sok Rock multivitamin 500ml
+    "nutrino labs sok": {"id": "6684080a9065eb9c27df67c1", "grams_block": 500},  # Sok Rock multivitamin 500ml (1 bottle)
     "paradajz": {"id": "646dd9f02ad065427d261223", "grams_block": 140},  # Paradajz ~500 g (~140 g each)
 }
 
@@ -295,6 +295,14 @@ def build_report(catalog):
         row["new_price"] = new_price
         if new_price is not None and ing.price:
             row["delta_pct"] = round((new_price - ing.price) / ing.price * 100, 1)
+            # Guard against unit mis-normalization: a mapped item whose price
+            # collapses to a tiny fraction of the old one almost always means a
+            # grams-vs-pack unit mismatch (e.g. min_qty=1 mapped to a gram item).
+            # Flag it for manual review instead of silently writing a bogus price.
+            if new_price <= 0 or new_price < ing.price * 0.05:
+                row["status"] = "suspicious"
+                rows.append(row)
+                continue
         row["status"] = "ok" if new_price is not None else "no_size"
         rows.append(row)
     return rows
@@ -305,6 +313,7 @@ def print_report(rows):
     ok = [r for r in rows if r["status"] == "ok"]
     remove = [r for r in rows if r["status"] == "remove"]
     unmapped = [r for r in rows if r["status"] in ("unmapped", "missing_id", "no_size")]
+    suspicious = [r for r in rows if r["status"] == "suspicious"]
 
     print("=" * 100)
     print("WOLT MARKET CATALOG REFRESH REPORT")
@@ -325,8 +334,13 @@ def print_report(rows):
     for r in remove:
         print(f"  {r['name']}")
 
+    print(f"\nSUSPICIOUS PRICE (unit mismatch, not applied) ({len(suspicious)}):")
+    for r in suspicious:
+        print(f"  {r['name']}: {r['old_price']:.0f} -> {r['new_price']} ({r['wolt_name']})")
+
     print("\n" + "=" * 100)
-    print(f"Summary: {len(ok)} refreshable, {len(remove)} remove, {len(unmapped)} unmapped")
+    print(f"Summary: {len(ok)} refreshable, {len(remove)} remove, "
+          f"{len(unmapped)} unmapped, {len(suspicious)} suspicious")
     print("=" * 100)
 
 

@@ -1061,6 +1061,8 @@ def main():
         ("every_ingredient_has_wolt_product", test_every_ingredient_has_wolt_product),
         ("wolt_product_has_id_name_pack", test_wolt_product_has_id_name_pack),
         ("wolt_correlation_propagates_copies", test_wolt_correspondence_propagates_through_copies),
+        ("no_ingredient_has_zero_price", test_no_ingredient_has_zero_price),
+        ("refresh_suspicious_guard", test_refresh_suspicious_guard_flags_unit_mismatch),
         ("shopping_list_includes_wolt_product", test_shopping_list_includes_wolt_product),
         ("shopping_list_has_wolt_order_block", test_generate_shopping_list_has_wolt_order_block),
         ("shopping_list_duration_matches_reach", test_shopping_list_duration_matches_reach),
@@ -1901,6 +1903,28 @@ def test_wolt_correspondence_propagates_through_copies():
     base = ingredients['kikiriki']
     for variant in (base * 100, base ** 0.5, base.copy()):
         assert variant.wolt_name == base.wolt_name
+
+
+def test_no_ingredient_has_zero_price():
+    """No catalog ingredient should have a zero/near-zero price (bad units)."""
+    from ingredient import ingredients
+    bad = [n for n, i in ingredients.items() if i.price <= 0]
+    assert not bad, f"ingredients with non-positive price: {bad}"
+
+
+def test_refresh_suspicious_guard_flags_unit_mismatch():
+    """A min_qty=1 item mapped to a gram product is flagged, not applied."""
+    import wolt_refresh as wr
+    from ingredient import Ingredient
+    from nutrition import Nutrition
+    # Fake ingredient: min_qty=1 (single unit), old price 500.
+    fake = Ingredient('fake unit', 500, 1, 5, Nutrition(100, 10, 5, 3))
+    fake.wolt = None
+    product = {'id': 'x', 'name': 'Some 500g item', 'price': 300, 'grams': 500.0}
+    # Without a grams_block override, normalizing min_qty=1 to 500g collapses.
+    new_price = wr._norm_price(product, fake, {})
+    assert new_price is not None and new_price < 500 * 0.05, (
+        f"expected tiny normalized price, got {new_price}")
 
 
 def test_shopping_list_includes_wolt_product():
