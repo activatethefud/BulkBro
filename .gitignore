@@ -8,6 +8,7 @@ bin/
 *.cfg
 plans/*
 fig.png
+wolt_catalog.json
 *~
 *#*#*
 \.*#*
