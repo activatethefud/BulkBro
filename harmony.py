@@ -113,6 +113,7 @@ class HarmonyOptimizer:
             'mealcount': statlist(),
             'consistency': statlist(),
             'meal_rep': statlist(),
+            'delivery': statlist(),
         }
         
         self.solution = None
@@ -316,6 +317,12 @@ class HarmonyOptimizer:
         price = result['price']
         nutri = result['nutri']
         waste = result.get('waste', 0) / max(price, 1)
+
+        # Delivery economics: net delivery overhead as a fraction of groceries.
+        # Negative when basket discounts outweigh delivery fees (a good plan).
+        delivery_fees = result.get('delivery_fees', 0)
+        discount = result.get('discount', 0)
+        delivery_ratio = (delivery_fees - discount) / max(price, 1)
         
         # Get raw values for scoring
         kcal_raw = nutri.kcal
@@ -400,6 +407,15 @@ class HarmonyOptimizer:
         # Meal-level repetition penalty (always active)
         meal_rep_score_raw = 1.0 - meal_uniq_ratio
         self.statlists['meal_rep'].append(meal_rep_score_raw)
+
+        # Delivery overhead (always active when delivery modelling is on). This
+        # rewards fewer, larger baskets that hit the free-delivery threshold and
+        # basket discount while penalising many small deliveries.
+        if config.DELIVERY_ENABLED:
+            delivery_score_raw = max(-1.0, delivery_ratio)
+            self.statlists['delivery'].append(delivery_score_raw)
+        else:
+            delivery_score_raw = 0.0
         
         # Day-to-day consistency (always active)
         self.statlists['consistency'].append(consistency_score)
@@ -421,6 +437,7 @@ class HarmonyOptimizer:
         meal_rep_score = self._normalize_score('meal_rep', meal_rep_score_raw)
         consistency_score_norm = self._normalize_score('consistency', consistency_score)
         diversity_score = self._normalize_score('diversity', diversity_score_raw)
+        delivery_score = self._normalize_score('delivery', delivery_score_raw)
         
         # =========================================================================
         # COMBINE SCORES (equal weight per active criterion)
@@ -444,6 +461,8 @@ class HarmonyOptimizer:
             num_active += 1
         # consistency and meal_rep always active
         num_active += 2
+        if config.DELIVERY_ENABLED:
+            num_active += 1
         
         weight = 1.0 / max(num_active, 1)
         
@@ -465,6 +484,8 @@ class HarmonyOptimizer:
         
         score += -weight * meal_rep_score
         score += -weight * consistency_score_norm
+        if config.DELIVERY_ENABLED:
+            score += -weight * delivery_score
         
         # Store in cache
         self.fitness_cache[sol_hash] = score

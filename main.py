@@ -45,6 +45,13 @@ def print_plan_summary(solution, targets):
           f"{nutri.carb:.0f}g carb   {nutri.prot:.0f}g prot ({achieved_prot:.0f}%)   "
           f"{nutri.fat:.0f}g fat   {achieved_ratio:.1f} c/f ratio")
     print(f"Total Price: {sim['price']:.0f} RSD")
+    if config.DELIVERY_ENABLED and sim.get('num_orders', 0) > 0:
+        net_delivery = sim.get('delivery_fees', 0) - sim.get('discount', 0)
+        print(f"Delivery:    {sim['delivery_fees']:.0f} RSD in {sim['num_orders']} order(s)"
+              f"   Discount: -{sim.get('discount', 0):.0f} RSD")
+        print(f"Grand Total: {sim.get('total_price', sim['price']):.0f} RSD "
+              f"(items {sim['price']:.0f} {'+' if net_delivery >= 0 else '-'} "
+              f"{abs(net_delivery):.0f})")
     print(f"Variance:    kcal ±{var_kcal:.0f}%, prot ±{var_prot:.0f}%  ({var_desc})")
     print("=" * config.PRINT_WIDTH)
     
@@ -66,6 +73,8 @@ def main():
 
     parser.add_argument('--no-fridge', action='store_true',
                         help='Simulate no refrigerator (all ingredients spoil in 1 day)')
+    parser.add_argument('--no-delivery', action='store_true',
+                        help='Ignore delivery fees and basket discounts')
 
     subparsers = parser.add_subparsers(dest='command', help='Commands')
 
@@ -91,6 +100,8 @@ def main():
                           help=f'Population size (default: {config.DEFAULT_POP_SIZE})')
     run_parser.add_argument('--no-fridge', action='store_true',
                           help='Simulate no refrigerator (all ingredients spoil in 1 day)')
+    run_parser.add_argument('--no-delivery', action='store_true',
+                          help='Ignore delivery fees and basket discounts')
 
     # load subcommand
     load_parser = subparsers.add_parser('load', help='Load and display solution')
@@ -99,7 +110,7 @@ def main():
     args = parser.parse_args()
 
     if args.command is None:
-        do_run_interactive(no_fridge=args.no_fridge)
+        do_run_interactive(no_fridge=args.no_fridge, no_delivery=args.no_delivery)
         return
 
     if args.command == 'run':
@@ -114,6 +125,9 @@ def do_run(args):
     if args.no_fridge:
         config.NO_FRIDGE = True
         clear_caches()
+    if args.no_delivery:
+        config.DELIVERY_ENABLED = False
+        clear_caches()
 
     print("BulkBro Meal Planner")
     print("=" * 40)
@@ -125,6 +139,7 @@ def do_run(args):
     print(f"Target diversity: {args.diversity}" if args.diversity > 0 else "Target diversity: -1 (ignored)")
     print(f"Time limit: {args.time_limit}s")
     print(f"No fridge: {args.no_fridge}")
+    print(f"Delivery: {'off' if not config.DELIVERY_ENABLED else 'on'}")
     print("=" * 40)
 
     optimizer = HarmonyOptimizer(
@@ -181,7 +196,7 @@ def do_load(args):
             print(f"  - {meal.name}: {meal.nutri()}")
 
 
-def do_run_interactive(no_fridge=False):
+def do_run_interactive(no_fridge=False, no_delivery=False):
     from harmony import HarmonyOptimizer
 
     print("BulkBro Meal Planner")
@@ -196,12 +211,20 @@ def do_run_interactive(no_fridge=False):
         no_fridge = input("No fridge (ingredients spoil daily)? (y/n): ").strip().lower() == 'y'
     else:
         print("No fridge: yes (from --no-fridge flag)")
+    if not no_delivery:
+        delivery_on = input("Include Wolt delivery fees/discounts? (y/n): ").strip().lower() != 'n'
+    else:
+        delivery_on = False
+        print("Delivery: off (from --no-delivery flag)")
     time_limit = int(input("Improvement time limit (sec)?: "))
 
     print()
 
     if no_fridge:
         config.NO_FRIDGE = True
+        clear_caches()
+    if not delivery_on:
+        config.DELIVERY_ENABLED = False
         clear_caches()
 
     optimizer = HarmonyOptimizer(

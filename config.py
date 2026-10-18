@@ -47,9 +47,6 @@ TOLERANCE = 0.15
 # =============================================================================
 # Simulation Parameters
 # =============================================================================
-DELIVERY_FEE = 1500
-"""int: Delivery fee in RSD"""
-
 MAX_MEALS_PER_DAY = 7
 """int: Maximum meals per day"""
 
@@ -61,6 +58,30 @@ DEFAULT_MIN_QTY = 1
 
 PRICE_CACHE_SIZE = 500
 """int: Max entries in simulation cache"""
+
+# =============================================================================
+# Delivery / Wolt Market Economics
+# =============================================================================
+DELIVERY_ENABLED = True
+"""bool: Include delivery fees and basket discounts in the objective"""
+
+ORDER_MINIMUM = 1500
+"""int: Minimum order value in RSD; shortfalls incur a surcharge"""
+
+DELIVERY_FEE = 119
+"""int: Flat delivery fee in RSD (waived above the free-delivery threshold)"""
+
+FREE_DELIVERY_THRESHOLD = 2500
+"""int: Order value in RSD above which delivery is free"""
+
+BASKET_DISCOUNT_AMOUNT = 400
+"""int: Fixed discount in RSD applied once a basket reaches the minimum"""
+
+BASKET_DISCOUNT_MIN = 1000
+"""int: Minimum basket value in RSD to unlock the basket discount"""
+
+BASKET_DISCOUNT_MAX_USES = 1
+"""int: Max number of orders per plan that can claim the basket discount"""
 
 # =============================================================================
 # Variance Thresholds

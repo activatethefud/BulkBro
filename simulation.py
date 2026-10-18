@@ -10,6 +10,7 @@ from day import Day
 from ingredient import ingredients
 from meals import meals
 import config
+import delivery as delivery_mod
 
 
 # ============================================================================
@@ -95,8 +96,11 @@ def simulate_plan(plan):
     ingredients_info = {}
     rot_info = {}
 
-    delivery_fee = config.DELIVERY_FEE
-    delivery_fees = 0
+    # Grocery subtotal accumulated since the last delivery order. Tracked so
+    # the delivery model can price the basket (min order, free-delivery
+    # threshold, basket discount).
+    order_subtotals = []
+    order_start_price = 0
 
     fastest_rot_arr = [_get_day_rots(day) for day in plan]
     old_price = 0
@@ -140,13 +144,23 @@ def simulate_plan(plan):
         for name in ingredients_info:
             rot_info[name] -= 1
 
-        if idx in refill_on_days and (price_diff := price - old_price) < delivery_fee:
-            delivery_fees += delivery_fee - price_diff
+        # On a refill day the groceries bought since the previous order form one
+        # delivery basket. Record its subtotal for the delivery model.
+        if idx in refill_on_days:
+            order_subtotals.append(price - order_start_price)
+            order_start_price = price
             old_price = price
+
+    # Leftover groceries at the end of the plan form the final basket.
+    if price - order_start_price > 0:
+        order_subtotals.append(price - order_start_price)
 
     for name in ingredients_info:
         min_qty = _ingr_min_qty.get(name, 1)
         waste += (ingredients_info[name] / min_qty) * _ingr_price.get(name, 0)
+
+    delivery = delivery_mod.compute_delivery(order_subtotals)
+    total_price = delivery_mod.total_plan_cost(price, delivery)
 
     day_nutris = [_get_day_nutrition_cached(day) for day in plan]
     n = len(plan) or 1
@@ -160,9 +174,14 @@ def simulate_plan(plan):
     result = {
         'plan': plan,
         'price': price,
+        'total_price': total_price,
         'nutri': avg_nutri,
         'waste': waste,
-        'delivery_fees': 0
+        'delivery_fees': delivery.delivery_fees,
+        'delivery_cost': delivery.delivery_cost,
+        'delivery_surcharge': delivery.surcharge,
+        'discount': delivery.discount,
+        'num_orders': delivery.num_orders,
     }
 
     if len(_sim_cache) < config.PRICE_CACHE_SIZE:
