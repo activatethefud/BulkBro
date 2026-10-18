@@ -155,15 +155,6 @@ meals = [
         #        ingredients["maslinovo ulje"]*13
         #], ['breakfast','dinner']),
 
-        Meal("orah",[
-                ingredients['orah']*33
-        ], ['snack','breakfast','dinner']),
-
-        #Meal('sardina i beli pirinac',[
-        #        ingredients['sardina'],
-        #        ingredients['pirinac 1kg']*90
-        #], ['breakfast','dinner','snack','healthy']),
-
         Meal('skusa eva 170g',[
                 ingredients['skusa eva 170g']
         ], ['breakfast','dinner','snack','healthy','skusa']),
@@ -209,13 +200,6 @@ meals = [
                 ingredients['ovsene pahuljice']*90,
                 ingredients['sojino mleko']*330,
                 ingredients['banana']*1,
-        ], ['breakfast','dinner','snack']),
-
-        Meal('sejk (banana & orah)',[
-                ingredients['ovsene pahuljice']*90,
-                ingredients['sojino mleko']*330,
-                ingredients['banana']*1,
-                ingredients['orah']*33,
         ], ['breakfast','dinner','snack']),
 
         Meal('bulk sejk',[

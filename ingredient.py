@@ -395,13 +395,6 @@ ingredients = {
                 15,
                 Nutrition(770,167.9,19.4,1)
         ),
-        "orah": Ingredient(
-                "orah",
-                177,
-                150,
-                4,
-                Nutrition(654,13.71,15.23,65.21)*1.5
-        ),
         "skusa la perla": Ingredient(
                 "skusa la perla",
                 352,

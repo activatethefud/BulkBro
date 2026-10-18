@@ -61,13 +61,6 @@ meals = [
                 ingredients['banana']*1,
         ], ['breakfast','dinner','snack']),
         
-        Meal('ovsene (banana & orah)',[
-                ingredients['ovsene pahuljice']*90,
-                ingredients['sojino mleko']*330,
-                ingredients['banana']*1,
-                ingredients['orah']*33,
-        ], ['breakfast','dinner','snack']),
-
         #Meal("ovsene i urme",[
         #        ingredients['ovsene pahuljice']*90,
         #        ingredients['jogurt']*330,
@@ -112,10 +105,6 @@ meals = [
         Meal("badem",[
                 ingredients['badem']*50
         ], ['dinner','snack']),
-
-        Meal("orah",[
-                ingredients['orah']*33
-        ], ['snack','dinner']),
 
         Meal("dvopek i humus", [
             ingredients["humus"]**0.33333,

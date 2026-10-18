@@ -57,7 +57,6 @@ WOLT_MAP = {
     "badem": "62f3bc0b3b1a7a65f0a134b0",               # Badem sirovi Jumbo Fun&Fit 75g (raw, cheapest/kg)
     "badem svetofor": "62f3bc0b3b1a7a65f0a134b0",
     "suncokret": "d9fd028fa9c66488c8e176b0",           # Colonial Suncokret oljušteni 100g
-    "orah": None,                                     # no plain walnut kernels on this venue (only cookie/oil/spread)
     "indijski orah": "62f3bc0b3b1a7a65f0a13458",       # Indijski orah prženi Jumbo 75g
     "kikiriki puter dm": "fa50bf247e93a942b72deb1f",   # Well Kikiriki puter crunchy 500g (cheapest/kg)
     "kinoa": "98c4cdb0557a5c6d63dc6f8e",               # Kinoa bela BIO 200g

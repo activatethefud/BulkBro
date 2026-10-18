@@ -1059,6 +1059,7 @@ def main():
         ("default_meal_source_valid", test_default_meal_source_is_djina),
         # Wolt product correspondence
         ("every_ingredient_has_wolt_product", test_every_ingredient_has_wolt_product),
+        ("all_meal_ingredients_are_wolt_sourced", test_all_meal_ingredients_are_wolt_sourced),
         ("wolt_product_has_id_name_pack", test_wolt_product_has_id_name_pack),
         ("wolt_correlation_propagates_copies", test_wolt_correspondence_propagates_through_copies),
         ("no_ingredient_has_zero_price", test_no_ingredient_has_zero_price),
@@ -1880,25 +1881,33 @@ def test_default_meal_source_is_djina():
 # Wolt product correspondence
 # ============================================================
 
-# Ingredients intentionally without a Wolt Market product (not sold on the
-# scrape venue, or only available as a misleading different product).
-WOLT_UNAVAILABLE = {'orah'}  # plain walnut kernels not sold at wolt-market-dorol
-
-
 def test_every_ingredient_has_wolt_product():
-    """Every catalog ingredient maps to a Wolt product (or is known unavailable)."""
+    """Every catalog ingredient MUST map to a Wolt Market product."""
     from ingredient import ingredients
-    missing = [n for n, i in ingredients.items()
-               if not i.wolt_name and n not in WOLT_UNAVAILABLE]
+    missing = [n for n, i in ingredients.items() if not i.wolt_name]
     assert not missing, f"ingredients without Wolt product: {missing}"
+
+
+def test_all_meal_ingredients_are_wolt_sourced():
+    """Every ingredient used by any meal source has a Wolt product."""
+    import re
+    import nikola_meals, vegan_meals, djina_meals
+    from ingredient import ingredients
+    import os
+    missing = set()
+    for mod in (nikola_meals, vegan_meals, djina_meals):
+        for meal in mod.meals:
+            for ingr in meal.ingredients:
+                base = ingredients.get(ingr.name)
+                if base is None or not base.wolt_name:
+                    missing.add(ingr.name)
+    assert not missing, f"meals use ingredients without a Wolt product: {sorted(missing)}"
 
 
 def test_wolt_product_has_id_name_pack():
     """Each Wolt correspondence carries id, name and pack."""
     from ingredient import ingredients
     for name, ingr in ingredients.items():
-        if name in WOLT_UNAVAILABLE:
-            continue
         assert ingr.wolt is not None, f"{name} missing wolt"
         assert ingr.wolt.get('id'), f"{name} missing wolt id"
         assert ingr.wolt.get('name'), f"{name} missing wolt name"
